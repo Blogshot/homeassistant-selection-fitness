@@ -92,7 +92,9 @@ class SelectionFitnessClient:
         # Die App sendet den Login als application/x-www-form-urlencoded
         # (FormBody in der Call-Klasse), NICHT als JSON. aiohttp sendet ein
         # dict unter `data=` genau so form-kodiert.
-        payload = {"login": self._email, "password": self._password}
+        # Feldname ist "username" (BranchPlugin.KEY_LOGIN = "username"),
+        # nicht "login" – der Wert ist die E-Mail-Adresse.
+        payload = {"username": self._email, "password": self._password}
         try:
             async with self._session.post(
                 url, data=payload, headers=self._headers(with_auth=False)
