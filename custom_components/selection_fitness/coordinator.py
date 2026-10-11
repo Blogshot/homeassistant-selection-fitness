@@ -45,6 +45,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             profile = await self.client.get_profile()
             latest_check_in = await self.client.get_latest_check_in()
             workouts = await self.client.get_workouts()
+            bioage = await self.client.get_bioage()
             measurements = await self.client.get_measurements()
 
             now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -57,6 +58,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "check_in_count": check_in_count,
                 "workouts": workouts,
                 "workout_count": len(workouts),
+                "bioage": bioage,
                 "measurements": measurements,
             }
         except SelectionFitnessAuthError as err:

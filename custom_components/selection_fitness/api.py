@@ -257,6 +257,55 @@ class SelectionFitnessClient:
             return data
         return []
 
+    async def get_bioage(self) -> dict[str, Any]:
+        """eGym BioAge-Summary: Körperalter, Kraft/Muskel, Cardio, Flexibilität,
+        Stoffwechsel – plus die zugehörigen Werte.
+
+        GET {mobile}/analysis/api/v1.0/exercisers/{uuid}/bioage
+            ?types=strength,cardio,metabolic,flexibility&languageCode=de
+        """
+        url = f"{self._mobile}/analysis/api/v1.0/exercisers/{self.uuid}/bioage"
+        params = {
+            "types": "strength,cardio,metabolic,flexibility",
+            "languageCode": "de",
+        }
+        try:
+            data = await self._get(url, params=params, label="bioage")
+        except SelectionFitnessApiError as err:
+            _LOGGER.debug("bioage nicht verfügbar: %s", err)
+            return {}
+        if not isinstance(data, dict):
+            return {}
+
+        def val(section: str, field: str) -> Any:
+            sec = data.get(section)
+            if not isinstance(sec, dict):
+                return None
+            node = sec.get(field)
+            if isinstance(node, dict):
+                return node.get("value")
+            return None
+
+        result = {
+            "bio_age": val("totalDetails", "totalBioAge"),
+            "muscle_age": val("muscleDetails", "muscleBioAge"),
+            "upper_body_age": val("muscleDetails", "upperBodyAge"),
+            "core_age": val("muscleDetails", "coreAge"),
+            "lower_body_age": val("muscleDetails", "lowerBodyAge"),
+            "cardio_age": val("cardioDetails", "cardioAge"),
+            "resting_heart_rate": val("cardioDetails", "restingHeartRate"),
+            "vo2max": val("cardioDetails", "vo2max"),
+            "systolic": val("cardioDetails", "systolicPressure"),
+            "diastolic": val("cardioDetails", "diastolicPressure"),
+            "flexibility_age": val("flexDetails", "flexibilityAge"),
+            "metabolic_age": val("metabolicDetails", "metabolicAge"),
+            "body_fat": val("metabolicDetails", "bodyFat"),
+            "bmi": val("metabolicDetails", "bmi"),
+            "waist_hip_ratio": val("metabolicDetails", "waistToHipRatio"),
+        }
+        # Nur vorhandene Werte behalten
+        return {k: v for k, v in result.items() if v is not None}
+
     async def get_measurements(self) -> dict[str, dict[str, Any]]:
         """Aktuelle Körpermesswerte über den Mobile-API-Host.
 

@@ -8,7 +8,7 @@
           "email": "Email",
           "password": "Password",
           "base_url": "Server URL (change only if needed)",
-          "mobile_api_url": "Mobile API URL (for body measurements)"
+          "mobile_api_url": "Mobile API URL (body data, BioAge)"
         }
       }
     },
@@ -49,6 +49,24 @@
       },
       "gender": {
         "name": "Gender"
+      },
+      "waist_hip_ratio": {
+        "name": "Waist-hip ratio"
+      },
+      "bio_age": {
+        "name": "Body age"
+      },
+      "muscle_age": {
+        "name": "Muscle age"
+      },
+      "cardio_age": {
+        "name": "Cardio age"
+      },
+      "flexibility_age": {
+        "name": "Flexibility age"
+      },
+      "metabolic_age": {
+        "name": "Metabolic age"
       },
       "measurement_unit": {
         "name": "Measurement unit"

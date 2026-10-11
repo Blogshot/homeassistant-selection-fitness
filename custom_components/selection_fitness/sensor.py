@@ -69,6 +69,22 @@ def _profile(data: dict[str, Any], key: str) -> Any:
     return val if val not in ("", None) else None
 
 
+def _bio(data: dict[str, Any], key: str) -> Any:
+    return data.get("bioage", {}).get(key)
+
+
+def _bio_or_metric(data: dict[str, Any], bio_key: str, *metric_types: str) -> Any:
+    """BioAge-Wert bevorzugen (zuverlässig), sonst Messwert-Endpunkt."""
+    v = _bio(data, bio_key)
+    if v is not None:
+        return v
+    for mt in metric_types:
+        m = _metric(data, mt)
+        if m is not None:
+            return m
+    return None
+
+
 def _profile_weight(data: dict[str, Any]) -> Any:
     """Gewicht bevorzugt aus dem Profil (zuverlässig), sonst Messwert."""
     w = _profile(data, "weight")
@@ -118,16 +134,70 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         native_unit_of_measurement="%",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:percent",
-        value_fn=lambda d: _metric(d, "bodyFat"),
-        available_fn=lambda d: _has_metric(d, "bodyFat"),
+        value_fn=lambda d: _bio_or_metric(d, "body_fat", "bodyFat"),
+        available_fn=lambda d: _bio_or_metric(d, "body_fat", "bodyFat") is not None,
     ),
     SFSensorDescription(
         key="bmi",
         translation_key="bmi",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:human",
-        value_fn=lambda d: _metric(d, "BMI") or _metric(d, "bmi"),
-        available_fn=lambda d: _has_metric(d, "BMI", "bmi"),
+        value_fn=lambda d: _bio_or_metric(d, "bmi", "BMI", "bmi"),
+        available_fn=lambda d: _bio_or_metric(d, "bmi", "BMI", "bmi") is not None,
+    ),
+    SFSensorDescription(
+        key="waist_hip_ratio",
+        translation_key="waist_hip_ratio",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:tape-measure",
+        value_fn=lambda d: _bio(d, "waist_hip_ratio"),
+        available_fn=lambda d: _bio(d, "waist_hip_ratio") is not None,
+    ),
+    # --- eGym BioAge / Fitness-Alter ------------------------------------
+    SFSensorDescription(
+        key="bio_age",
+        translation_key="bio_age",
+        native_unit_of_measurement="a",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:cake-variant",
+        value_fn=lambda d: _bio(d, "bio_age"),
+        available_fn=lambda d: _bio(d, "bio_age") is not None,
+    ),
+    SFSensorDescription(
+        key="muscle_age",
+        translation_key="muscle_age",
+        native_unit_of_measurement="a",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:arm-flex",
+        value_fn=lambda d: _bio(d, "muscle_age"),
+        available_fn=lambda d: _bio(d, "muscle_age") is not None,
+    ),
+    SFSensorDescription(
+        key="cardio_age",
+        translation_key="cardio_age",
+        native_unit_of_measurement="a",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:heart-pulse",
+        value_fn=lambda d: _bio(d, "cardio_age"),
+        available_fn=lambda d: _bio(d, "cardio_age") is not None,
+    ),
+    SFSensorDescription(
+        key="flexibility_age",
+        translation_key="flexibility_age",
+        native_unit_of_measurement="a",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:yoga",
+        value_fn=lambda d: _bio(d, "flexibility_age"),
+        available_fn=lambda d: _bio(d, "flexibility_age") is not None,
+    ),
+    SFSensorDescription(
+        key="metabolic_age",
+        translation_key="metabolic_age",
+        native_unit_of_measurement="a",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:fire",
+        value_fn=lambda d: _bio(d, "metabolic_age"),
+        available_fn=lambda d: _bio(d, "metabolic_age") is not None,
     ),
     SFSensorDescription(
         key="muscle_mass",
@@ -212,8 +282,8 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         native_unit_of_measurement="mL/kg/min",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:lungs",
-        value_fn=lambda d: _metric(d, "vo2Max"),
-        available_fn=lambda d: _has_metric(d, "vo2Max"),
+        value_fn=lambda d: _bio_or_metric(d, "vo2max", "vo2Max"),
+        available_fn=lambda d: _bio_or_metric(d, "vo2max", "vo2Max") is not None,
     ),
     SFSensorDescription(
         key="resting_heart_rate",
@@ -221,8 +291,8 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         native_unit_of_measurement="bpm",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:heart-pulse",
-        value_fn=lambda d: _metric(d, "restingHeartRate") or _metric(d, "bpm"),
-        available_fn=lambda d: _has_metric(d, "restingHeartRate", "bpm"),
+        value_fn=lambda d: _bio_or_metric(d, "resting_heart_rate", "restingHeartRate", "bpm"),
+        available_fn=lambda d: _bio_or_metric(d, "resting_heart_rate", "restingHeartRate", "bpm") is not None,
     ),
     SFSensorDescription(
         key="blood_pressure_systolic",
@@ -230,8 +300,8 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         native_unit_of_measurement="mmHg",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:heart",
-        value_fn=lambda d: _metric(d, "systolic"),
-        available_fn=lambda d: _has_metric(d, "systolic"),
+        value_fn=lambda d: _bio_or_metric(d, "systolic", "systolic"),
+        available_fn=lambda d: _bio_or_metric(d, "systolic", "systolic") is not None,
     ),
     SFSensorDescription(
         key="blood_pressure_diastolic",
@@ -239,8 +309,8 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         native_unit_of_measurement="mmHg",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:heart",
-        value_fn=lambda d: _metric(d, "diastolic"),
-        available_fn=lambda d: _has_metric(d, "diastolic"),
+        value_fn=lambda d: _bio_or_metric(d, "diastolic", "diastolic"),
+        available_fn=lambda d: _bio_or_metric(d, "diastolic", "diastolic") is not None,
     ),
     # --- Training / Mitgliedschaft --------------------------------------
     SFSensorDescription(
