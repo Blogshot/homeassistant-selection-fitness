@@ -28,15 +28,20 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def _iso8601(with_z: bool = True) -> str:
+def _iso8601(style: str = "offset") -> str:
     """Aktuelle Zeit im ISO8601-Format, wie die App es sendet.
 
-    Workouts (completedBefore/After) nutzen das Format MIT 'Z',
-    Check-ins (endDate) ohne 'Z' (die App macht dropLast(1)).
+    Die App nutzt yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ -> numerischer Offset
+    "+00:00" (style="offset"). Check-ins akzeptieren die Variante ohne
+    Offset (style="naive"); "z" hängt literal 'Z' an.
     """
     now = datetime.now(timezone.utc)
     base = now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}"
-    return base + "Z" if with_z else base
+    if style == "offset":
+        return base + "+00:00"
+    if style == "z":
+        return base + "Z"
+    return base
 
 
 class SelectionFitnessAuthError(Exception):
@@ -189,6 +194,12 @@ class SelectionFitnessClient:
 
                     return json.loads(text)
             except aiohttp.ClientError as err:
+                # Diagnose: Verbindungsfehler sichtbar machen (z.B. Mess-Host
+                # nicht erreichbar / DNS), damit die Ursache im Log steht.
+                _LOGGER.warning(
+                    "selfit-diag %s -> VERBINDUNGSFEHLER: %s",
+                    label or url, err,
+                )
                 raise SelectionFitnessApiError(f"Netzwerkfehler {url}: {err}") from err
         return None
 
@@ -216,7 +227,7 @@ class SelectionFitnessClient:
         url = f"{self._base}/np/exercisers/{self.uuid}/check-ins/history"
         try:
             data = await self._get(
-                url, params={"endDate": _iso8601(with_z=False)}, label="check-ins/history"
+                url, params={"endDate": _iso8601("naive")}, label="check-ins/history"
             )
         except SelectionFitnessApiError as err:
             _LOGGER.debug("check-in history nicht verfügbar: %s", err)
@@ -239,8 +250,8 @@ class SelectionFitnessClient:
         """
         url = f"{self._base}/workouts/api/workouts/v2.3/exercisers/{self.uuid}/workouts"
         params = {
-            "completedAfter": "2010-01-01T00:00:00.000Z",
-            "completedBefore": _iso8601(with_z=True),
+            "completedAfter": "2010-01-01T00:00:00.000+00:00",
+            "completedBefore": _iso8601("offset"),
             "languageCode": "de",
         }
         try:
