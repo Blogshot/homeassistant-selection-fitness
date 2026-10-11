@@ -279,9 +279,16 @@ class SelectionFitnessClient:
                 ex = (workouts[0].get("exercises") or [None])[0]
                 if ex is not None:
                     self._logged_exercise_sample = True
+                    sample = {
+                        "name": ex.get("name"),
+                        "exerciseCode": ex.get("exerciseCode"),
+                        "completedAt": ex.get("completedAt"),
+                        "source": ex.get("source"),
+                        "attributes": ex.get("attributes"),
+                    }
                     _LOGGER.warning(
                         "selfit-exercise-sample %s",
-                        _json.dumps(ex, ensure_ascii=False)[:900],
+                        _json.dumps(sample, ensure_ascii=False)[:1500],
                     )
             except Exception:  # noqa: BLE001
                 pass
