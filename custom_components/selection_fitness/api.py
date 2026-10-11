@@ -286,6 +286,14 @@ class SelectionFitnessClient:
                 return node.get("value")
             return None
 
+        def raw(section: str, field: str) -> Any:
+            """Direktes Feld (kein {value:...}-Objekt), z.B. Dysbalance-Status."""
+            sec = data.get(section)
+            if not isinstance(sec, dict):
+                return None
+            v = sec.get(field)
+            return v if v not in ("", None) else None
+
         result = {
             "bio_age": val("totalDetails", "totalBioAge"),
             "muscle_age": val("muscleDetails", "muscleBioAge"),
@@ -297,6 +305,9 @@ class SelectionFitnessClient:
             "vo2max": val("cardioDetails", "vo2max"),
             "systolic": val("cardioDetails", "systolicPressure"),
             "diastolic": val("cardioDetails", "diastolicPressure"),
+            "upper_body_state": raw("muscleDetails", "upperBodyMusclesState"),
+            "core_body_state": raw("muscleDetails", "coreBodyMusclesState"),
+            "lower_body_state": raw("muscleDetails", "lowerBodyMusclesState"),
             "flexibility_age": val("flexDetails", "flexibilityAge"),
             "metabolic_age": val("metabolicDetails", "metabolicAge"),
             "body_fat": val("metabolicDetails", "bodyFat"),

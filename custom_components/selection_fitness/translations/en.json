@@ -59,6 +59,24 @@
       "muscle_age": {
         "name": "Muscle age"
       },
+      "upper_body_age": {
+        "name": "Upper body age"
+      },
+      "core_age": {
+        "name": "Core age"
+      },
+      "lower_body_age": {
+        "name": "Lower body age"
+      },
+      "upper_body_balance": {
+        "name": "Upper body balance"
+      },
+      "core_balance": {
+        "name": "Core balance"
+      },
+      "lower_body_balance": {
+        "name": "Lower body balance"
+      },
       "cardio_age": {
         "name": "Cardio age"
       },
