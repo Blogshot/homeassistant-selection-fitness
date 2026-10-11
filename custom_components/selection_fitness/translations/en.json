@@ -47,6 +47,18 @@
       "height": {
         "name": "Height"
       },
+      "gender": {
+        "name": "Gender"
+      },
+      "measurement_unit": {
+        "name": "Measurement unit"
+      },
+      "last_workout_plan": {
+        "name": "Last workout plan"
+      },
+      "last_workout_exercises": {
+        "name": "Exercises in last workout"
+      },
       "waist": {
         "name": "Waist"
       },
@@ -67,6 +79,9 @@
       },
       "workout_count": {
         "name": "Workout count"
+      },
+      "last_workout": {
+        "name": "Last workout"
       },
       "check_in_count": {
         "name": "Check-in count"

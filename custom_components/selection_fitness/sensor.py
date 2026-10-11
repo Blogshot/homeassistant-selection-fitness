@@ -64,6 +64,42 @@ def _has_metric(data: dict[str, Any], *mtypes: str) -> bool:
     return any(t in measurements for t in mtypes)
 
 
+def _profile(data: dict[str, Any], key: str) -> Any:
+    val = data.get("profile", {}).get(key)
+    return val if val not in ("", None) else None
+
+
+def _profile_weight(data: dict[str, Any]) -> Any:
+    """Gewicht bevorzugt aus dem Profil (zuverlässig), sonst Messwert."""
+    w = _profile(data, "weight")
+    if isinstance(w, (int, float)) and w > 0:
+        return round(float(w), 1)
+    return _metric(data, "weight")
+
+
+def _profile_height(data: dict[str, Any]) -> Any:
+    h = _profile(data, "height")
+    if isinstance(h, (int, float)) and h > 0:
+        return round(float(h), 1)
+    return _metric(data, "height")
+
+
+def _workouts(data: dict[str, Any]) -> list[dict[str, Any]]:
+    w = data.get("workouts")
+    return w if isinstance(w, list) else []
+
+
+def _last_workout(data: dict[str, Any]) -> dict[str, Any] | None:
+    workouts = _workouts(data)
+    if not workouts:
+        return None
+    # jüngstes nach completedAt
+    def key(w: dict[str, Any]) -> str:
+        return w.get("completedAt") or w.get("createdAt") or ""
+
+    return max(workouts, key=key)
+
+
 SENSORS: tuple[SFSensorDescription, ...] = (
     # --- Körpermesswerte -------------------------------------------------
     SFSensorDescription(
@@ -73,8 +109,8 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         device_class=SensorDeviceClass.WEIGHT,
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:scale-bathroom",
-        value_fn=lambda d: _metric(d, "weight"),
-        available_fn=lambda d: _has_metric(d, "weight"),
+        value_fn=_profile_weight,
+        available_fn=lambda d: _profile_weight(d) is not None,
     ),
     SFSensorDescription(
         key="body_fat",
@@ -134,8 +170,22 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         native_unit_of_measurement="cm",
         device_class=SensorDeviceClass.DISTANCE,
         icon="mdi:human-male-height",
-        value_fn=lambda d: _metric(d, "height"),
-        available_fn=lambda d: _has_metric(d, "height"),
+        value_fn=_profile_height,
+        available_fn=lambda d: _profile_height(d) is not None,
+    ),
+    SFSensorDescription(
+        key="gender",
+        translation_key="gender",
+        icon="mdi:gender-male-female",
+        value_fn=lambda d: _profile(d, "gender"),
+        available_fn=lambda d: _profile(d, "gender") is not None,
+    ),
+    SFSensorDescription(
+        key="measurement_unit",
+        translation_key="measurement_unit",
+        icon="mdi:ruler",
+        value_fn=lambda d: _profile(d, "measurementUnit"),
+        available_fn=lambda d: _profile(d, "measurementUnit") is not None,
     ),
     SFSensorDescription(
         key="waist",
@@ -198,7 +248,31 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         translation_key="workout_count",
         state_class=SensorStateClass.TOTAL_INCREASING,
         icon="mdi:dumbbell",
-        value_fn=lambda d: d.get("workout_count"),
+        value_fn=lambda d: len(_workouts(d)),
+        available_fn=lambda d: bool(_workouts(d)),
+    ),
+    SFSensorDescription(
+        key="last_workout",
+        translation_key="last_workout",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        icon="mdi:calendar-check",
+        value_fn=lambda d: _parse_dt((_last_workout(d) or {}).get("completedAt")),
+        available_fn=lambda d: _last_workout(d) is not None,
+    ),
+    SFSensorDescription(
+        key="last_workout_plan",
+        translation_key="last_workout_plan",
+        icon="mdi:clipboard-text",
+        value_fn=lambda d: (_last_workout(d) or {}).get("workoutPlanLabel"),
+        available_fn=lambda d: bool((_last_workout(d) or {}).get("workoutPlanLabel")),
+    ),
+    SFSensorDescription(
+        key="last_workout_exercises",
+        translation_key="last_workout_exercises",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:format-list-numbered",
+        value_fn=lambda d: len((_last_workout(d) or {}).get("exercises") or []),
+        available_fn=lambda d: _last_workout(d) is not None,
     ),
     SFSensorDescription(
         key="check_in_count",

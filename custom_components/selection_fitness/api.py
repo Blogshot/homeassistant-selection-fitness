@@ -28,6 +28,17 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _iso8601(with_z: bool = True) -> str:
+    """Aktuelle Zeit im ISO8601-Format, wie die App es sendet.
+
+    Workouts (completedBefore/After) nutzen das Format MIT 'Z',
+    Check-ins (endDate) ohne 'Z' (die App macht dropLast(1)).
+    """
+    now = datetime.now(timezone.utc)
+    base = now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}"
+    return base + "Z" if with_z else base
+
+
 class SelectionFitnessAuthError(Exception):
     """Login fehlgeschlagen (falsche Zugangsdaten o.ä.)."""
 
@@ -205,7 +216,7 @@ class SelectionFitnessClient:
         url = f"{self._base}/np/exercisers/{self.uuid}/check-ins/history"
         try:
             data = await self._get(
-                url, params={"endDate": end_date}, label="check-ins/history"
+                url, params={"endDate": _iso8601(with_z=False)}, label="check-ins/history"
             )
         except SelectionFitnessApiError as err:
             _LOGGER.debug("check-in history nicht verfügbar: %s", err)
@@ -219,28 +230,26 @@ class SelectionFitnessClient:
         return None
 
     async def get_workouts(self) -> list[dict[str, Any]]:
-        """Workout-Historie: GET /np/exerciser/{uuid}/workouts.
+        """Trainings-/Workout-Historie (eGym Advanced Workouts).
 
-        Antwort-Shape (aus der App): {speedUnit, distanceUnit, intervals: [...]}
-        – die einzelnen Workouts liegen unter `intervals`. Die App sendet dazu
-        Query-Parameter; für die volle Historie ein breites Datumsfenster.
+        GET {base}/workouts/api/workouts/v2.3/exercisers/{uuid}/workouts
+            ?completedAfter=<ISO>&completedBefore=<ISO>&languageCode=de
+        Antwort: {"workouts": [ {code, completedAt, workoutPlanLabel,
+        exercises:[...], ...}, ... ]}
         """
-        url = f"{self._base}/np/exerciser/{self.uuid}/workouts"
-        today = datetime.now(timezone.utc).strftime("%Y%m%d")
+        url = f"{self._base}/workouts/api/workouts/v2.3/exercisers/{self.uuid}/workouts"
         params = {
-            "startDate": "20100101",
-            "endDate": today,
-            "filter": "all",
-            "intervalCount": "1",
+            "completedAfter": "2010-01-01T00:00:00.000Z",
+            "completedBefore": _iso8601(with_z=True),
+            "languageCode": "de",
         }
         try:
-            data = await self._get(url, params=params, label="workouts")
+            data = await self._get(url, params=params, label="workouts-v2.3")
         except SelectionFitnessApiError as err:
             _LOGGER.debug("workouts nicht verfügbar: %s", err)
             return []
         if isinstance(data, dict):
-            # Server-Shape: workouts liegen unter "intervals"
-            for key in ("intervals", "workouts", "data", "items"):
+            for key in ("workouts", "items", "data"):
                 if isinstance(data.get(key), list):
                     return data[key]
             return []
