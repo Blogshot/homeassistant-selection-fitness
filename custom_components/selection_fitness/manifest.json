@@ -1,0 +1,11 @@
+{
+  "domain": "selection_fitness",
+  "name": "Selection Fitness",
+  "codeowners": ["@Blogshot"],
+  "config_flow": true,
+  "documentation": "https://github.com/Blogshot/homeassistant-selection-fitness",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Blogshot/homeassistant-selection-fitness/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}

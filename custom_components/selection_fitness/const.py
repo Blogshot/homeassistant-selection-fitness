@@ -1,0 +1,53 @@
+"""Konstanten für die Selection Fitness Integration."""
+from __future__ import annotations
+
+from datetime import timedelta
+
+DOMAIN = "selection_fitness"
+
+# --- API-Konfiguration (aus der App rekonstruiert) -------------------------
+# Haupt-Backend dieser Brand (sicher, aus den App-Ressourcen):
+DEFAULT_BASE_URL = "https://selectionfitness.netpulse.com"
+# eGym Mobile-API-Host für Körpermesswerte. Die App-Ressource zeigt einen
+# Integrationshost; der Produktionshost ist der Default unten, aber
+# konfigurierbar, falls er abweicht. Schlägt dieser Host fehl, funktioniert
+# der Rest der Integration trotzdem.
+DEFAULT_MOBILE_API_URL = "https://mobile-api.api.egym.com"
+
+# Pflicht-Header der App
+API_VERSION = "1.5"
+APP_VERSION = "1.7"
+APP_VERSION_CODE = "119"
+BRAND_NAME = "SelectionFitness"
+
+# Config-Entry Keys
+CONF_EMAIL = "email"
+CONF_PASSWORD = "password"
+CONF_BASE_URL = "base_url"
+CONF_MOBILE_API_URL = "mobile_api_url"
+CONF_SCAN_INTERVAL = "scan_interval"
+
+DEFAULT_SCAN_INTERVAL = timedelta(minutes=30)
+
+# Messwert-Typen, die bei den latest-metrics Endpunkten angefragt werden.
+# (Aus MeasurementTypeKt der App.)
+BODY_METRIC_TYPES = [
+    "weight",
+    "bodyFat",
+    "BMI",
+    "bmi",
+    "height",
+    "waist",
+    "hip",
+    "muscleMass",
+    "leanBodyMass",
+    "visceralFat",
+    "basalMetabolicRate",
+]
+CARDIO_METRIC_TYPES = [
+    "vo2Max",
+    "bpm",
+    "restingHeartRate",
+    "systolic",
+    "diastolic",
+]

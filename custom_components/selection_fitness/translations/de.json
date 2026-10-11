@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Melde dich mit deinen Selection-Fitness-Zugangsdaten an.",
+        "data": {
+          "email": "E-Mail",
+          "password": "Passwort",
+          "base_url": "Server-URL (nur bei Bedarf ändern)",
+          "mobile_api_url": "Mobile-API-URL (für Körpermesswerte)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "E-Mail oder Passwort ungültig.",
+      "cannot_connect": "Verbindung zum Server fehlgeschlagen.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Dieses Konto ist bereits eingerichtet."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": { "name": "Gewicht" },
+      "body_fat": { "name": "Körperfett" },
+      "bmi": { "name": "BMI" },
+      "muscle_mass": { "name": "Muskelmasse" },
+      "lean_body_mass": { "name": "Magermasse" },
+      "visceral_fat": { "name": "Viszeralfett" },
+      "bmr": { "name": "Grundumsatz" },
+      "height": { "name": "Körpergröße" },
+      "waist": { "name": "Taillenumfang" },
+      "hip": { "name": "Hüftumfang" },
+      "vo2max": { "name": "VO2max" },
+      "resting_heart_rate": { "name": "Ruhepuls" },
+      "blood_pressure_systolic": { "name": "Blutdruck systolisch" },
+      "blood_pressure_diastolic": { "name": "Blutdruck diastolisch" },
+      "workout_count": { "name": "Anzahl Workouts" },
+      "check_in_count": { "name": "Anzahl Check-ins" },
+      "last_check_in": { "name": "Letzter Check-in" },
+      "last_club": { "name": "Letztes Studio" },
+      "membership_type": { "name": "Mitgliedschaft" },
+      "home_club": { "name": "Heimatstudio" }
+    }
+  }
+}

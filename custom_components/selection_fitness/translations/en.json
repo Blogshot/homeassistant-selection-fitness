@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Sign in with your Selection Fitness credentials.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "base_url": "Server URL (change only if needed)",
+          "mobile_api_url": "Mobile API URL (for body measurements)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Failed to connect.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "Weight"
+      },
+      "body_fat": {
+        "name": "Body fat"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "Muscle mass"
+      },
+      "lean_body_mass": {
+        "name": "Lean body mass"
+      },
+      "visceral_fat": {
+        "name": "Visceral fat"
+      },
+      "bmr": {
+        "name": "Basal metabolic rate"
+      },
+      "height": {
+        "name": "Height"
+      },
+      "waist": {
+        "name": "Waist"
+      },
+      "hip": {
+        "name": "Hip"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "Resting heart rate"
+      },
+      "blood_pressure_systolic": {
+        "name": "Blood pressure systolic"
+      },
+      "blood_pressure_diastolic": {
+        "name": "Blood pressure diastolic"
+      },
+      "workout_count": {
+        "name": "Workout count"
+      },
+      "check_in_count": {
+        "name": "Check-in count"
+      },
+      "last_check_in": {
+        "name": "Last check-in"
+      },
+      "last_club": {
+        "name": "Last club"
+      },
+      "membership_type": {
+        "name": "Membership"
+      },
+      "home_club": {
+        "name": "Home club"
+      }
+    }
+  }
+}
