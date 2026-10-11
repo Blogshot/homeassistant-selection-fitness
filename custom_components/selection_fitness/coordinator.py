@@ -46,7 +46,10 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             latest_check_in = await self.client.get_latest_check_in()
             workouts = await self.client.get_workouts()
             bioage = await self.client.get_bioage()
-            measurements = await self.client.get_measurements()
+            # Die /measurements/*/latest-metrics Endpunkte liefern für diese
+            # Brand HTTP 500 und sind redundant (Körperwerte kommen aus BioAge,
+            # Gewicht/Größe aus dem Profil). Daher nicht mehr abgefragt.
+            measurements: dict = {}
 
             now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             check_in_count = await self.client.get_check_in_count(now)

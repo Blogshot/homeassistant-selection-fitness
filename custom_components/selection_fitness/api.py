@@ -175,15 +175,16 @@ class SelectionFitnessClient:
                         await self.login()
                         continue
                     text = await resp.text()
-                    # Diagnose: ein WARNING pro Abruf, damit der echte Status
-                    # ohne Debug-Logging im HA-Log sichtbar ist.
-                    _LOGGER.warning(
-                        "selfit-diag %s -> HTTP %s (%d bytes) %s",
-                        label or url.rsplit("/np/", 1)[-1][:40],
-                        resp.status,
-                        len(text),
-                        text[:180].replace("\n", " "),
-                    )
+                    lbl = label or url.rsplit("/np/", 1)[-1][:40]
+                    if resp.status >= 400:
+                        _LOGGER.warning(
+                            "selfit %s -> HTTP %s: %s",
+                            lbl, resp.status, text[:180].replace("\n", " "),
+                        )
+                    else:
+                        _LOGGER.debug(
+                            "selfit %s -> HTTP %s (%d bytes)", lbl, resp.status, len(text)
+                        )
                     if resp.status >= 400:
                         raise SelectionFitnessApiError(
                             f"HTTP {resp.status} bei {url}: {text[:200]}"
