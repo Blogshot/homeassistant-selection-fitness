@@ -40,7 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         email=entry.data[CONF_EMAIL],
         password=entry.data[CONF_PASSWORD],
         base_url=entry.data.get(CONF_BASE_URL, DEFAULT_BASE_URL),
-        mobile_api_url=entry.data.get(CONF_MOBILE_API_URL, DEFAULT_MOBILE_API_URL),
+        # Mobile-API-Host ist eine feste Brand-Konstante. Immer den aktuellen
+        # Default nutzen, damit ein alt gespeicherter (falscher) Wert aus einer
+        # früheren Version nicht hängen bleibt.
+        mobile_api_url=DEFAULT_MOBILE_API_URL,
         device_uid=device_uid,
     )
 

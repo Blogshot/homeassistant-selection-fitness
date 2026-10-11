@@ -250,8 +250,8 @@ class SelectionFitnessClient:
         """
         url = f"{self._base}/workouts/api/workouts/v2.3/exercisers/{self.uuid}/workouts"
         params = {
-            "completedAfter": "2010-01-01T00:00:00.000+00:00",
-            "completedBefore": _iso8601("offset"),
+            "completedAfter": "2010-01-01T00:00:00.000",
+            "completedBefore": _iso8601("naive"),
             "languageCode": "de",
         }
         try:
