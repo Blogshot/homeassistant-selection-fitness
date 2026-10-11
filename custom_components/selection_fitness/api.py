@@ -89,10 +89,13 @@ class SelectionFitnessClient:
     async def login(self) -> None:
         """Meldet sich an und speichert uuid + JSESSIONID."""
         url = f"{self._base}/np/exerciser/login"
+        # Die App sendet den Login als application/x-www-form-urlencoded
+        # (FormBody in der Call-Klasse), NICHT als JSON. aiohttp sendet ein
+        # dict unter `data=` genau so form-kodiert.
         payload = {"login": self._email, "password": self._password}
         try:
             async with self._session.post(
-                url, json=payload, headers=self._headers(with_auth=False)
+                url, data=payload, headers=self._headers(with_auth=False)
             ) as resp:
                 body = await resp.text()
                 if resp.status == 401:
