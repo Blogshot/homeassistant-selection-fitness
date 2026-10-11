@@ -74,6 +74,7 @@ class SelectionFitnessClient:
         self._session_id: str | None = None  # "JSESSIONID=...."
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
+        self._logged_exercise_sample = False
 
     # ------------------------------------------------------------------ #
     # Header
@@ -260,14 +261,31 @@ class SelectionFitnessClient:
         except SelectionFitnessApiError as err:
             _LOGGER.debug("workouts nicht verfügbar: %s", err)
             return []
+        workouts: list[dict[str, Any]] = []
         if isinstance(data, dict):
             for key in ("workouts", "items", "data"):
                 if isinstance(data.get(key), list):
-                    return data[key]
-            return []
-        if isinstance(data, list):
-            return data
-        return []
+                    workouts = data[key]
+                    break
+        elif isinstance(data, list):
+            workouts = data
+
+        # Einmal-Diagnose: Struktur einer echten Übung ins Log, um die
+        # Geräte-/Attribut-Felder exakt zu mappen (temporär).
+        if workouts and not self._logged_exercise_sample:
+            try:
+                import json as _json
+
+                ex = (workouts[0].get("exercises") or [None])[0]
+                if ex is not None:
+                    self._logged_exercise_sample = True
+                    _LOGGER.warning(
+                        "selfit-exercise-sample %s",
+                        _json.dumps(ex, ensure_ascii=False)[:900],
+                    )
+            except Exception:  # noqa: BLE001
+                pass
+        return workouts
 
     async def get_bioage(self) -> dict[str, Any]:
         """eGym BioAge-Summary: Körperalter, Kraft/Muskel, Cardio, Flexibilität,
