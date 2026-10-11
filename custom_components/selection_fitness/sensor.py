@@ -491,8 +491,10 @@ class SelectionFitnessMachineSensor(
             name="Selection Fitness – Geräte",
             manufacturer="eGym",
             model="Fitness Machines",
-            via_device=(DOMAIN, coordinator.client.uuid or coordinator.entry.entry_id),
         )
+        m = ((coordinator.data or {}).get("machines") or {}).get(code) or {}
+        if m.get("image"):
+            self._attr_entity_picture = m["image"]
 
     def _machine(self) -> dict[str, Any] | None:
         return (self.coordinator.data or {}).get("machines", {}).get(self._code)
@@ -509,6 +511,7 @@ class SelectionFitnessMachineSensor(
         if not m:
             return None
         latest = m.get("latest") or {}
+        trend = m.get("trend") or {}
         return {
             "reps": latest.get("reps"),
             "sets": latest.get("sets"),
@@ -516,8 +519,12 @@ class SelectionFitnessMachineSensor(
             "activity_points": latest.get("activity_points"),
             "last_trained": latest.get("completedAt"),
             "session_count": len(m.get("sessions") or []),
+            "trend": trend.get("direction"),
+            "trend_kg_per_month": trend.get("slope_per_month"),
+            "projected_next_kg": trend.get("projected_next"),
             "source": m.get("source"),
             "exercise_code": self._code,
+            "entity_picture": m.get("image"),
         }
 
 

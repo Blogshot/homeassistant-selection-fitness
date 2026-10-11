@@ -64,14 +64,25 @@ def extract_machines(workouts: list[dict[str, Any]]) -> dict[str, dict[str, Any]
             if max_weight is None:
                 # kein Gewicht (z.B. Cardio) -> überspringen
                 continue
+            # Bild-URL aus der Übungs-Definition (eGym Activity Library)
+            exdef = ex.get("exercise") or {}
+            image = None
+            for key in ("previews", "icons"):
+                lst = exdef.get(key)
+                if isinstance(lst, list) and lst:
+                    image = lst[0]
+                    break
             m = machines.setdefault(
                 code,
                 {
                     "name": name,
                     "source": (ex.get("source") or {}).get("label"),
+                    "image": image,
                     "sessions": [],
                 },
             )
+            if image and not m.get("image"):
+                m["image"] = image
             m["sessions"].append(
                 {
                     "completedAt": ex.get("completedAt"),
@@ -85,7 +96,51 @@ def extract_machines(workouts: list[dict[str, Any]]) -> dict[str, dict[str, Any]
     for m in machines.values():
         m["sessions"].sort(key=lambda s: s.get("completedAt") or "")
         m["latest"] = m["sessions"][-1] if m["sessions"] else None
+        m["trend"] = _compute_trend(m["sessions"])
     return machines
+
+
+def _compute_trend(sessions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Einfacher Gewichtstrend per linearer Regression über die letzten
+    Sessions. Gibt Richtung, Steigung (kg/Monat) und eine grobe Prognose
+    für den nächsten Wert zurück."""
+    pts: list[tuple[float, float]] = []
+    for s in sessions[-8:]:
+        ca = s.get("completedAt")
+        w = s.get("max_weight")
+        if not ca or not isinstance(w, (int, float)):
+            continue
+        try:
+            t = datetime.fromisoformat(ca.replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            continue
+        pts.append((t, float(w)))
+    if len(pts) < 2:
+        return {"direction": "unbekannt", "slope_per_month": None, "projected_next": None}
+    n = len(pts)
+    mean_t = sum(p[0] for p in pts) / n
+    mean_w = sum(p[1] for p in pts) / n
+    denom = sum((p[0] - mean_t) ** 2 for p in pts)
+    if denom == 0:
+        return {"direction": "stabil", "slope_per_month": 0.0, "projected_next": round(mean_w, 1)}
+    slope = sum((p[0] - mean_t) * (p[1] - mean_w) for p in pts) / denom  # kg pro Sekunde
+    slope_month = slope * 86400 * 30
+    last_t, last_w = pts[-1]
+    # Prognose: nächster Wert bei durchschnittlichem Session-Abstand
+    intervals = [pts[i][0] - pts[i - 1][0] for i in range(1, n)]
+    avg_iv = sum(intervals) / len(intervals) if intervals else 0
+    projected = last_w + slope * avg_iv
+    if slope_month > 0.5:
+        direction = "steigend"
+    elif slope_month < -0.5:
+        direction = "fallend"
+    else:
+        direction = "stabil"
+    return {
+        "direction": direction,
+        "slope_per_month": round(slope_month, 2),
+        "projected_next": round(projected, 1),
+    }
 
 
 def _iso8601(style: str = "offset") -> str:
