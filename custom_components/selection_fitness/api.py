@@ -28,6 +28,66 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def extract_machines(workouts: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Fasst die Workout-Historie je Gerät/Übung zusammen.
+
+    Rückgabe: {exerciseCode: {name, source, sessions:[{completedAt, max_weight,
+    reps, sets, calories, activity_points}], latest}}
+    Nur Geräte mit Gewichtsdaten (Kraft) werden berücksichtigt.
+    """
+    machines: dict[str, dict[str, Any]] = {}
+    for w in workouts or []:
+        for ex in w.get("exercises") or []:
+            code = ex.get("exerciseCode")
+            name = ex.get("name")
+            if not code or not name:
+                continue
+            attrs = ex.get("attributes") or {}
+            # Satz-Liste finden (Key beginnt mit "sets_of")
+            sets = None
+            for k, v in attrs.items():
+                if k.startswith("sets_of") and isinstance(v, list):
+                    sets = v
+                    break
+            max_weight: float | None = None
+            total_reps = 0
+            n_sets = 0
+            if sets:
+                n_sets = len(sets)
+                for s in sets:
+                    wv = (s.get("weight") or {}).get("value")
+                    rv = (s.get("reps") or {}).get("value")
+                    if isinstance(wv, (int, float)):
+                        max_weight = wv if max_weight is None else max(max_weight, wv)
+                    if isinstance(rv, (int, float)):
+                        total_reps += int(rv)
+            if max_weight is None:
+                # kein Gewicht (z.B. Cardio) -> überspringen
+                continue
+            m = machines.setdefault(
+                code,
+                {
+                    "name": name,
+                    "source": (ex.get("source") or {}).get("label"),
+                    "sessions": [],
+                },
+            )
+            m["sessions"].append(
+                {
+                    "completedAt": ex.get("completedAt"),
+                    "max_weight": float(max_weight),
+                    "reps": total_reps,
+                    "sets": n_sets,
+                    "calories": (attrs.get("calories") or {}).get("value"),
+                    "activity_points": (attrs.get("activity_points") or {}).get("value"),
+                }
+            )
+    for m in machines.values():
+        m["sessions"].sort(key=lambda s: s.get("completedAt") or "")
+        m["latest"] = m["sessions"][-1] if m["sessions"] else None
+    return machines
+
+
 def _iso8601(style: str = "offset") -> str:
     """Aktuelle Zeit im ISO8601-Format, wie die App es sendet.
 
@@ -74,7 +134,6 @@ class SelectionFitnessClient:
         self._session_id: str | None = None  # "JSESSIONID=...."
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
-        self._logged_exercise_sample = False
 
     # ------------------------------------------------------------------ #
     # Header
@@ -269,29 +328,6 @@ class SelectionFitnessClient:
                     break
         elif isinstance(data, list):
             workouts = data
-
-        # Einmal-Diagnose: Struktur einer echten Übung ins Log, um die
-        # Geräte-/Attribut-Felder exakt zu mappen (temporär).
-        if workouts and not self._logged_exercise_sample:
-            try:
-                import json as _json
-
-                ex = (workouts[0].get("exercises") or [None])[0]
-                if ex is not None:
-                    self._logged_exercise_sample = True
-                    sample = {
-                        "name": ex.get("name"),
-                        "exerciseCode": ex.get("exerciseCode"),
-                        "completedAt": ex.get("completedAt"),
-                        "source": ex.get("source"),
-                        "attributes": ex.get("attributes"),
-                    }
-                    _LOGGER.warning(
-                        "selfit-exercise-sample %s",
-                        _json.dumps(sample, ensure_ascii=False)[:1500],
-                    )
-            except Exception:  # noqa: BLE001
-                pass
         return workouts
 
     async def get_bioage(self) -> dict[str, Any]:

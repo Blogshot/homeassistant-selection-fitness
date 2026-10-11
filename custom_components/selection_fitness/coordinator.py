@@ -13,6 +13,7 @@ from .api import (
     SelectionFitnessApiError,
     SelectionFitnessAuthError,
     SelectionFitnessClient,
+    extract_machines,
 )
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
 
@@ -61,6 +62,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "check_in_count": check_in_count,
                 "workouts": workouts,
                 "workout_count": len(workouts),
+                "machines": extract_machines(workouts),
                 "bioage": bioage,
                 "measurements": measurements,
             }

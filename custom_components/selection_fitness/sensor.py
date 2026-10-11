@@ -453,12 +453,72 @@ async def async_setup_entry(
     coordinator: SelectionFitnessCoordinator = hass.data[DOMAIN][entry.entry_id]
     data = coordinator.data or {}
 
-    entities = [
+    entities: list[SensorEntity] = [
         SelectionFitnessSensor(coordinator, desc)
         for desc in SENSORS
         if desc.available_fn(data)
     ]
+    # Pro-Gerät-Sensoren (eGym-Maschinen) dynamisch aus der Historie
+    for code, machine in (data.get("machines") or {}).items():
+        entities.append(SelectionFitnessMachineSensor(coordinator, code, machine["name"]))
+
     async_add_entities(entities)
+
+
+class SelectionFitnessMachineSensor(
+    CoordinatorEntity[SelectionFitnessCoordinator], SensorEntity
+):
+    """Letztes Gewicht pro eGym-Gerät, mit Wdh./Sätzen als Attribute."""
+
+    _attr_has_entity_name = True
+    _attr_native_unit_of_measurement = "kg"
+    _attr_device_class = SensorDeviceClass.WEIGHT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:dumbbell"
+
+    def __init__(
+        self,
+        coordinator: SelectionFitnessCoordinator,
+        code: str,
+        name: str,
+    ) -> None:
+        super().__init__(coordinator)
+        self._code = code
+        self._attr_name = name
+        self._attr_unique_id = f"{coordinator.client.uuid}_machine_{code}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{coordinator.client.uuid}_machines")},
+            name="Selection Fitness – Geräte",
+            manufacturer="eGym",
+            model="Fitness Machines",
+            via_device=(DOMAIN, coordinator.client.uuid or coordinator.entry.entry_id),
+        )
+
+    def _machine(self) -> dict[str, Any] | None:
+        return (self.coordinator.data or {}).get("machines", {}).get(self._code)
+
+    @property
+    def native_value(self) -> Any:
+        m = self._machine()
+        latest = (m or {}).get("latest") or {}
+        return latest.get("max_weight")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        m = self._machine()
+        if not m:
+            return None
+        latest = m.get("latest") or {}
+        return {
+            "reps": latest.get("reps"),
+            "sets": latest.get("sets"),
+            "calories": latest.get("calories"),
+            "activity_points": latest.get("activity_points"),
+            "last_trained": latest.get("completedAt"),
+            "session_count": len(m.get("sessions") or []),
+            "source": m.get("source"),
+            "exercise_code": self._code,
+        }
 
 
 class SelectionFitnessSensor(
