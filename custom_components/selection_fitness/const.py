@@ -25,8 +25,19 @@ CONF_PASSWORD = "password"
 CONF_BASE_URL = "base_url"
 CONF_MOBILE_API_URL = "mobile_api_url"
 CONF_SCAN_INTERVAL = "scan_interval"
+CONF_PRIMARY_METRIC = "primary_metric"
 
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=30)
+DEFAULT_PRIMARY_METRIC = "weight"
+
+# Wählbare Haupt-Metrik je Gerät (pro Person/Config-Entry einstellbar).
+# key -> (session-Feld, Einheit, device_class|None, icon, Anzeigename)
+MACHINE_METRICS: dict[str, tuple] = {
+    "weight": ("weight", "kg", "weight", "mdi:dumbbell", "Gestemmtes Gewicht"),
+    "calories": ("calories", "kcal", None, "mdi:fire", "Kalorien"),
+    "activity_points": ("activity_points", "Punkte", None, "mdi:star-four-points", "Aktivitätspunkte"),
+    "reps": ("reps", "Wdh.", None, "mdi:counter", "Wiederholungen"),
+}
 
 # Messwert-Typen, die bei den latest-metrics Endpunkten angefragt werden.
 # (Aus MeasurementTypeKt der App.)

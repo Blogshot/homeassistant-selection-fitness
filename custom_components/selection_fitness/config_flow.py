@@ -6,7 +6,13 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
@@ -19,9 +25,12 @@ from .const import (
     CONF_EMAIL,
     CONF_MOBILE_API_URL,
     CONF_PASSWORD,
+    CONF_PRIMARY_METRIC,
     DEFAULT_BASE_URL,
     DEFAULT_MOBILE_API_URL,
+    DEFAULT_PRIMARY_METRIC,
     DOMAIN,
+    MACHINE_METRICS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -79,3 +88,33 @@ class SelectionFitnessConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=schema, errors=errors
         )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        return SelectionFitnessOptionsFlow()
+
+
+class SelectionFitnessOptionsFlow(OptionsFlow):
+    """Optionen: Haupt-Metrik pro Gerät und Abruf-Intervall."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        opts = self.config_entry.options
+        schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_PRIMARY_METRIC,
+                    default=opts.get(CONF_PRIMARY_METRIC, DEFAULT_PRIMARY_METRIC),
+                ): vol.In(list(MACHINE_METRICS.keys())),
+                vol.Optional(
+                    "scan_interval_minutes",
+                    default=opts.get("scan_interval_minutes", 30),
+                ): vol.All(vol.Coerce(int), vol.Range(min=5, max=360)),
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)

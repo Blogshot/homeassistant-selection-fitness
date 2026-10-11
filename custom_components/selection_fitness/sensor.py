@@ -18,8 +18,19 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .api import compute_trend
+from .const import (
+    CONF_PRIMARY_METRIC,
+    DEFAULT_PRIMARY_METRIC,
+    DOMAIN,
+    MACHINE_METRICS,
+)
 from .coordinator import SelectionFitnessCoordinator
+
+
+def _device_name(data: dict[str, Any]) -> str:
+    fn = (data or {}).get("firstname") or "Selection Fitness"
+    return f"Selection Fitness ({fn})" if fn != "Selection Fitness" else "Selection Fitness"
 
 
 def _parse_dt(value: Any) -> datetime | None:
@@ -459,8 +470,13 @@ async def async_setup_entry(
         if desc.available_fn(data)
     ]
     # Pro-Gerät-Sensoren (eGym-Maschinen) dynamisch aus der Historie
+    metric = coordinator.entry.options.get(CONF_PRIMARY_METRIC, DEFAULT_PRIMARY_METRIC)
+    if metric not in MACHINE_METRICS:
+        metric = DEFAULT_PRIMARY_METRIC
     for code, machine in (data.get("machines") or {}).items():
-        entities.append(SelectionFitnessMachineSensor(coordinator, code, machine["name"]))
+        entities.append(
+            SelectionFitnessMachineSensor(coordinator, code, machine["name"], metric)
+        )
 
     async_add_entities(entities)
 
@@ -468,27 +484,34 @@ async def async_setup_entry(
 class SelectionFitnessMachineSensor(
     CoordinatorEntity[SelectionFitnessCoordinator], SensorEntity
 ):
-    """Letztes Gewicht pro eGym-Gerät, mit Wdh./Sätzen als Attribute."""
+    """Ein eGym-Gerät: Zustand = wählbare Haupt-Metrik, alle Werte als Attribute."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "kg"
-    _attr_device_class = SensorDeviceClass.WEIGHT
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_icon = "mdi:dumbbell"
 
     def __init__(
         self,
         coordinator: SelectionFitnessCoordinator,
         code: str,
         name: str,
+        metric: str,
     ) -> None:
         super().__init__(coordinator)
         self._code = code
+        self._metric = metric
+        field, unit, dev_class, icon, _label = MACHINE_METRICS[metric]
+        self._field = field
         self._attr_name = name
+        self._attr_native_unit_of_measurement = unit
+        self._attr_icon = icon
+        if dev_class == "weight":
+            self._attr_device_class = SensorDeviceClass.WEIGHT
         self._attr_unique_id = f"{coordinator.client.uuid}_machine_{code}"
+        fn = (coordinator.data or {}).get("firstname") or ""
+        dev_name = f"eGym Geräte ({fn})" if fn and fn != "Selection Fitness" else "eGym Geräte"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.client.uuid}_machines")},
-            name="Selection Fitness – Geräte",
+            name=dev_name,
             manufacturer="eGym",
             model="Fitness Machines",
         )
@@ -501,9 +524,8 @@ class SelectionFitnessMachineSensor(
 
     @property
     def native_value(self) -> Any:
-        m = self._machine()
-        latest = (m or {}).get("latest") or {}
-        return latest.get("max_weight")
+        latest = (self._machine() or {}).get("latest") or {}
+        return latest.get(self._field)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -511,17 +533,20 @@ class SelectionFitnessMachineSensor(
         if not m:
             return None
         latest = m.get("latest") or {}
-        trend = m.get("trend") or {}
+        trend = compute_trend(m.get("sessions") or [], self._field)
         return {
+            "weight_kg": latest.get("weight"),
             "reps": latest.get("reps"),
             "sets": latest.get("sets"),
             "calories": latest.get("calories"),
             "activity_points": latest.get("activity_points"),
+            "training_method": latest.get("training_method"),
             "last_trained": latest.get("completedAt"),
             "session_count": len(m.get("sessions") or []),
             "trend": trend.get("direction"),
-            "trend_kg_per_month": trend.get("slope_per_month"),
-            "projected_next_kg": trend.get("projected_next"),
+            "trend_per_month": trend.get("slope_per_month"),
+            "projected_next": trend.get("projected_next"),
+            "primary_metric": self._metric,
             "source": m.get("source"),
             "exercise_code": self._code,
             "entity_picture": m.get("image"),
@@ -546,7 +571,7 @@ class SelectionFitnessSensor(
         self._attr_unique_id = f"{coordinator.client.uuid}_{description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.client.uuid or coordinator.entry.entry_id)},
-            name="Selection Fitness",
+            name=_device_name(coordinator.data or {}),
             manufacturer="Netpulse / eGym",
             model="Selection Fitness Account",
         )

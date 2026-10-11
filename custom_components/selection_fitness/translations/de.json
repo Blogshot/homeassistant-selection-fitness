@@ -21,6 +21,17 @@
       "already_configured": "Dieses Konto ist bereits eingerichtet."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – Optionen",
+        "data": {
+          "primary_metric": "Haupt-Metrik je Gerät (Sensorwert)",
+          "scan_interval_minutes": "Abruf-Intervall (Minuten)"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": { "name": "Gewicht" },

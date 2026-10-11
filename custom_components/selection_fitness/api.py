@@ -86,28 +86,28 @@ def extract_machines(workouts: list[dict[str, Any]]) -> dict[str, dict[str, Any]
             m["sessions"].append(
                 {
                     "completedAt": ex.get("completedAt"),
-                    "max_weight": float(max_weight),
+                    "weight": float(max_weight),
                     "reps": total_reps,
                     "sets": n_sets,
                     "calories": (attrs.get("calories") or {}).get("value"),
                     "activity_points": (attrs.get("activity_points") or {}).get("value"),
+                    "training_method": (attrs.get("training_method") or {}).get("value"),
                 }
             )
     for m in machines.values():
         m["sessions"].sort(key=lambda s: s.get("completedAt") or "")
         m["latest"] = m["sessions"][-1] if m["sessions"] else None
-        m["trend"] = _compute_trend(m["sessions"])
     return machines
 
 
-def _compute_trend(sessions: list[dict[str, Any]]) -> dict[str, Any]:
-    """Einfacher Gewichtstrend per linearer Regression über die letzten
-    Sessions. Gibt Richtung, Steigung (kg/Monat) und eine grobe Prognose
-    für den nächsten Wert zurück."""
+def compute_trend(sessions: list[dict[str, Any]], field: str = "weight") -> dict[str, Any]:
+    """Trend per linearer Regression über die letzten Sessions für ein
+    beliebiges Metrik-Feld. Gibt Richtung, Steigung (pro Monat) und eine
+    grobe Prognose für den nächsten Wert zurück."""
     pts: list[tuple[float, float]] = []
     for s in sessions[-8:]:
         ca = s.get("completedAt")
-        w = s.get("max_weight")
+        w = s.get(field)
         if not ca or not isinstance(w, (int, float)):
             continue
         try:

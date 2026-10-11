@@ -135,5 +135,16 @@
         "name": "Home club"
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – Options",
+        "data": {
+          "primary_metric": "Primary metric per machine (sensor state)",
+          "scan_interval_minutes": "Update interval (minutes)"
+        }
+      }
+    }
   }
 }

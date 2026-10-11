@@ -29,11 +29,15 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         entry: ConfigEntry,
         client: SelectionFitnessClient,
     ) -> None:
+        minutes = entry.options.get("scan_interval_minutes")
+        interval = (
+            timedelta(minutes=int(minutes)) if minutes else DEFAULT_SCAN_INTERVAL
+        )
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=DEFAULT_SCAN_INTERVAL,
+            update_interval=interval,
         )
         self.entry = entry
         self.client = client
@@ -55,7 +59,13 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             check_in_count = await self.client.get_check_in_count(now)
 
+            firstname = (
+                (profile or {}).get("firstname")
+                or self.client.profile_login.get("firstname")
+                or "Selection Fitness"
+            )
             return {
+                "firstname": firstname,
                 "profile": profile or self.client.profile_login,
                 "login": self.client.profile_login,
                 "latest_check_in": latest_check_in,
