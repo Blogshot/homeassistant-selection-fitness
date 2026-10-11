@@ -11,6 +11,7 @@ Auth-Modell:
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 import aiohttp
@@ -144,7 +145,7 @@ class SelectionFitnessClient:
     # ------------------------------------------------------------------ #
     # Generische GET-Hilfe mit Auto-Relogin bei 401
     # ------------------------------------------------------------------ #
-    async def _get(self, url: str, params: dict | None = None) -> Any:
+    async def _get(self, url: str, params: dict | None = None, label: str = "") -> Any:
         if self._session_id is None:
             await self.login()
         for attempt in (1, 2):
@@ -158,6 +159,15 @@ class SelectionFitnessClient:
                         await self.login()
                         continue
                     text = await resp.text()
+                    # Diagnose: ein WARNING pro Abruf, damit der echte Status
+                    # ohne Debug-Logging im HA-Log sichtbar ist.
+                    _LOGGER.warning(
+                        "selfit-diag %s -> HTTP %s (%d bytes) %s",
+                        label or url.rsplit("/np/", 1)[-1][:40],
+                        resp.status,
+                        len(text),
+                        text[:180].replace("\n", " "),
+                    )
                     if resp.status >= 400:
                         raise SelectionFitnessApiError(
                             f"HTTP {resp.status} bei {url}: {text[:200]}"
@@ -177,14 +187,14 @@ class SelectionFitnessClient:
     async def get_profile(self) -> dict[str, Any]:
         """Vollständiges Profil: GET /np/exerciser/{uuid}/profile."""
         url = f"{self._base}/np/exerciser/{self.uuid}/profile"
-        data = await self._get(url)
+        data = await self._get(url, label="profile")
         return data if isinstance(data, dict) else {}
 
     async def get_latest_check_in(self) -> dict[str, Any] | None:
         """GET /np/exercisers/{uuid}/latest-check-in."""
         url = f"{self._base}/np/exercisers/{self.uuid}/latest-check-in"
         try:
-            data = await self._get(url)
+            data = await self._get(url, label="latest-check-in")
         except SelectionFitnessApiError as err:
             _LOGGER.debug("latest-check-in nicht verfügbar: %s", err)
             return None
@@ -194,25 +204,43 @@ class SelectionFitnessClient:
         """Anzahl Check-ins: GET /np/exercisers/{uuid}/check-ins/history."""
         url = f"{self._base}/np/exercisers/{self.uuid}/check-ins/history"
         try:
-            data = await self._get(url, params={"endDate": end_date})
+            data = await self._get(
+                url, params={"endDate": end_date}, label="check-ins/history"
+            )
         except SelectionFitnessApiError as err:
             _LOGGER.debug("check-in history nicht verfügbar: %s", err)
             return None
         if isinstance(data, list):
             return len(data)
+        if isinstance(data, dict):
+            for key in ("checkIns", "items", "data"):
+                if isinstance(data.get(key), list):
+                    return len(data[key])
         return None
 
     async def get_workouts(self) -> list[dict[str, Any]]:
-        """Workout-Historie: GET /np/exerciser/{uuid}/workouts."""
+        """Workout-Historie: GET /np/exerciser/{uuid}/workouts.
+
+        Antwort-Shape (aus der App): {speedUnit, distanceUnit, intervals: [...]}
+        – die einzelnen Workouts liegen unter `intervals`. Die App sendet dazu
+        Query-Parameter; für die volle Historie ein breites Datumsfenster.
+        """
         url = f"{self._base}/np/exerciser/{self.uuid}/workouts"
+        today = datetime.now(timezone.utc).strftime("%Y%m%d")
+        params = {
+            "startDate": "20100101",
+            "endDate": today,
+            "filter": "all",
+            "intervalCount": "1",
+        }
         try:
-            data = await self._get(url)
+            data = await self._get(url, params=params, label="workouts")
         except SelectionFitnessApiError as err:
             _LOGGER.debug("workouts nicht verfügbar: %s", err)
             return []
-        # Antwort kann {"workouts":[...]} oder direkt eine Liste sein
         if isinstance(data, dict):
-            for key in ("workouts", "data", "items"):
+            # Server-Shape: workouts liegen unter "intervals"
+            for key in ("intervals", "workouts", "data", "items"):
                 if isinstance(data.get(key), list):
                     return data[key]
             return []
@@ -239,7 +267,7 @@ class SelectionFitnessClient:
             )
             params = {"types": ",".join(types), "languageCode": "de"}
             try:
-                data = await self._get(url, params=params)
+                data = await self._get(url, params=params, label=f"measure/{category}")
             except SelectionFitnessApiError as err:
                 _LOGGER.debug("Messwerte (%s) nicht verfügbar: %s", category, err)
                 continue
