@@ -117,8 +117,9 @@ Accounts nichts kollidiert.
 
 - **Verlauf:** Home Assistant zeichnet jeden Sensor ab Installation automatisch
   auf. Zusätzlich werden die **Geräte-Werte rückwirkend** als Langzeitstatistik
-  importiert – die komplette Trainingshistorie steckt bereits in der
-  Workout-Antwort der API.
+  importiert – das gestemmte Gewicht aus der Workout-Historie **und** die
+  **Kraftmessungshistorie** je Gerät (eigener eGym-Endpunkt). So sind die
+  Verlaufs-Graphen sofort rückwirkend gefüllt.
 - **Duplikatfrei:** Statistiken sind pro `(statistic_id, Stunde)` eindeutig; der
   Import ist ein Upsert (überschreibt denselben Stundenbucket), daher entstehen
   beim 30-Minuten-Pull **keine Duplikate**.
