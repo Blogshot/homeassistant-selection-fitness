@@ -120,6 +120,12 @@ Accounts nichts kollidiert.
   importiert – das gestemmte Gewicht aus der Workout-Historie **und** die
   **Kraftmessungshistorie** je Gerät (eigener eGym-Endpunkt). So sind die
   Verlaufs-Graphen sofort rückwirkend gefüllt.
+- **Fitness-Alter rückwirkend:** Körper-, Kraft-, Cardio-, Stoffwechsel- und
+  Flexibilitätsalter werden über den `bioage/history`-Endpunkt bis zur ersten
+  Messung (oft mehrere Jahre zurück) als Langzeitstatistik importiert.
+- **Jahresweise Abfrage:** Der eGym-Server liefert pro Anfrage nur ein Jahr
+  (die App schaltet zwischen Jahren um). Die Historie wird daher Jahr für Jahr
+  abgefragt und zusammengeführt – mit Früh-Stopp nach zwei leeren Jahren.
 - **Duplikatfrei:** Statistiken sind pro `(statistic_id, Stunde)` eindeutig; der
   Import ist ein Upsert (überschreibt denselben Stundenbucket), daher entstehen
   beim 30-Minuten-Pull **keine Duplikate**.

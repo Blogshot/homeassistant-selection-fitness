@@ -159,6 +159,49 @@ def _iso8601(style: str = "offset") -> str:
     return base
 
 
+#: Frühestes Jahr, bis zu dem die Historie zurück abgefragt wird.
+HISTORY_MIN_YEAR = 2015
+
+
+def _year_windows_desc(min_year: int = HISTORY_MIN_YEAR):
+    """Liefert (Jahr, startDate, endDate) absteigend vom aktuellen Jahr bis
+    min_year. Der Server gibt pro Fenster nur ein Jahr zurück, daher wird je
+    Kalenderjahr ein eigenes Fenster erzeugt."""
+    now = datetime.now(timezone.utc)
+    today = now.strftime("%Y-%m-%d")
+    for year in range(now.year, min_year - 1, -1):
+        start = f"{year}-01-01"
+        end = today if year == now.year else f"{year}-12-31"
+        yield year, start, end
+
+
+def _parse_history_date(raw: Any) -> datetime | None:
+    """Parst ein History-Datum robust: ISO-String (mit/ohne Zeit/Offset),
+    reines Datum (yyyy-MM-dd) oder Epoch-Millis. Rückgabe tz-aware (UTC)."""
+    # Epoch in Millisekunden
+    if isinstance(raw, (int, float)):
+        try:
+            return datetime.fromtimestamp(float(raw) / 1000.0, tz=timezone.utc)
+        except (ValueError, OSError, OverflowError):
+            return None
+    if not isinstance(raw, str):
+        return None
+    s = raw.strip()
+    if not s:
+        return None
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except ValueError:
+        pass
+    for fmt in ("%Y-%m-%d", "%Y-%m", "%d.%m.%Y"):
+        try:
+            return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    return None
+
+
 class SelectionFitnessAuthError(Exception):
     """Login fehlgeschlagen (falsche Zugangsdaten o.ä.)."""
 
@@ -512,15 +555,39 @@ class SelectionFitnessClient:
     ) -> list[tuple[datetime, float]]:
         """Historie der Kraftmessung für ein Gerät (strength-Test-exerciseId).
 
+        Der Server liefert pro Abfragefenster nur ~1 Jahr (die App schaltet
+        zwischen Jahren um). Daher Jahr für Jahr abfragen und zusammenführen;
+        Früh-Stopp nach zwei aufeinanderfolgenden leeren Jahren.
+        Rückgabe: sortierte, deduplizierte Liste (Zeitpunkt, Wert).
+        """
+        merged: dict[datetime, float] = {}
+        empty_streak = 0
+        for _year, start, end in _year_windows_desc():
+            pts = await self._get_strength_history_window(
+                str(exercise_id), start, end
+            )
+            if pts:
+                empty_streak = 0
+                for dt, val in pts:
+                    merged[dt] = val
+            else:
+                empty_streak += 1
+                if empty_streak >= 2:
+                    break
+        return sorted(merged.items(), key=lambda p: p[0])
+
+    async def _get_strength_history_window(
+        self, exercise_id: str, start_date: str, end_date: str
+    ) -> list[tuple[datetime, float]]:
+        """Eine Kraftmess-Historie für ein einzelnes Jahresfenster.
+
         GET {mobile}/measurements/api/v1.0/exercisers/{uuid}/strength
             ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&exerciseId=<code>&languageCode=de
-        Rückgabe: sortierte Liste (Zeitpunkt, Wert).
         """
         url = f"{self._mobile}/measurements/api/v1.0/exercisers/{self.uuid}/strength"
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         params = {
-            "startDate": "2010-01-01",
-            "endDate": today,
+            "startDate": start_date,
+            "endDate": end_date,
             "exerciseId": str(exercise_id),
             "languageCode": "de",
         }
@@ -554,6 +621,107 @@ class SelectionFitnessClient:
                 continue
             points.append((dt, float(val)))
         points.sort(key=lambda p: p[0])
+        return points
+
+    async def get_bioage_history(self) -> dict[str, list[tuple[datetime, float]]]:
+        """Historie der BioAge-/Fitnessalter-Werte (zurück bis zur ersten
+        Messung, oft Jahre vor der aktuellen App-Installation).
+
+        Der Server liefert pro Fenster nur ~1 Jahr (die App schaltet zwischen
+        Jahren um). Daher Jahr für Jahr abfragen und zusammenführen;
+        Früh-Stopp nach zwei aufeinanderfolgenden leeren Jahren.
+
+        GET {mobile}/analysis/api/v1.0/exercisers/{uuid}/bioage/history
+            ?types=TOTAL,MUSCLE,CARDIO,METABOLIC,FLEXIBILITY
+            &startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+            &granularity=ONE_ITEM_PER_MONTH&timezone=Europe/Berlin
+        Antwort: [{"type": "TOTAL", "history": [{"date": "...", "value": 28.0}]}]
+        Rückgabe: {analysisType: [(Zeitpunkt, Wert), ...]} (je sortiert).
+        """
+        merged: dict[str, dict[datetime, float]] = {}
+        empty_streak = 0
+        for _year, start, end in _year_windows_desc():
+            window = await self._get_bioage_history_window(start, end)
+            if window:
+                empty_streak = 0
+                for mtype, pts in window.items():
+                    bucket = merged.setdefault(mtype, {})
+                    for dt, val in pts:
+                        bucket[dt] = val
+            else:
+                empty_streak += 1
+                if empty_streak >= 2:
+                    break
+        return {
+            mtype: sorted(pts.items(), key=lambda p: p[0])
+            for mtype, pts in merged.items()
+        }
+
+    async def _get_bioage_history_window(
+        self, start_date: str, end_date: str
+    ) -> dict[str, list[tuple[datetime, float]]]:
+        """BioAge-Historie für ein Jahresfenster. Wie die App je Fenster einen
+        Typ pro Request abfragen (TOTAL/MUSCLE/CARDIO/METABOLIC/FLEXIBILITY)."""
+        result: dict[str, list[tuple[datetime, float]]] = {}
+        for mtype in ("TOTAL", "MUSCLE", "CARDIO", "METABOLIC", "FLEXIBILITY"):
+            points = await self._get_bioage_history_type(
+                mtype, start_date, end_date
+            )
+            if points:
+                result[mtype] = points
+        return result
+
+    async def _get_bioage_history_type(
+        self, mtype: str, start_date: str, end_date: str
+    ) -> list[tuple[datetime, float]]:
+        """Ein einzelner Alters-Typ für ein Jahresfenster (ein Request, genau
+        wie die App: getAnalysisMetricHistory(listOf(type), …))."""
+        url = f"{self._mobile}/analysis/api/v1.0/exercisers/{self.uuid}/bioage/history"
+        params = {
+            "types": mtype,
+            "startDate": start_date,
+            "endDate": end_date,
+            "granularity": "ONE_ITEM_PER_MONTH",
+            "timezone": "Europe/Berlin",
+        }
+        try:
+            data = await self._get(
+                url, params=params, label="bioage-history", quiet_statuses={404}
+            )
+        except SelectionFitnessApiError as err:
+            _LOGGER.debug("bioage-history (%s) nicht verfügbar: %s", mtype, err)
+            return []
+        # Antwort: Liste von {type, history:[{date,value}]} (ggf. unter Schlüssel)
+        series = data if isinstance(data, list) else None
+        if series is None and isinstance(data, dict):
+            for key in ("history", "histories", "metrics", "items"):
+                if isinstance(data.get(key), list):
+                    series = data[key]
+                    break
+        if not isinstance(series, list):
+            return []
+        points: list[tuple[datetime, float]] = []
+        for entry in series:
+            if not isinstance(entry, dict):
+                continue
+            # Passenden Typ herausfiltern (Server könnte mehr zurückgeben)
+            etype = entry.get("type")
+            if etype and str(etype) != mtype:
+                continue
+            hist = entry.get("history")
+            if not isinstance(hist, list):
+                continue
+            for it in hist:
+                if not isinstance(it, dict):
+                    continue
+                raw = it.get("date")
+                val = it.get("value")
+                if raw is None or not isinstance(val, (int, float)):
+                    continue
+                dt = _parse_history_date(raw)
+                if dt is None:
+                    continue
+                points.append((dt, float(val)))
         return points
 
     async def get_measurements(self) -> dict[str, dict[str, Any]]:

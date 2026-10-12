@@ -26,6 +26,15 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+#: eGym-Analyse-Typ (bioage/history) -> Sensor-Key (unique_id-Suffix)
+BIOAGE_HISTORY_MAP = {
+    "TOTAL": "bio_age",
+    "MUSCLE": "muscle_age",
+    "CARDIO": "cardio_age",
+    "METABOLIC": "metabolic_age",
+    "FLEXIBILITY": "flexibility_age",
+}
+
 
 class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Holt in einem Intervall alle verfügbaren Daten."""
@@ -51,6 +60,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Codes, für die die Kraftmess-Historie schon importiert wurde
         self._strength_hist_done: set[str] = set()
         self._workout_stats_done = False
+        self._bioage_hist_done = False
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -115,6 +125,11 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._import_workout_statistics(workouts)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Workout-Statistik-Import übersprungen: %s", err)
+            # BioAge-/Fitnessalter-Historie einmalig importieren (bis ~2020)
+            try:
+                await self._import_bioage_statistics()
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("BioAge-Statistik-Import übersprungen: %s", err)
 
             return {
                 "firstname": firstname,
@@ -230,6 +245,60 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         }
         async_import_statistics(self.hass, metadata, stats)
         self._workout_stats_done = True
+
+    async def _import_bioage_statistics(self) -> None:
+        """Importiert die Historie der Fitness-Alter (Körper-, Kraft-, Cardio-,
+        Stoffwechsel-, Flexibilitätsalter) als Langzeitstatistik, zurück bis zur
+        ersten Messung. Einmalig (sobald die Entities existieren); idempotent."""
+        if self._bioage_hist_done:
+            return
+        from homeassistant.components.recorder.statistics import (
+            async_import_statistics,
+        )
+
+        ent_reg = er.async_get(self.hass)
+        # Zuordnung analysisType -> (entity_id) vorab prüfen
+        targets: dict[str, str] = {}
+        for mtype, key in BIOAGE_HISTORY_MAP.items():
+            unique_id = f"{self.client.uuid}_{key}"
+            entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
+            if entity_id:
+                targets[mtype] = entity_id
+        if not targets:
+            return  # Entities noch nicht da -> nächster Zyklus
+
+        history = await self.client.get_bioage_history()
+        if not history:
+            # Kein Verlauf abrufbar -> nicht erneut versuchen
+            self._bioage_hist_done = True
+            return
+        imported_any = False
+        for mtype, entity_id in targets.items():
+            points = history.get(mtype)
+            if not points:
+                continue
+            buckets: dict[datetime, float] = {}
+            for dt, val in points:
+                bucket = dt.replace(minute=0, second=0, microsecond=0)
+                buckets[bucket] = float(val)
+            if not buckets:
+                continue
+            stats = [
+                {"start": b, "mean": v, "min": v, "max": v}
+                for b, v in sorted(buckets.items())
+            ]
+            metadata = {
+                "has_mean": True,
+                "has_sum": False,
+                "name": None,
+                "source": "recorder",
+                "statistic_id": entity_id,
+                "unit_of_measurement": "a",
+            }
+            async_import_statistics(self.hass, metadata, stats)
+            imported_any = True
+        if imported_any:
+            self._bioage_hist_done = True
 
     async def _import_strength_statistics(self, machines: dict[str, Any]) -> None:
         """Importiert die Kraftmess-Historie je Gerät als Langzeitstatistik.
