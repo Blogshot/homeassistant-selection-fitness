@@ -455,7 +455,7 @@ class SelectionFitnessClient:
             "upper_body_state": raw("muscleDetails", "upperBodyMusclesState"),
             "core_body_state": raw("muscleDetails", "coreBodyMusclesState"),
             "lower_body_state": raw("muscleDetails", "lowerBodyMusclesState"),
-            "flexibility_age": val("flexDetails", "flexibilityAge"),
+            "flexibility_age": val("flexibilityDetails", "flexibilityAge"),
             "metabolic_age": val("metabolicDetails", "metabolicAge"),
             "body_fat": val("metabolicDetails", "bodyFat"),
             "bmi": val("metabolicDetails", "bmi"),
