@@ -27,6 +27,8 @@ Es werden keine Schutzmechanismen umgangen.
 - **Training**: Anzahl Workouts, letztes Training, Trainingsplan, Übungen im letzten Training
 - **Pro Gerät** (eGym-Maschinen): ein Sensor je Gerät mit der gewählten Haupt-Metrik,
   **Geräte-Bild**, Trend & Prognose, und allen weiteren Werten als Attribute
+- **Kraftmessung je Gerät**: der feste eGym-Testwert (unabhängig vom eingestellten
+  Gewicht) inkl. Fortschritt/Veränderung – als Attribut und als wählbare Haupt-Metrik
 - **Rückwirkende Historie**: die Geräte-Werte werden als HA-Langzeitstatistik
   importiert → volle Verlaufs-Graphen, auch für die Zeit vor der Installation
 - **Mehrere Personen**: jeder Account ist ein eigener Eintrag mit eigenem
@@ -77,15 +79,18 @@ wie oben hinzufügen.
 lässt sich wählen, welche Metrik der Geräte-Sensor als **Status** zeigt:
 
 - **Gewicht** (gestemmtes Gewicht, Standard)
+- **Kraftmessung** (fester eGym-Testwert, unabhängig vom eingestellten Gewicht)
 - **Kalorien**
 - **Aktivitätspunkte**
 - **Wiederholungen**
 
 Die jeweils anderen Werte bleiben als **Attribute** am Sensor verfügbar
-(`weight_kg`, `reps`, `sets`, `calories`, `activity_points`, `trend`,
+(`weight_kg`, `reps`, `sets`, `calories`, `activity_points`, `strength_value`,
+`strength_progress`, `strength_change_pct`, `strength_measured_at`, `trend`,
 `trend_per_month`, `projected_next`, `last_trained`, `session_count`,
 `training_method`, `source`, `exercise_code`). So kann jede Person die für sie
-relevante Größe als Hauptwert nutzen, ohne die anderen zu verlieren.
+relevante Größe als Hauptwert nutzen – manche das gestemmte Gewicht, andere die
+Kraftmessung, andere die Kalorien.
 
 ---
 

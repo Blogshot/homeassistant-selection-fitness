@@ -189,8 +189,6 @@ class SelectionFitnessClient:
         self._session_id: str | None = None  # "JSESSIONID=...."
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
-        self._logged_bioage_keys = False
-        self._logged_strength_sample = False
 
     # ------------------------------------------------------------------ #
     # Header
@@ -419,11 +417,6 @@ class SelectionFitnessClient:
             return {}
         if not isinstance(data, dict):
             return {}
-        # Einmal-Diagnose: welche Detail-Abschnitte liefert der Server?
-        if not self._logged_bioage_keys:
-            self._logged_bioage_keys = True
-            present = [k for k, v in data.items() if v]
-            _LOGGER.warning("selfit-bioage-keys vorhanden: %s", present)
 
         def val(section: str, field: str) -> Any:
             sec = data.get(section)
