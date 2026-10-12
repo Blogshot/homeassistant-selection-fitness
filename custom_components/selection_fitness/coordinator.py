@@ -48,6 +48,8 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self.entry = entry
         self.client = client
+        # Codes, für die die Kraftmess-Historie schon importiert wurde
+        self._strength_hist_done: set[str] = set()
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -102,6 +104,11 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._import_machine_statistics(machines)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Statistik-Import übersprungen: %s", err)
+            # Kraftmess-Historie je Gerät einmalig als Statistik importieren
+            try:
+                await self._import_strength_statistics(machines)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Kraft-Statistik-Import übersprungen: %s", err)
 
             return {
                 "firstname": firstname,
@@ -170,3 +177,45 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "unit_of_measurement": unit,
             }
             async_import_statistics(self.hass, metadata, stats)
+
+    async def _import_strength_statistics(self, machines: dict[str, Any]) -> None:
+        """Importiert die Kraftmess-Historie je Gerät als Langzeitstatistik.
+        Einmal je Gerät (sobald dessen Strength-Entity existiert); idempotent.
+        """
+        from homeassistant.components.recorder.statistics import (
+            async_import_statistics,
+        )
+
+        ent_reg = er.async_get(self.hass)
+        for code, m in (machines or {}).items():
+            strength = m.get("strength") or {}
+            ex_id = strength.get("strength_code")
+            if not ex_id or code in self._strength_hist_done:
+                continue
+            unique_id = f"{self.client.uuid}_strength_{code}"
+            entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
+            if not entity_id:
+                continue  # Entity noch nicht da -> nächster Zyklus
+            points = await self.client.get_strength_history(str(ex_id))
+            if not points:
+                # Kein Verlauf -> wenigstens den aktuellen Wert setzen
+                self._strength_hist_done.add(code)
+                continue
+            buckets: dict[datetime, float] = {}
+            for dt, val in points:
+                bucket = dt.replace(minute=0, second=0, microsecond=0)
+                buckets[bucket] = max(float(val), buckets.get(bucket, float(val)))
+            stats = [
+                {"start": b, "mean": v, "min": v, "max": v}
+                for b, v in sorted(buckets.items())
+            ]
+            metadata = {
+                "has_mean": True,
+                "has_sum": False,
+                "name": None,
+                "source": "recorder",
+                "statistic_id": entity_id,
+                "unit_of_measurement": "Pkt.",
+            }
+            async_import_statistics(self.hass, metadata, stats)
+            self._strength_hist_done.add(code)

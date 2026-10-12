@@ -506,6 +506,53 @@ class SelectionFitnessClient:
             }
         return result
 
+    async def get_strength_history(
+        self, exercise_id: str
+    ) -> list[tuple[datetime, float]]:
+        """Historie der Kraftmessung für ein Gerät (strength-Test-exerciseId).
+
+        GET {mobile}/measurements/api/v1.0/exercisers/{uuid}/strength
+            ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&exerciseId=<code>&languageCode=de
+        Rückgabe: sortierte Liste (Zeitpunkt, Wert).
+        """
+        url = f"{self._mobile}/measurements/api/v1.0/exercisers/{self.uuid}/strength"
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        params = {
+            "startDate": "2010-01-01",
+            "endDate": today,
+            "exerciseId": str(exercise_id),
+            "languageCode": "de",
+        }
+        try:
+            data = await self._get(url, params=params, label="strength-history")
+        except SelectionFitnessApiError as err:
+            _LOGGER.debug("strength-history nicht verfügbar: %s", err)
+            return []
+        items = data if isinstance(data, list) else None
+        if items is None and isinstance(data, dict):
+            for key in ("strengthMeasurements", "measurements", "items"):
+                if isinstance(data.get(key), list):
+                    items = data[key]
+                    break
+        points: list[tuple[datetime, float]] = []
+        if not isinstance(items, list):
+            return []
+        for it in items:
+            if not isinstance(it, dict):
+                continue
+            strength = it.get("strength") or {}
+            ca = strength.get("createdAt") or it.get("createdAt")
+            val = strength.get("value")
+            if not ca or not isinstance(val, (int, float)):
+                continue
+            try:
+                dt = datetime.fromisoformat(ca.replace("Z", "+00:00"))
+            except ValueError:
+                continue
+            points.append((dt, float(val)))
+        points.sort(key=lambda p: p[0])
+        return points
+
     async def get_measurements(self) -> dict[str, dict[str, Any]]:
         """Aktuelle Körpermesswerte über den Mobile-API-Host.
 

@@ -474,11 +474,72 @@ async def async_setup_entry(
     if metric not in MACHINE_METRICS:
         metric = DEFAULT_PRIMARY_METRIC
     for code, machine in (data.get("machines") or {}).items():
-        entities.append(
-            SelectionFitnessMachineSensor(coordinator, code, machine["name"], metric)
-        )
+        # Trainings-Sensor nur, wenn es Trainings-Sessions gibt
+        if machine.get("sessions"):
+            entities.append(
+                SelectionFitnessMachineSensor(coordinator, code, machine["name"], metric)
+            )
+        # Eigener Kraftmess-Sensor, wenn eine Kraftmessung vorliegt
+        if machine.get("strength"):
+            entities.append(
+                SelectionFitnessStrengthSensor(coordinator, code, machine["name"])
+            )
 
     async_add_entities(entities)
+
+
+class SelectionFitnessStrengthSensor(
+    CoordinatorEntity[SelectionFitnessCoordinator], SensorEntity
+):
+    """eGym-Kraftmessung je Gerät (fester Testwert) mit Verlauf/Historie."""
+
+    _attr_has_entity_name = True
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "Pkt."
+    _attr_icon = "mdi:arm-flex"
+
+    def __init__(
+        self,
+        coordinator: SelectionFitnessCoordinator,
+        code: str,
+        name: str,
+    ) -> None:
+        super().__init__(coordinator)
+        self._code = code
+        self._attr_name = f"{name} Kraftmessung"
+        self._attr_unique_id = f"{coordinator.client.uuid}_strength_{code}"
+        fn = (coordinator.data or {}).get("firstname") or ""
+        dev_name = f"eGym Geräte ({fn})" if fn and fn != "Selection Fitness" else "eGym Geräte"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{coordinator.client.uuid}_machines")},
+            name=dev_name,
+            manufacturer="eGym",
+            model="Fitness Machines",
+        )
+        m = ((coordinator.data or {}).get("machines") or {}).get(code) or {}
+        if m.get("image"):
+            self._attr_entity_picture = m["image"]
+
+    def _strength(self) -> dict[str, Any]:
+        m = (self.coordinator.data or {}).get("machines", {}).get(self._code) or {}
+        return m.get("strength") or {}
+
+    @property
+    def native_value(self) -> Any:
+        return self._strength().get("value")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        s = self._strength()
+        if not s:
+            return None
+        return {
+            "progress": s.get("progress"),
+            "change_pct": s.get("change_pct"),
+            "measured_at": s.get("created_at"),
+            "body_region": s.get("body_region"),
+            "exercise_code": s.get("strength_code"),
+        }
 
 
 class SelectionFitnessMachineSensor(
