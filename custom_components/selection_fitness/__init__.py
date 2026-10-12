@@ -60,6 +60,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_reload))
+
+    # Nach dem Anlegen der Entities einmal neu abrufen, damit der
+    # (entity-abhängige) Statistik-Import für Gewicht und Kraftmessung
+    # sofort läuft statt erst beim nächsten Intervall.
+    async def _post_setup_refresh(_now=None) -> None:
+        await coordinator.async_refresh()
+
+    hass.async_create_task(_post_setup_refresh())
     return True
 
 
