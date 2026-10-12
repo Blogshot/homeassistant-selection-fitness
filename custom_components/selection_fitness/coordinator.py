@@ -28,14 +28,33 @@ _LOGGER = logging.getLogger(__name__)
 
 # Ab HA 2026.11 verlangt async_import_statistics `mean_type` statt `has_mean`.
 # Wir setzen beides, damit es auf alten und neuen Kernen ohne Warnung läuft.
-try:  # pragma: no cover - abhängig von der HA-Version
-    from homeassistant.components.recorder.models import StatisticMeanType
+# Der Enum-Ort/-Name variiert je HA-Version, daher robust auflösen.
+def _resolve_mean_types() -> tuple[Any, Any]:
+    import importlib
 
-    _MEAN_ARITHMETIC = StatisticMeanType.ARITHMETIC_MEAN
-    _MEAN_NONE = StatisticMeanType.NONE
-except Exception:  # noqa: BLE001 - ältere HA-Version ohne mean_type
-    _MEAN_ARITHMETIC = None
-    _MEAN_NONE = None
+    for mod_name in (
+        "homeassistant.components.recorder.models",
+        "homeassistant.components.recorder.models.statistics",
+        "homeassistant.components.recorder.statistics",
+    ):
+        try:
+            mod = importlib.import_module(mod_name)
+        except Exception:  # noqa: BLE001
+            continue
+        enum = getattr(mod, "StatisticMeanType", None)
+        if enum is None:
+            continue
+        arithmetic = getattr(enum, "ARITHMETIC_MEAN", None) or getattr(
+            enum, "ARITHMETIC", None
+        )
+        none_val = getattr(enum, "NONE", None)
+        if arithmetic is not None and none_val is not None:
+            return arithmetic, none_val
+    _LOGGER.debug("StatisticMeanType nicht auflösbar – nur has_mean/has_sum")
+    return None, None
+
+
+_MEAN_ARITHMETIC, _MEAN_NONE = _resolve_mean_types()
 
 
 def _stat_metadata(statistic_id: str, unit: str | None, *, mean: bool) -> dict:
