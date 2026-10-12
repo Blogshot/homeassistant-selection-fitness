@@ -189,6 +189,7 @@ class SelectionFitnessClient:
         self._session_id: str | None = None  # "JSESSIONID=...."
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
+        self._logged_bioage_keys = False
 
     # ------------------------------------------------------------------ #
     # Header
@@ -404,8 +405,10 @@ class SelectionFitnessClient:
             ?types=strength,cardio,metabolic,flexibility&languageCode=de
         """
         url = f"{self._mobile}/analysis/api/v1.0/exercisers/{self.uuid}/bioage"
+        # Alle bekannten Kategorien anfragen (App-Namensvarianten abgedeckt:
+        # muscle/strength, metabolic/body, cardio, flexibility).
         params = {
-            "types": "strength,cardio,metabolic,flexibility",
+            "types": "muscle,strength,cardio,metabolic,body,flexibility",
             "languageCode": "de",
         }
         try:
@@ -415,6 +418,11 @@ class SelectionFitnessClient:
             return {}
         if not isinstance(data, dict):
             return {}
+        # Einmal-Diagnose: welche Detail-Abschnitte liefert der Server?
+        if not self._logged_bioage_keys:
+            self._logged_bioage_keys = True
+            present = [k for k, v in data.items() if v]
+            _LOGGER.warning("selfit-bioage-keys vorhanden: %s", present)
 
         def val(section: str, field: str) -> Any:
             sec = data.get(section)
