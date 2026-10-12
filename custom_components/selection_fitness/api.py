@@ -190,6 +190,7 @@ class SelectionFitnessClient:
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
         self._logged_bioage_keys = False
+        self._logged_strength_sample = False
 
     # ------------------------------------------------------------------ #
     # Header
@@ -480,6 +481,14 @@ class SelectionFitnessClient:
         except SelectionFitnessApiError as err:
             _LOGGER.debug("strength nicht verfügbar: %s", err)
             return {}
+        if not self._logged_strength_sample:
+            self._logged_strength_sample = True
+            import json as _json
+
+            _LOGGER.warning(
+                "selfit-strength-sample %s",
+                _json.dumps(data, ensure_ascii=False)[:1200],
+            )
         result: dict[str, dict[str, Any]] = {}
         items = data if isinstance(data, list) else (data or {}).get("measurements")
         if not isinstance(items, list):
