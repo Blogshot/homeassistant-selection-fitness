@@ -170,7 +170,6 @@ class SelectionFitnessApiError(Exception):
 class SelectionFitnessClient:
     """Asynchroner Client gegen die Netpulse-Backend-API."""
 
-    _logged_hist_sample = False
 
     def __init__(
         self,
@@ -500,7 +499,7 @@ class SelectionFitnessClient:
                 "value": strength.get("value"),
                 "progress": strength.get("progress"),
                 "change_pct": strength.get("percentageDiff"),
-                "created_at": strength.get("createdAt") or it.get("createdAt"),
+                "created_at": it.get("createdAt") or strength.get("createdAt"),
                 "label": label,
                 "image": icons[0] if isinstance(icons, list) and icons else None,
                 "body_region": it.get("bodyRegion") or ex.get("bodyRegion"),
@@ -530,15 +529,6 @@ class SelectionFitnessClient:
         except SelectionFitnessApiError as err:
             _LOGGER.debug("strength-history nicht verfügbar: %s", err)
             return []
-        if not SelectionFitnessClient._logged_hist_sample:
-            SelectionFitnessClient._logged_hist_sample = True
-            import json as _json
-
-            _LOGGER.warning(
-                "selfit-hist-sample ex=%s %s",
-                exercise_id,
-                _json.dumps(data, ensure_ascii=False)[:900],
-            )
         items = data if isinstance(data, list) else None
         if items is None and isinstance(data, dict):
             for key in ("strengthMeasurements", "measurements", "items"):
@@ -552,7 +542,9 @@ class SelectionFitnessClient:
             if not isinstance(it, dict):
                 continue
             strength = it.get("strength") or {}
-            ca = strength.get("createdAt") or it.get("createdAt")
+            # Top-Level createdAt ist der echte Messzeitpunkt;
+            # strength.createdAt ist teils 1970 (Platzhalter).
+            ca = it.get("createdAt") or strength.get("createdAt")
             val = strength.get("value")
             if not ca or not isinstance(val, (int, float)):
                 continue
