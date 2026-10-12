@@ -26,6 +26,35 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Ab HA 2026.11 verlangt async_import_statistics `mean_type` statt `has_mean`.
+# Wir setzen beides, damit es auf alten und neuen Kernen ohne Warnung läuft.
+try:  # pragma: no cover - abhängig von der HA-Version
+    from homeassistant.components.recorder.models import StatisticMeanType
+
+    _MEAN_ARITHMETIC = StatisticMeanType.ARITHMETIC_MEAN
+    _MEAN_NONE = StatisticMeanType.NONE
+except Exception:  # noqa: BLE001 - ältere HA-Version ohne mean_type
+    _MEAN_ARITHMETIC = None
+    _MEAN_NONE = None
+
+
+def _stat_metadata(statistic_id: str, unit: str | None, *, mean: bool) -> dict:
+    """Baut Statistik-Metadaten; setzt mean_type (neu) und has_mean/has_sum
+    (alt) zugleich, damit keine Deprecation-Warnung entsteht."""
+    meta: dict = {
+        "has_mean": mean,
+        "has_sum": not mean,
+        "name": None,
+        "source": "recorder",
+        "statistic_id": statistic_id,
+        "unit_of_measurement": unit,
+    }
+    mean_type = _MEAN_ARITHMETIC if mean else _MEAN_NONE
+    if mean_type is not None:
+        meta["mean_type"] = mean_type
+    return meta
+
+
 #: eGym-Analyse-Typ (bioage/history) -> Sensor-Key (unique_id-Suffix)
 BIOAGE_HISTORY_MAP = {
     "TOTAL": "bio_age",
@@ -189,14 +218,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = {
-                "has_mean": True,
-                "has_sum": False,
-                "name": None,
-                "source": "recorder",
-                "statistic_id": entity_id,
-                "unit_of_measurement": unit,
-            }
+            metadata = _stat_metadata(entity_id, unit, mean=True)
             async_import_statistics(self.hass, metadata, stats)
 
     def _import_workout_statistics(self, workouts: list[dict[str, Any]]) -> None:
@@ -235,14 +257,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             {"start": b, "state": float(v), "sum": float(v)}
             for b, v in sorted(buckets.items())
         ]
-        metadata = {
-            "has_mean": False,
-            "has_sum": True,
-            "name": None,
-            "source": "recorder",
-            "statistic_id": entity_id,
-            "unit_of_measurement": None,
-        }
+        metadata = _stat_metadata(entity_id, None, mean=False)
         async_import_statistics(self.hass, metadata, stats)
         self._workout_stats_done = True
 
@@ -287,14 +302,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = {
-                "has_mean": True,
-                "has_sum": False,
-                "name": None,
-                "source": "recorder",
-                "statistic_id": entity_id,
-                "unit_of_measurement": "a",
-            }
+            metadata = _stat_metadata(entity_id, "a", mean=True)
             async_import_statistics(self.hass, metadata, stats)
             imported_any = True
         if imported_any:
@@ -331,13 +339,6 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = {
-                "has_mean": True,
-                "has_sum": False,
-                "name": None,
-                "source": "recorder",
-                "statistic_id": entity_id,
-                "unit_of_measurement": "Pkt.",
-            }
+            metadata = _stat_metadata(entity_id, "Pkt.", mean=True)
             async_import_statistics(self.hass, metadata, stats)
             self._strength_hist_done.add(code)
