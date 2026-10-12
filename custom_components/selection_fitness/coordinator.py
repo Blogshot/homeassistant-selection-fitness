@@ -72,23 +72,31 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 or "Selection Fitness"
             )
             machines = extract_machines(workouts)
-            # Kraftmessung (fester Testwert) je Gerät holen und einmergen
-            strength = await self.client.get_strength()
-            for code, s in strength.items():
-                m = machines.setdefault(
-                    code,
-                    {
-                        "name": s.get("label") or f"Gerät {code}",
-                        "source": "eGym",
-                        "image": s.get("image"),
-                        "sessions": [],
-                        "latest": None,
-                        "trend": {},
-                    },
-                )
-                if not m.get("image") and s.get("image"):
-                    m["image"] = s["image"]
-                m["strength"] = s
+            # Kraftmessung (fester Testwert) je Gerät holen und über den
+            # Namen mergen (Kraftmess-Codes != Trainings-Codes).
+            strength_by_name = await self.client.get_strength()
+            matched: set[str] = set()
+            for m in machines.values():
+                s = strength_by_name.get(m.get("name"))
+                if s:
+                    m["strength"] = s
+                    matched.add(m["name"])
+                    if not m.get("image") and s.get("image"):
+                        m["image"] = s["image"]
+            # Geräte, die nur eine Kraftmessung (aber kein Training) haben
+            for label, s in strength_by_name.items():
+                if label in matched:
+                    continue
+                key = f"s_{s.get('strength_code') or label}"
+                machines[key] = {
+                    "name": label,
+                    "source": "eGym",
+                    "image": s.get("image"),
+                    "sessions": [],
+                    "latest": None,
+                    "trend": {},
+                    "strength": s,
+                }
             # Historische Werte als Langzeitstatistik importieren (idempotent)
             try:
                 self._import_machine_statistics(machines)

@@ -481,35 +481,35 @@ class SelectionFitnessClient:
         except SelectionFitnessApiError as err:
             _LOGGER.debug("strength nicht verfügbar: %s", err)
             return {}
-        if not self._logged_strength_sample:
-            self._logged_strength_sample = True
-            import json as _json
-
-            _LOGGER.warning(
-                "selfit-strength-sample %s",
-                _json.dumps(data, ensure_ascii=False)[:1200],
-            )
         result: dict[str, dict[str, Any]] = {}
-        items = data if isinstance(data, list) else (data or {}).get("measurements")
+        # Liste liegt unter "strengthMeasurements" (Fallbacks defensiv)
+        items = data if isinstance(data, list) else None
+        if items is None and isinstance(data, dict):
+            for key in ("strengthMeasurements", "measurements", "items"):
+                if isinstance(data.get(key), list):
+                    items = data[key]
+                    break
         if not isinstance(items, list):
             return {}
         for it in items:
             if not isinstance(it, dict):
                 continue
             ex = it.get("exercise") or {}
-            code = ex.get("code")
+            label = ex.get("label")
             strength = it.get("strength") or {}
-            if not code or "value" not in strength:
+            if not label or "value" not in strength:
                 continue
             icons = ex.get("icons")
-            result[str(code)] = {
+            # Merge erfolgt über den Namen (Kraftmess-Codes != Trainings-Codes)
+            result[str(label)] = {
                 "value": strength.get("value"),
                 "progress": strength.get("progress"),
                 "change_pct": strength.get("percentageDiff"),
                 "created_at": strength.get("createdAt") or it.get("createdAt"),
-                "label": ex.get("label"),
+                "label": label,
                 "image": icons[0] if isinstance(icons, list) and icons else None,
                 "body_region": it.get("bodyRegion") or ex.get("bodyRegion"),
+                "strength_code": ex.get("code"),
             }
         return result
 
