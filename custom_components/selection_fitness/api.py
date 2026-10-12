@@ -276,7 +276,13 @@ class SelectionFitnessClient:
     # ------------------------------------------------------------------ #
     # Generische GET-Hilfe mit Auto-Relogin bei 401
     # ------------------------------------------------------------------ #
-    async def _get(self, url: str, params: dict | None = None, label: str = "") -> Any:
+    async def _get(
+        self,
+        url: str,
+        params: dict | None = None,
+        label: str = "",
+        quiet_statuses: set[int] | None = None,
+    ) -> Any:
         if self._session_id is None:
             await self.login()
         for attempt in (1, 2):
@@ -291,7 +297,9 @@ class SelectionFitnessClient:
                         continue
                     text = await resp.text()
                     lbl = label or url.rsplit("/np/", 1)[-1][:40]
-                    if resp.status >= 400:
+                    # Erwartete Status (z.B. 404 ohne Mitgliedschaft) nur auf
+                    # DEBUG, damit das Log nicht jede Runde zuwarnt.
+                    if resp.status >= 400 and resp.status not in (quiet_statuses or set()):
                         _LOGGER.warning(
                             "selfit %s -> HTTP %s: %s",
                             lbl, resp.status, text[:180].replace("\n", " "),
@@ -332,7 +340,7 @@ class SelectionFitnessClient:
         """GET /np/exercisers/{uuid}/latest-check-in."""
         url = f"{self._base}/np/exercisers/{self.uuid}/latest-check-in"
         try:
-            data = await self._get(url, label="latest-check-in")
+            data = await self._get(url, label="latest-check-in", quiet_statuses={404})
         except SelectionFitnessApiError as err:
             _LOGGER.debug("latest-check-in nicht verfügbar: %s", err)
             return None
@@ -343,7 +351,10 @@ class SelectionFitnessClient:
         url = f"{self._base}/np/exercisers/{self.uuid}/check-ins/history"
         try:
             data = await self._get(
-                url, params={"endDate": _iso8601("naive")}, label="check-ins/history"
+                url,
+                params={"endDate": _iso8601("naive")},
+                label="check-ins/history",
+                quiet_statuses={400, 404},
             )
         except SelectionFitnessApiError as err:
             _LOGGER.debug("check-in history nicht verfügbar: %s", err)
