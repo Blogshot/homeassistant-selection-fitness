@@ -464,6 +464,46 @@ class SelectionFitnessClient:
         # Nur vorhandene Werte behalten
         return {k: v for k, v in result.items() if v is not None}
 
+    async def get_strength(self) -> dict[str, dict[str, Any]]:
+        """eGym Kraftmessung je Gerät (fester Testwert, unabhängig vom
+        eingestellten Gewicht).
+
+        GET {mobile}/measurements/api/v1.0/exercisers/{uuid}/strength/latest
+        Antwort: Liste von {exercise:{code,label,icons}, strength:{value,
+        progress,percentageDiff,createdAt}, bodyRegion, ...}
+        Rückgabe: {exerciseCode: {value, progress, change_pct, created_at,
+        label, image, body_region}}
+        """
+        url = f"{self._mobile}/measurements/api/v1.0/exercisers/{self.uuid}/strength/latest"
+        try:
+            data = await self._get(url, params={"languageCode": "de"}, label="strength")
+        except SelectionFitnessApiError as err:
+            _LOGGER.debug("strength nicht verfügbar: %s", err)
+            return {}
+        result: dict[str, dict[str, Any]] = {}
+        items = data if isinstance(data, list) else (data or {}).get("measurements")
+        if not isinstance(items, list):
+            return {}
+        for it in items:
+            if not isinstance(it, dict):
+                continue
+            ex = it.get("exercise") or {}
+            code = ex.get("code")
+            strength = it.get("strength") or {}
+            if not code or "value" not in strength:
+                continue
+            icons = ex.get("icons")
+            result[str(code)] = {
+                "value": strength.get("value"),
+                "progress": strength.get("progress"),
+                "change_pct": strength.get("percentageDiff"),
+                "created_at": strength.get("createdAt") or it.get("createdAt"),
+                "label": ex.get("label"),
+                "image": icons[0] if isinstance(icons, list) and icons else None,
+                "body_region": it.get("bodyRegion") or ex.get("bodyRegion"),
+            }
+        return result
+
     async def get_measurements(self) -> dict[str, dict[str, Any]]:
         """Aktuelle Körpermesswerte über den Mobile-API-Host.
 

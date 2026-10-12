@@ -72,6 +72,23 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 or "Selection Fitness"
             )
             machines = extract_machines(workouts)
+            # Kraftmessung (fester Testwert) je Gerät holen und einmergen
+            strength = await self.client.get_strength()
+            for code, s in strength.items():
+                m = machines.setdefault(
+                    code,
+                    {
+                        "name": s.get("label") or f"Gerät {code}",
+                        "source": "eGym",
+                        "image": s.get("image"),
+                        "sessions": [],
+                        "latest": None,
+                        "trend": {},
+                    },
+                )
+                if not m.get("image") and s.get("image"):
+                    m["image"] = s["image"]
+                m["strength"] = s
             # Historische Werte als Langzeitstatistik importieren (idempotent)
             try:
                 self._import_machine_statistics(machines)

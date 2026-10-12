@@ -34,6 +34,7 @@ DEFAULT_PRIMARY_METRIC = "weight"
 # key -> (session-Feld, Einheit, device_class|None, icon, Anzeigename)
 MACHINE_METRICS: dict[str, tuple] = {
     "weight": ("weight", "kg", "weight", "mdi:dumbbell", "Gestemmtes Gewicht"),
+    "strength": ("strength", "Pkt.", None, "mdi:arm-flex", "Kraftmessung"),
     "calories": ("calories", "kcal", None, "mdi:fire", "Kalorien"),
     "activity_points": ("activity_points", "Punkte", None, "mdi:star-four-points", "Aktivitätspunkte"),
     "reps": ("reps", "Wdh.", None, "mdi:counter", "Wiederholungen"),

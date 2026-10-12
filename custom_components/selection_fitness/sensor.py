@@ -524,8 +524,10 @@ class SelectionFitnessMachineSensor(
 
     @property
     def native_value(self) -> Any:
-        latest = (self._machine() or {}).get("latest") or {}
-        return latest.get(self._field)
+        m = self._machine() or {}
+        if self._field == "strength":
+            return (m.get("strength") or {}).get("value")
+        return (m.get("latest") or {}).get(self._field)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -533,7 +535,8 @@ class SelectionFitnessMachineSensor(
         if not m:
             return None
         latest = m.get("latest") or {}
-        trend = compute_trend(m.get("sessions") or [], self._field)
+        strength = m.get("strength") or {}
+        trend = compute_trend(m.get("sessions") or [], self._field) if self._field != "strength" else {}
         return {
             "weight_kg": latest.get("weight"),
             "reps": latest.get("reps"),
@@ -543,6 +546,11 @@ class SelectionFitnessMachineSensor(
             "training_method": latest.get("training_method"),
             "last_trained": latest.get("completedAt"),
             "session_count": len(m.get("sessions") or []),
+            # Kraftmessung (fester Testwert, unabhängig vom eingestellten Gewicht)
+            "strength_value": strength.get("value"),
+            "strength_measured_at": strength.get("created_at"),
+            "strength_progress": strength.get("progress"),
+            "strength_change_pct": strength.get("change_pct"),
             "trend": trend.get("direction"),
             "trend_per_month": trend.get("slope_per_month"),
             "projected_next": trend.get("projected_next"),
