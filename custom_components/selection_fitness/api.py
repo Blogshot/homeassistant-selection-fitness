@@ -170,6 +170,8 @@ class SelectionFitnessApiError(Exception):
 class SelectionFitnessClient:
     """Asynchroner Client gegen die Netpulse-Backend-API."""
 
+    _logged_hist_sample = False
+
     def __init__(
         self,
         session: aiohttp.ClientSession,
@@ -528,6 +530,15 @@ class SelectionFitnessClient:
         except SelectionFitnessApiError as err:
             _LOGGER.debug("strength-history nicht verfügbar: %s", err)
             return []
+        if not SelectionFitnessClient._logged_hist_sample:
+            SelectionFitnessClient._logged_hist_sample = True
+            import json as _json
+
+            _LOGGER.warning(
+                "selfit-hist-sample ex=%s %s",
+                exercise_id,
+                _json.dumps(data, ensure_ascii=False)[:900],
+            )
         items = data if isinstance(data, list) else None
         if items is None and isinstance(data, dict):
             for key in ("strengthMeasurements", "measurements", "items"):
