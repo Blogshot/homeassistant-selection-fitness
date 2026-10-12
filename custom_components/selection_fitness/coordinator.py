@@ -50,6 +50,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.client = client
         # Codes, für die die Kraftmess-Historie schon importiert wurde
         self._strength_hist_done: set[str] = set()
+        self._workout_stats_done = False
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -109,6 +110,11 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 await self._import_strength_statistics(machines)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Kraft-Statistik-Import übersprungen: %s", err)
+            # Workout-Gesamtzahl einmalig als kumulativen Verlauf importieren
+            try:
+                self._import_workout_statistics(workouts)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Workout-Statistik-Import übersprungen: %s", err)
 
             return {
                 "firstname": firstname,
@@ -177,6 +183,53 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "unit_of_measurement": unit,
             }
             async_import_statistics(self.hass, metadata, stats)
+
+    def _import_workout_statistics(self, workouts: list[dict[str, Any]]) -> None:
+        """Legt die Workout-Gesamtzahl rückwirkend als kumulativen Verlauf an
+        (1, 2, … N zu den jeweiligen Trainingszeitpunkten), damit der Sensor
+        nicht von 0 auf N springt. Einmalig, idempotent."""
+        if self._workout_stats_done:
+            return
+        from homeassistant.components.recorder.statistics import (
+            async_import_statistics,
+        )
+
+        ent_reg = er.async_get(self.hass)
+        unique_id = f"{self.client.uuid}_workout_count"
+        entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
+        if not entity_id:
+            return  # Entity noch nicht da -> nächster Zyklus
+        dated: list[datetime] = []
+        for w in workouts or []:
+            ca = w.get("completedAt") or w.get("createdAt")
+            if not ca:
+                continue
+            try:
+                dated.append(datetime.fromisoformat(ca.replace("Z", "+00:00")))
+            except ValueError:
+                continue
+        if not dated:
+            return
+        dated.sort()
+        # Kumulativer Stand je Stundenbucket (letzter Index in der Stunde)
+        buckets: dict[datetime, int] = {}
+        for i, dt in enumerate(dated, start=1):
+            bucket = dt.replace(minute=0, second=0, microsecond=0)
+            buckets[bucket] = i
+        stats = [
+            {"start": b, "state": float(v), "sum": float(v)}
+            for b, v in sorted(buckets.items())
+        ]
+        metadata = {
+            "has_mean": False,
+            "has_sum": True,
+            "name": None,
+            "source": "recorder",
+            "statistic_id": entity_id,
+            "unit_of_measurement": None,
+        }
+        async_import_statistics(self.hass, metadata, stats)
+        self._workout_stats_done = True
 
     async def _import_strength_statistics(self, machines: dict[str, Any]) -> None:
         """Importiert die Kraftmess-Historie je Gerät als Langzeitstatistik.
