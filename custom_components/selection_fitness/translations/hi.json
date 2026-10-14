@@ -209,8 +209,7 @@
               "stable": "स्थिर"
             }
           }
-        },
-        "unit_of_measurement": "अंक"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "स्थिर"
             }
           }
-        },
-        "unit_of_measurement": "अंक"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "स्थिर"
             }
           }
-        },
-        "unit_of_measurement": "बार"
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} शक्ति परीक्षण",
-        "unit_of_measurement": "अंक"
+        "name": "{machine} शक्ति परीक्षण"
       }
     }
   },

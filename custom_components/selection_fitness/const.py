@@ -32,14 +32,14 @@ DEFAULT_PRIMARY_METRIC = "weight"
 
 # Selectable primary metric per machine (configurable per config entry).
 # key -> (session field, unit, device_class|None, icon)
-# unit None: the unit comes from the translations (entity.sensor.machine_<key>),
-# so it is shown in the user's language.
+# Units are language-neutral: HA only takes translated units from the English
+# translation, so translating them would not localize anything.
 MACHINE_METRICS: dict[str, tuple] = {
     "weight": ("weight", "kg", "weight", "mdi:dumbbell"),
-    "strength": ("strength", None, None, "mdi:arm-flex"),
+    "strength": ("strength", "pts", None, "mdi:arm-flex"),
     "calories": ("calories", "kcal", None, "mdi:fire"),
-    "activity_points": ("activity_points", None, None, "mdi:star-four-points"),
-    "reps": ("reps", None, None, "mdi:counter"),
+    "activity_points": ("activity_points", "points", None, "mdi:star-four-points"),
+    "reps": ("reps", "reps", None, "mdi:counter"),
 }
 
 # Messwert-Typen, die bei den latest-metrics Endpunkten angefragt werden.

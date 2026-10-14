@@ -209,8 +209,7 @@
               "stable": "Stabile"
             }
           }
-        },
-        "unit_of_measurement": "pt"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Stabile"
             }
           }
-        },
-        "unit_of_measurement": "punti"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Stabile"
             }
           }
-        },
-        "unit_of_measurement": "rip."
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} test di forza",
-        "unit_of_measurement": "pt"
+        "name": "{machine} test di forza"
       }
     }
   },

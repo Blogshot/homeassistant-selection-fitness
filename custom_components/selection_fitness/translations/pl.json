@@ -209,8 +209,7 @@
               "stable": "Stabilny"
             }
           }
-        },
-        "unit_of_measurement": "pkt"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Stabilny"
             }
           }
-        },
-        "unit_of_measurement": "punkty"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Stabilny"
             }
           }
-        },
-        "unit_of_measurement": "powt."
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} test siły",
-        "unit_of_measurement": "pkt"
+        "name": "{machine} test siły"
       }
     }
   },

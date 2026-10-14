@@ -495,8 +495,8 @@ class SelectionFitnessStrengthSensor(
 
     _attr_has_entity_name = True
     _attr_state_class = SensorStateClass.MEASUREMENT
-    # name and unit ("points") come from the translations
     _attr_translation_key = "machine_strength_test"
+    _attr_native_unit_of_measurement = "pts"
     _attr_icon = "mdi:arm-flex"
 
     def __init__(
@@ -556,11 +556,9 @@ class SelectionFitnessMachineSensor(
         self._metric = metric
         field, unit, dev_class, icon = MACHINE_METRICS[metric]
         self._field = field
-        # name "{machine}"; unit from the translations if unit is None
         self._attr_translation_key = f"machine_{metric}"
         self._attr_translation_placeholders = {"machine": name}
-        if unit is not None:
-            self._attr_native_unit_of_measurement = unit
+        self._attr_native_unit_of_measurement = unit
         self._attr_icon = icon
         if dev_class == "weight":
             self._attr_device_class = SensorDeviceClass.WEIGHT

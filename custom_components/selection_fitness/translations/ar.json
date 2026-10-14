@@ -209,8 +209,7 @@
               "stable": "مستقر"
             }
           }
-        },
-        "unit_of_measurement": "نقطة"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "مستقر"
             }
           }
-        },
-        "unit_of_measurement": "نقاط"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "مستقر"
             }
           }
-        },
-        "unit_of_measurement": "تكرار"
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} اختبار القوة",
-        "unit_of_measurement": "نقطة"
+        "name": "{machine} اختبار القوة"
       }
     }
   },

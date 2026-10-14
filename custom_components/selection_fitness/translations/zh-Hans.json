@@ -209,8 +209,7 @@
               "stable": "稳定"
             }
           }
-        },
-        "unit_of_measurement": "分"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "稳定"
             }
           }
-        },
-        "unit_of_measurement": "积分"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "稳定"
             }
           }
-        },
-        "unit_of_measurement": "次"
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} 力量测试",
-        "unit_of_measurement": "分"
+        "name": "{machine} 力量测试"
       }
     }
   },

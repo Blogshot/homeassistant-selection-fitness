@@ -209,8 +209,7 @@
               "stable": "안정"
             }
           }
-        },
-        "unit_of_measurement": "점"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "안정"
             }
           }
-        },
-        "unit_of_measurement": "포인트"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "안정"
             }
           }
-        },
-        "unit_of_measurement": "회"
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} 근력 측정",
-        "unit_of_measurement": "점"
+        "name": "{machine} 근력 측정"
       }
     }
   },

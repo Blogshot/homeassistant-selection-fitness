@@ -209,8 +209,7 @@
               "stable": "Sabit"
             }
           }
-        },
-        "unit_of_measurement": "puan"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Sabit"
             }
           }
-        },
-        "unit_of_measurement": "puan"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Sabit"
             }
           }
-        },
-        "unit_of_measurement": "tekrar"
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} kuvvet testi",
-        "unit_of_measurement": "puan"
+        "name": "{machine} kuvvet testi"
       }
     }
   },

@@ -209,8 +209,7 @@
               "stable": "Estável"
             }
           }
-        },
-        "unit_of_measurement": "pts"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Estável"
             }
           }
-        },
-        "unit_of_measurement": "pontos"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Estável"
             }
           }
-        },
-        "unit_of_measurement": "rep."
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} teste de força",
-        "unit_of_measurement": "pts"
+        "name": "{machine} teste de força"
       }
     }
   },

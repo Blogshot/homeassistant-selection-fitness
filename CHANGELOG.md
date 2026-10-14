@@ -10,8 +10,8 @@ All notable changes to this integration. Versions match the `version` field in
   Dutch, Polish, Portuguese (Portugal and Brazil), Russian, Ukrainian, Turkish,
   Chinese (Simplified and Traditional), Japanese, Korean, Arabic and Hindi.
 - Machine and strength test sensors, the machines device, the primary metric
-  selection in the options, units such as "points"/"reps" and the trend
-  attribute values (`rising`/`falling`/`stable`) are now translated.
+  selection in the options and the trend attribute values
+  (`rising`/`falling`/`stable`) are now translated.
 - Service errors and the backdating notification are translated.
 
 ### Changed
@@ -19,6 +19,9 @@ All notable changes to this integration. Versions match the `version` field in
   the Home Assistant instance (previously always German).
 - The `trend` attribute of machine sensors now uses the values
   `rising`/`falling`/`stable` instead of `steigend`/`fallend`/`stabil`.
+- Units of the strength test, activity points and repetitions are
+  language-neutral: `pts`, `points`, `reps` (previously `Pkt.`, `Punkte`,
+  `Wdh.`). Existing long-term statistics are re-imported with the new unit.
 - README and changelog are now in English.
 - Minimum Home Assistant version raised to 2024.11.
 

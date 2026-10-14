@@ -209,8 +209,7 @@
               "stable": "横ばい"
             }
           }
-        },
-        "unit_of_measurement": "pt"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "横ばい"
             }
           }
-        },
-        "unit_of_measurement": "ポイント"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "横ばい"
             }
           }
-        },
-        "unit_of_measurement": "回"
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} 筋力測定",
-        "unit_of_measurement": "pt"
+        "name": "{machine} 筋力測定"
       }
     }
   },

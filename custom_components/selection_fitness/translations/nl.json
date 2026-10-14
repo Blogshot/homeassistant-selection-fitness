@@ -209,8 +209,7 @@
               "stable": "Stabiel"
             }
           }
-        },
-        "unit_of_measurement": "ptn"
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Stabiel"
             }
           }
-        },
-        "unit_of_measurement": "punten"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Stabiel"
             }
           }
-        },
-        "unit_of_measurement": "herh."
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} krachtmeting",
-        "unit_of_measurement": "ptn"
+        "name": "{machine} krachtmeting"
       }
     }
   },

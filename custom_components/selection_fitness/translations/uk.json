@@ -209,8 +209,7 @@
               "stable": "Стабільно"
             }
           }
-        },
-        "unit_of_measurement": "бал."
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Стабільно"
             }
           }
-        },
-        "unit_of_measurement": "бали"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Стабільно"
             }
           }
-        },
-        "unit_of_measurement": "повт."
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} тест сили",
-        "unit_of_measurement": "бал."
+        "name": "{machine} тест сили"
       }
     }
   },

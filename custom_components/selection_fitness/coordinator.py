@@ -85,8 +85,6 @@ def _stat_metadata(statistic_id: str, unit: str | None, *, mean: bool) -> dict:
     return meta
 
 
-_NO_STATE = object()
-
 _UNIT_TOKENS = ("KG", "LITER", "CM2", "CM", "KJ")
 
 
@@ -351,29 +349,12 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 buckets[bucket] = max(float(val), buckets.get(bucket, float(val)))
             if not buckets:
                 continue
-            entity_unit = self._entity_unit(entity_id, unit)
-            if entity_unit is _NO_STATE:
-                continue  # unit not known yet -> next cycle
             stats = [
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = _stat_metadata(entity_id, entity_unit, mean=True)
+            metadata = _stat_metadata(entity_id, unit, mean=True)
             async_import_statistics(self.hass, metadata, stats)
-
-    def _entity_unit(self, entity_id: str, fallback: str | None) -> Any:
-        """Unit of the entity as shown in HA.
-
-        Some units come from the translations (e.g. strength points) and thus
-        depend on the system language; imported statistics must use exactly
-        that unit. Returns _NO_STATE if the entity has no state yet.
-        """
-        if fallback is not None:
-            return fallback
-        state = self.hass.states.get(entity_id)
-        if state is None:
-            return _NO_STATE
-        return state.attributes.get("unit_of_measurement")
 
     def _import_workout_statistics(self, workouts: list[dict[str, Any]]) -> None:
         """Legt die Workout-Gesamtzahl rückwirkend als kumulativen Verlauf an
@@ -493,9 +474,6 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            entity_unit = self._entity_unit(entity_id, None)
-            if entity_unit is _NO_STATE:
-                continue  # unit not known yet -> next cycle
-            metadata = _stat_metadata(entity_id, entity_unit, mean=True)
+            metadata = _stat_metadata(entity_id, "pts", mean=True)
             async_import_statistics(self.hass, metadata, stats)
             self._strength_hist_done.add(code)

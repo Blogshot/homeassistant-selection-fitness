@@ -209,8 +209,7 @@
               "stable": "Stabil"
             }
           }
-        },
-        "unit_of_measurement": "Pkt."
+        }
       },
       "machine_calories": {
         "name": "{machine}",
@@ -236,8 +235,7 @@
               "stable": "Stabil"
             }
           }
-        },
-        "unit_of_measurement": "Punkte"
+        }
       },
       "machine_reps": {
         "name": "{machine}",
@@ -250,12 +248,10 @@
               "stable": "Stabil"
             }
           }
-        },
-        "unit_of_measurement": "Wdh."
+        }
       },
       "machine_strength_test": {
-        "name": "{machine} Kraftmessung",
-        "unit_of_measurement": "Pkt."
+        "name": "{machine} Kraftmessung"
       }
     }
   },
