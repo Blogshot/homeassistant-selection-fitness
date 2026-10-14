@@ -114,6 +114,10 @@
         "height": {
           "name": "Größe",
           "description": "Körpergröße in cm (Standard: Größe aus dem Profil)."
+        },
+        "force_backdate": {
+          "name": "Rückwirkend erzwingen",
+          "description": "Werte senden, die älter als die neueste Messung sind. Achtung: Der Server überschreibt damit das aktuelle Gewicht im Profil – es muss danach neu eingetragen werden."
         }
       }
     },

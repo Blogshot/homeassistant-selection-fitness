@@ -222,6 +222,10 @@
         "height": {
           "name": "Height",
           "description": "Height in cm (default: height from the profile)."
+        },
+        "force_backdate": {
+          "name": "Force backdating",
+          "description": "Send values older than the newest measurement. Warning: the server then overwrites the current weight in the profile – it has to be entered again afterwards."
         }
       }
     },

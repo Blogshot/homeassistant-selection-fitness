@@ -35,6 +35,10 @@ add_body_measurement:
           step: 0.5
           unit_of_measurement: cm
           mode: box
+    force_backdate:
+      default: false
+      selector:
+        boolean:
 
 add_cardio_measurement:
   fields:

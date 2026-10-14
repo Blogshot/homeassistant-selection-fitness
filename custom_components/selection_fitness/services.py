@@ -11,6 +11,7 @@ from typing import Any
 
 import voluptuous as vol
 
+from homeassistant.components import persistent_notification
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
@@ -29,6 +30,7 @@ ATTR_MEASURED_AT = "measured_at"
 ATTR_WEIGHT = "weight"
 ATTR_BODY_FAT = "body_fat"
 ATTR_HEIGHT = "height"
+ATTR_FORCE_BACKDATE = "force_backdate"
 ATTR_RESTING_HEART_RATE = "resting_heart_rate"
 ATTR_SYSTOLIC = "systolic"
 ATTR_DIASTOLIC = "diastolic"
@@ -46,6 +48,7 @@ BODY_SCHEMA = vol.Schema(
         vol.Optional(ATTR_WEIGHT): vol.All(vol.Coerce(float), vol.Range(min=30, max=300)),
         vol.Optional(ATTR_BODY_FAT): vol.All(vol.Coerce(float), vol.Range(min=4, max=70)),
         vol.Optional(ATTR_HEIGHT): vol.All(vol.Coerce(float), vol.Range(min=120, max=250)),
+        vol.Optional(ATTR_FORCE_BACKDATE, default=False): cv.boolean,
     }
 )
 
@@ -88,6 +91,22 @@ def _measured_at(call: ServiceCall):
     return measured_at
 
 
+#: Metrik-Typen, deren neuester Zeitpunkt als "aktueller Stand" gilt
+_CURRENT_BODY_TYPES = ("WEIGHT_KG", "BODY_FAT_PERCENTS")
+
+
+def _newest_body_measurement(coordinator):
+    """Zeitpunkt der neuesten bekannten Gewichts-/Körperfettmessung."""
+    measurements = (coordinator.data or {}).get("measurements") or {}
+    newest = None
+    for mtype in _CURRENT_BODY_TYPES:
+        raw = (measurements.get(mtype) or {}).get("createdAt")
+        dt = dt_util.parse_datetime(raw) if isinstance(raw, str) else None
+        if dt is not None and (newest is None or dt > newest):
+            newest = dt
+    return newest
+
+
 @callback
 def async_setup_services(hass: HomeAssistant) -> None:
     """Registriert die Schreib-Services."""
@@ -105,14 +124,42 @@ def async_setup_services(hass: HomeAssistant) -> None:
             height = ((coordinator.data or {}).get("profile") or {}).get("height")
             if isinstance(height, (int, float)) and height > 0:
                 values[ATTR_HEIGHT] = float(height)
+        measured_at = _measured_at(call)
+        # Der Server übernimmt jeden gesendeten Wert als aktuelles Profilgewicht,
+        # auch wenn er rückwirkend datiert ist. Ältere Werte daher nur bewusst.
+        newest = _newest_body_measurement(coordinator)
+        backdated = newest is not None and measured_at < newest
+        if backdated and not call.data[ATTR_FORCE_BACKDATE]:
+            raise ServiceValidationError(
+                f"measured_at ({dt_util.as_local(measured_at):%d.%m.%Y %H:%M}) liegt vor "
+                f"der neuesten Messung ({dt_util.as_local(newest):%d.%m.%Y %H:%M}). "
+                "Der Server würde damit das aktuelle Gewicht im Profil überschreiben. "
+                "Zum bewussten Nachtragen force_backdate: true setzen und danach das "
+                "aktuelle Gewicht neu eintragen."
+            )
         try:
             await coordinator.client.post_body_measurement(
-                measured_at=_measured_at(call),
+                measured_at=measured_at,
                 tz_name=hass.config.time_zone,
                 **values,
             )
         except SelectionFitnessApiError as err:
             raise HomeAssistantError(f"Messwert konnte nicht gesendet werden: {err}") from err
+        if backdated:
+            _LOGGER.warning(
+                "Rückwirkender Körpermesswert vom %s gesendet – das aktuelle Gewicht "
+                "im Selection-Fitness-Profil wurde überschrieben", measured_at,
+            )
+            persistent_notification.async_create(
+                hass,
+                f"Der rückwirkende Messwert vom {dt_util.as_local(measured_at):%d.%m.%Y %H:%M} "
+                "wurde gesendet. Dabei hat der Server das **aktuelle Gewicht im Profil "
+                "überschrieben**. Bitte das aktuelle Gewicht neu eintragen, z. B. mit "
+                "`selection_fitness.add_body_measurement` und dem Zeitpunkt der neuesten "
+                "Messung.",
+                title="Selection Fitness: aktuelles Gewicht überschrieben",
+                notification_id=f"{DOMAIN}_backdated_{coordinator.entry.entry_id}",
+            )
         await coordinator.async_request_refresh()
 
     async def _add_cardio(call: ServiceCall) -> None:

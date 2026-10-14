@@ -162,6 +162,13 @@ Accounts nichts kollidiert.
 Beide akzeptieren optional `measured_at` (Standard: jetzt) und
 `config_entry_id` (nur nötig bei mehreren Konten). Ohne `height` wird die
 Größe aus dem Profil mitgesendet, sonst würde der Server sie selbst ergänzen.
+
+**Rückwirkende Körperwerte:** Der Server übernimmt jedes gesendete Gewicht als
+*aktuelles* Profilgewicht – auch wenn `measured_at` in der Vergangenheit liegt.
+`add_body_measurement` lehnt deshalb Werte ab, die älter als die neueste
+bekannte Messung sind. Mit `force_backdate: true` werden sie trotzdem gesendet;
+danach erscheint eine Benachrichtigung, und das aktuelle Gewicht muss neu
+eingetragen werden. Cardio-Werte sind davon nicht betroffen.
 In der App erscheinen die Werte mit der Quelle „Home Assistant / HealthConnect“.
 
 Beispiel-Automation für eine Waage:
