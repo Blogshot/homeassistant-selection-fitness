@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -17,6 +17,7 @@ from .api import (
     extract_machines,
 )
 from .const import (
+    BODY_LOG_METRICS,
     CONF_PRIMARY_METRIC,
     DEFAULT_PRIMARY_METRIC,
     DEFAULT_SCAN_INTERVAL,
@@ -74,6 +75,50 @@ def _stat_metadata(statistic_id: str, unit: str | None, *, mean: bool) -> dict:
     return meta
 
 
+_UNIT_TOKENS = ("KG", "LITER", "CM2", "CM", "KJ")
+
+
+def _normal_range(mtype: str, metrics: dict[str, Any]) -> tuple[Any, Any]:
+    """Sucht den Normbereich zu einem Metrik-Typ im selben Messeintrag.
+
+    Die Waage liefert z. B. FAT_FREE_MASS_KG mit FAT_FREE_MASS_LOW_KG/_TOP_KG,
+    BODY_FAT_PERCENTS mit BODY_FAT_PERCENTS_LOW/_TOP und
+    INTRA_CELLULAR_WATER_LITER mit INTRA_CELLULAR_WATER_LOW_KG/_TOP_KG.
+    """
+    base, _, unit = mtype.rpartition("_")
+    if unit not in _UNIT_TOKENS:
+        base = mtype
+    bounds = []
+    for which in ("LOW", "TOP"):
+        val = metrics.get(f"{mtype}_{which}")
+        if val is None:
+            prefix = f"{base}_{which}_"
+            val = next(
+                (v for k, v in metrics.items()
+                 if k.startswith(prefix) and k[len(prefix):] in _UNIT_TOKENS),
+                None,
+            )
+        bounds.append(val)
+    return bounds[0], bounds[1]
+
+
+def latest_body_metrics(entries: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Neuester Wert je Metrik-Typ (Einträge aufsteigend sortiert)."""
+    result: dict[str, dict[str, Any]] = {}
+    for e in entries:
+        for mtype, value in e["metrics"].items():
+            low, high = _normal_range(mtype, e["metrics"])
+            result[mtype] = {
+                "value": value,
+                "createdAt": e["createdAt"],
+                "source": e.get("source"),
+                "sourceLabel": e.get("sourceLabel"),
+                "low": low,
+                "high": high,
+            }
+    return result
+
+
 #: eGym-Analyse-Typ (bioage/history) -> Sensor-Key (unique_id-Suffix)
 BIOAGE_HISTORY_MAP = {
     "TOTAL": "bio_age",
@@ -109,6 +154,10 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._strength_hist_done: set[str] = set()
         self._workout_stats_done = False
         self._bioage_hist_done = False
+        # Körpermessungs-Log: einmal komplett, danach nur das laufende Jahr
+        self._body_log: dict[tuple, dict[str, Any]] = {}
+        self._body_log_full_done = False
+        self._body_hist_done = False
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -120,9 +169,10 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             workouts = await self.client.get_workouts()
             bioage = await self.client.get_bioage()
             # Die /measurements/*/latest-metrics Endpunkte liefern für diese
-            # Brand HTTP 500 und sind redundant (Körperwerte kommen aus BioAge,
-            # Gewicht/Größe aus dem Profil). Daher nicht mehr abgefragt.
-            measurements: dict = {}
+            # Brand HTTP 500. Körperwerte (u. a. Waage im Studio) kommen daher
+            # aus dem Messungs-Log; BioAge/Profil haben weiterhin Vorrang.
+            body_entries = await self._update_body_log()
+            measurements = latest_body_metrics(body_entries)
 
             now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             check_in_count = await self.client.get_check_in_count(now)
@@ -173,6 +223,11 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._import_workout_statistics(workouts)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Workout-Statistik-Import übersprungen: %s", err)
+            # Körpermessungs-Historie einmalig importieren
+            try:
+                self._import_body_statistics(body_entries)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Körper-Statistik-Import übersprungen: %s", err)
             # BioAge-/Fitnessalter-Historie einmalig importieren (bis ~2020)
             try:
                 await self._import_bioage_statistics()
@@ -196,6 +251,57 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(f"Authentifizierung fehlgeschlagen: {err}") from err
         except SelectionFitnessApiError as err:
             raise UpdateFailed(f"API-Fehler: {err}") from err
+
+    async def _update_body_log(self) -> list[dict[str, Any]]:
+        """Aktualisiert das Körpermessungs-Log; Fehler behalten den alten Stand."""
+        try:
+            entries = await self.client.get_body_measurement_log(
+                full=not self._body_log_full_done
+            )
+        except SelectionFitnessApiError as err:
+            _LOGGER.debug("Körpermessungen nicht verfügbar: %s", err)
+        else:
+            for e in entries:
+                key = (e["createdAt"], tuple(sorted(e["metrics"].items())))
+                self._body_log[key] = e
+            self._body_log_full_done = True
+        return sorted(self._body_log.values(), key=lambda e: e["created_at"])
+
+    def _import_body_statistics(self, entries: list[dict[str, Any]]) -> None:
+        """Importiert die Körpermessungen (u. a. Waage im Studio) als Langzeit-
+        statistik. Einmalig, sobald mindestens eine Entity existiert; idempotent."""
+        if self._body_hist_done or not entries:
+            return
+        from homeassistant.components.recorder.statistics import (
+            async_import_statistics,
+        )
+
+        ent_reg = er.async_get(self.hass)
+        found_any = False
+        for key, (mtype, unit, scale, _icon, _enabled) in BODY_LOG_METRICS.items():
+            unique_id = f"{self.client.uuid}_{key}"
+            entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
+            if not entity_id:
+                continue
+            found_any = True
+            buckets: dict[datetime, float] = {}
+            for e in entries:
+                val = e["metrics"].get(mtype)
+                if val is None:
+                    continue
+                bucket = e["created_at"].replace(minute=0, second=0, microsecond=0)
+                buckets[bucket] = float(val) * scale
+            if not buckets:
+                continue
+            stats = [
+                {"start": b, "mean": v, "min": v, "max": v}
+                for b, v in sorted(buckets.items())
+            ]
+            async_import_statistics(
+                self.hass, _stat_metadata(entity_id, unit, mean=True), stats
+            )
+        if found_any:
+            self._body_hist_done = True
 
     def _import_machine_statistics(self, machines: dict[str, Any]) -> None:
         """Importiert die historische Haupt-Metrik je Gerät als Langzeit-

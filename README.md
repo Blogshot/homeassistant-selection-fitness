@@ -24,6 +24,10 @@ Es werden keine Schutzmechanismen umgangen.
   und den Muskel-Balance-/Dysbalance-Zuständen
 - **Werte hinter dem BioAge**: Körperfett, BMI, VO2max, Ruhepuls, Blutdruck,
   Taille-Hüft-Verhältnis
+- **Körperanalyse-Waage im Studio** (InBody / fithub): Muskel-, Mager- und
+  Fettmasse, viszerales Fett, Grundumsatz, Körperwasser (intra-/extrazellulär,
+  ECW/TBW), Phasenwinkel und Segmentwerte für Arme, Beine und Rumpf – inkl.
+  Normbereich als Attribut und rückwirkender Historie
 - **Training**: Anzahl Workouts, letztes Training, Trainingsplan, Übungen im letzten Training
 - **Pro Gerät** (eGym-Maschinen): ein Sensor je Gerät mit der gewählten Haupt-Metrik,
   **Geräte-Bild**, Trend & Prognose, und allen weiteren Werten als Attribute
@@ -33,6 +37,9 @@ Es werden keine Schutzmechanismen umgangen.
   importiert → volle Verlaufs-Graphen, auch für die Zeit vor der Installation
 - **Mehrere Personen**: jeder Account ist ein eigener Eintrag mit eigenem
   Geräte-Set; Geräte-/Entity-Namen werden pro Person benannt
+- **Messwerte zurückschreiben**: Gewicht, Körperfett, Ruhepuls, Blutdruck und
+  VO2max per Service ins Konto senden – mit echtem Messzeitpunkt, z. B. von
+  einer Waage in Home Assistant
 
 Es werden nur Sensoren angelegt, für die dein Account auch Daten liefert.
 Aktualisierung alle **30 Minuten** (`DEFAULT_SCAN_INTERVAL` in `const.py`).
@@ -102,6 +109,12 @@ Kraftmessung, andere die Kalorien.
 `…_unterkoerper_alter`, `…_oberkoerper_balance`, `…_koerperfett`, `…_bmi`,
 `…_vo2max`, `…_ruhepuls`, `…_blutdruck_systolisch`, …
 
+**Körperanalyse (Waage):** `…_muskelmasse`, `…_fettmasse`, `…_koerperwasser`,
+`…_phasenwinkel`, `…_grundumsatz`, … – jeweils mit `measured_at`, `source` und,
+sofern die Waage ihn liefert, `normal_low`/`normal_high`. Die zehn Segmentwerte
+(Fett/Magermasse je Arm, Bein und Rumpf) werden angelegt, sind aber standardmäßig
+deaktiviert.
+
 **Training:** `…_anzahl_workouts`, `…_letztes_training`,
 `…_letzter_trainingsplan`, `…_uebungen_im_letzten_training`
 
@@ -132,6 +145,40 @@ Accounts nichts kollidiert.
 - **Trend/Prognose:** je Gerät wird aus den letzten Sessions eine lineare
   Regression gebildet (`trend`: steigend/fallend/stabil, `trend_per_month` in
   Einheit/Monat, `projected_next` als grobe Prognose des nächsten Werts).
+
+---
+
+## Messwerte senden (Services)
+
+> ⚠️ Gesendete Werte landen dauerhaft im Selection-/eGym-Konto und fließen in
+> die BioAge-Auswertung ein. Die API bietet **keine Möglichkeit, Messwerte
+> wieder zu löschen** – vor allem bei rückwirkenden Werten vorsichtig sein.
+
+| Service | Felder |
+|---|---|
+| `selection_fitness.add_body_measurement` | `weight` (kg), `body_fat` (%), `height` (cm) |
+| `selection_fitness.add_cardio_measurement` | `resting_heart_rate` (bpm), `systolic` + `diastolic` (mmHg), `vo2max` |
+
+Beide akzeptieren optional `measured_at` (Standard: jetzt) und
+`config_entry_id` (nur nötig bei mehreren Konten). Ohne `height` wird die
+Größe aus dem Profil mitgesendet, sonst würde der Server sie selbst ergänzen.
+In der App erscheinen die Werte mit der Quelle „Home Assistant / HealthConnect“.
+
+Beispiel-Automation für eine Waage:
+
+```yaml
+triggers:
+  - trigger: state
+    entity_id: sensor.waage_gewicht
+conditions:
+  - condition: template
+    value_template: "{{ trigger.to_state.state | is_number }}"
+actions:
+  - action: selection_fitness.add_body_measurement
+    data:
+      weight: "{{ trigger.to_state.state | float }}"
+      measured_at: "{{ trigger.to_state.last_changed }}"
+```
 
 ---
 
@@ -169,6 +216,18 @@ eGym-Mobile-API-Host `https://mobile-api.int.api.egym.com`:
 
 Datumsformat der App: `yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ` (numerischer Offset).
 
+### Schreiben (Health-Connect-Sync der App)
+- `POST {mobile}/connected-app-measurements/api/v1.0/exerciser/{uuid}/bmi`
+  – JSON `{appName:"healthConnect", originalSource, timezone, completedAt,
+  weight(kg), height(cm), bodyFat(%)}`, leere Felder werden weggelassen
+- `POST {mobile}/connected-app-measurements/api/v1.0/exerciser/{uuid}/cardio`
+  – analog mit `bpm`, `systolic`, `diastolic`, `vo2max`
+- `completedAt` im Format `yyyy-MM-dd'T'HH:mm:ss.SSSSSS` ohne Offset. Die App
+  formatiert in UTC, der Server wertet den Wert aber als **Ortszeit** der
+  Zeitzone in `timezone` aus – die Integration sendet daher Ortszeit.
+- Antwort `200` mit leerem Body, Messwerte haben keine ID; die App kennt
+  keinen Lösch-Endpunkt für Messwerte.
+
 ---
 
 ## Bekannte Einschränkungen
@@ -191,7 +250,8 @@ Datumsformat der App: `yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ` (numerischer Offset).
 
 ## Hinweise
 
-- Rein lesend – es wird nichts ins Selection-Konto zurückgeschrieben.
+- Lesend, bis auf die Services oben – geschrieben wird nur, wenn du einen
+  Service aufrufst.
 - Session-Cookies laufen serverseitig ab; die Integration meldet sich bei `401`
   automatisch neu an.
 - Nur für den eigenen Account gedacht.

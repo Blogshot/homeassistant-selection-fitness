@@ -131,6 +131,57 @@
       "membership_type": {
         "name": "Membership"
       },
+      "body_fat_mass": {
+        "name": "Body fat mass"
+      },
+      "visceral_fat_area": {
+        "name": "Visceral fat area"
+      },
+      "body_water": {
+        "name": "Body water"
+      },
+      "intracellular_water": {
+        "name": "Intracellular water"
+      },
+      "extracellular_water": {
+        "name": "Extracellular water"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW ratio"
+      },
+      "phase_angle": {
+        "name": "Phase angle"
+      },
+      "fat_left_arm": {
+        "name": "Fat left arm"
+      },
+      "fat_right_arm": {
+        "name": "Fat right arm"
+      },
+      "fat_left_leg": {
+        "name": "Fat left leg"
+      },
+      "fat_right_leg": {
+        "name": "Fat right leg"
+      },
+      "fat_trunk": {
+        "name": "Fat trunk"
+      },
+      "lean_left_arm": {
+        "name": "Lean mass left arm"
+      },
+      "lean_right_arm": {
+        "name": "Lean mass right arm"
+      },
+      "lean_left_leg": {
+        "name": "Lean mass left leg"
+      },
+      "lean_right_leg": {
+        "name": "Lean mass right leg"
+      },
+      "lean_trunk": {
+        "name": "Lean mass trunk"
+      },
       "home_club": {
         "name": "Home club"
       }
@@ -143,6 +194,64 @@
         "data": {
           "primary_metric": "Primary metric per machine (sensor state)",
           "scan_interval_minutes": "Update interval (minutes)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "Send body measurement",
+      "description": "Writes weight, body fat and/or height with a measurement time to the Selection Fitness account. Entries cannot be deleted afterwards.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Only required if several accounts are configured."
+        },
+        "measured_at": {
+          "name": "Measured at",
+          "description": "Time of the measurement (default: now)."
+        },
+        "weight": {
+          "name": "Weight",
+          "description": "Body weight in kg."
+        },
+        "body_fat": {
+          "name": "Body fat",
+          "description": "Body fat percentage."
+        },
+        "height": {
+          "name": "Height",
+          "description": "Height in cm (default: height from the profile)."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "Send cardio measurement",
+      "description": "Writes resting heart rate, blood pressure and/or VO2max with a measurement time to the Selection Fitness account. Entries cannot be deleted afterwards.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Only required if several accounts are configured."
+        },
+        "measured_at": {
+          "name": "Measured at",
+          "description": "Time of the measurement (default: now)."
+        },
+        "resting_heart_rate": {
+          "name": "Resting heart rate",
+          "description": "Resting heart rate in beats per minute."
+        },
+        "systolic": {
+          "name": "Blood pressure systolic",
+          "description": "Systolic blood pressure in mmHg (only together with diastolic)."
+        },
+        "diastolic": {
+          "name": "Blood pressure diastolic",
+          "description": "Diastolic blood pressure in mmHg (only together with systolic)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "Maximal oxygen uptake in ml/kg/min."
         }
       }
     }

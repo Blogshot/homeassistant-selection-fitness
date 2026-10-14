@@ -70,7 +70,82 @@
       "last_check_in": { "name": "Letzter Check-in" },
       "last_club": { "name": "Letztes Studio" },
       "membership_type": { "name": "Mitgliedschaft" },
+      "body_fat_mass": { "name": "Fettmasse" },
+      "visceral_fat_area": { "name": "Viszerale Fettfläche" },
+      "body_water": { "name": "Körperwasser" },
+      "intracellular_water": { "name": "Intrazelluläres Wasser" },
+      "extracellular_water": { "name": "Extrazelluläres Wasser" },
+      "ecw_tbw_ratio": { "name": "ECW/TBW-Verhältnis" },
+      "phase_angle": { "name": "Phasenwinkel" },
+      "fat_left_arm": { "name": "Fett linker Arm" },
+      "fat_right_arm": { "name": "Fett rechter Arm" },
+      "fat_left_leg": { "name": "Fett linkes Bein" },
+      "fat_right_leg": { "name": "Fett rechtes Bein" },
+      "fat_trunk": { "name": "Fett Rumpf" },
+      "lean_left_arm": { "name": "Magermasse linker Arm" },
+      "lean_right_arm": { "name": "Magermasse rechter Arm" },
+      "lean_left_leg": { "name": "Magermasse linkes Bein" },
+      "lean_right_leg": { "name": "Magermasse rechtes Bein" },
+      "lean_trunk": { "name": "Magermasse Rumpf" },
       "home_club": { "name": "Heimatstudio" }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "Körpermesswert senden",
+      "description": "Schreibt Gewicht, Körperfett und/oder Größe mit Messzeitpunkt ins Selection-Fitness-Konto. Einträge lassen sich nicht wieder löschen.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Konto",
+          "description": "Nur nötig, wenn mehrere Konten eingerichtet sind."
+        },
+        "measured_at": {
+          "name": "Messzeitpunkt",
+          "description": "Zeitpunkt der Messung (Standard: jetzt)."
+        },
+        "weight": {
+          "name": "Gewicht",
+          "description": "Körpergewicht in kg."
+        },
+        "body_fat": {
+          "name": "Körperfett",
+          "description": "Körperfettanteil in %."
+        },
+        "height": {
+          "name": "Größe",
+          "description": "Körpergröße in cm (Standard: Größe aus dem Profil)."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "Cardio-Messwert senden",
+      "description": "Schreibt Ruhepuls, Blutdruck und/oder VO2max mit Messzeitpunkt ins Selection-Fitness-Konto. Einträge lassen sich nicht wieder löschen.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Konto",
+          "description": "Nur nötig, wenn mehrere Konten eingerichtet sind."
+        },
+        "measured_at": {
+          "name": "Messzeitpunkt",
+          "description": "Zeitpunkt der Messung (Standard: jetzt)."
+        },
+        "resting_heart_rate": {
+          "name": "Ruhepuls",
+          "description": "Ruhepuls in Schlägen pro Minute."
+        },
+        "systolic": {
+          "name": "Blutdruck systolisch",
+          "description": "Systolischer Blutdruck in mmHg (nur zusammen mit diastolisch)."
+        },
+        "diastolic": {
+          "name": "Blutdruck diastolisch",
+          "description": "Diastolischer Blutdruck in mmHg (nur zusammen mit systolisch)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "Maximale Sauerstoffaufnahme in ml/kg/min."
+        }
+      }
     }
   }
 }

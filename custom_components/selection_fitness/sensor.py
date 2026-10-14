@@ -20,6 +20,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import compute_trend
 from .const import (
+    BODY_LOG_METRICS,
     CONF_PRIMARY_METRIC,
     DEFAULT_PRIMARY_METRIC,
     DOMAIN,
@@ -61,6 +62,9 @@ class SFSensorDescription(SensorEntityDescription):
 
     value_fn: Callable[[dict[str, Any]], Any]
     available_fn: Callable[[dict[str, Any]], bool] = lambda data: True
+    # Metrik-Typ im Körpermessungs-Log (für Attribute wie Normbereich)
+    body_metric: str | None = None
+    scale: float = 1.0
 
 
 def _metric(data: dict[str, Any], mtype: str) -> Any:
@@ -73,6 +77,41 @@ def _metric(data: dict[str, Any], mtype: str) -> Any:
 def _has_metric(data: dict[str, Any], *mtypes: str) -> bool:
     measurements = data.get("measurements", {})
     return any(t in measurements for t in mtypes)
+
+
+def _scaled(value: Any, scale: float) -> Any:
+    if not isinstance(value, (int, float)):
+        return None
+    return round(float(value) * scale, 0 if scale != 1.0 else 2)
+
+
+_UNIT_DEVICE_CLASS = {
+    "kg": SensorDeviceClass.WEIGHT,
+    "L": SensorDeviceClass.VOLUME,
+    "cm": SensorDeviceClass.DISTANCE,
+}
+
+
+def _body_log_descriptions() -> tuple[SFSensorDescription, ...]:
+    """Sensoren für Werte aus dem Körpermessungs-Log (u. a. Studio-Waage)."""
+    descs = []
+    for key, (mtype, unit, scale, icon, enabled) in BODY_LOG_METRICS.items():
+        descs.append(
+            SFSensorDescription(
+                key=key,
+                translation_key=key,
+                native_unit_of_measurement=unit,
+                device_class=_UNIT_DEVICE_CLASS.get(unit),
+                state_class=SensorStateClass.MEASUREMENT,
+                icon=icon,
+                entity_registry_enabled_default=enabled,
+                body_metric=mtype,
+                scale=scale,
+                value_fn=lambda d, t=mtype, f=scale: _scaled(_metric(d, t), f),
+                available_fn=lambda d, t=mtype: _has_metric(d, t),
+            )
+        )
+    return tuple(descs)
 
 
 def _profile(data: dict[str, Any], key: str) -> Any:
@@ -259,41 +298,6 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         available_fn=lambda d: _bio(d, "metabolic_age") is not None,
     ),
     SFSensorDescription(
-        key="muscle_mass",
-        translation_key="muscle_mass",
-        native_unit_of_measurement="kg",
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:arm-flex",
-        value_fn=lambda d: _metric(d, "muscleMass"),
-        available_fn=lambda d: _has_metric(d, "muscleMass"),
-    ),
-    SFSensorDescription(
-        key="lean_body_mass",
-        translation_key="lean_body_mass",
-        native_unit_of_measurement="kg",
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:weight-lifter",
-        value_fn=lambda d: _metric(d, "leanBodyMass"),
-        available_fn=lambda d: _has_metric(d, "leanBodyMass"),
-    ),
-    SFSensorDescription(
-        key="visceral_fat",
-        translation_key="visceral_fat",
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:stomach",
-        value_fn=lambda d: _metric(d, "visceralFat"),
-        available_fn=lambda d: _has_metric(d, "visceralFat"),
-    ),
-    SFSensorDescription(
-        key="bmr",
-        translation_key="bmr",
-        native_unit_of_measurement="kcal",
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:fire",
-        value_fn=lambda d: _metric(d, "basalMetabolicRate"),
-        available_fn=lambda d: _has_metric(d, "basalMetabolicRate"),
-    ),
-    SFSensorDescription(
         key="height",
         translation_key="height",
         native_unit_of_measurement="cm",
@@ -315,24 +319,6 @@ SENSORS: tuple[SFSensorDescription, ...] = (
         icon="mdi:ruler",
         value_fn=lambda d: _profile(d, "measurementUnit"),
         available_fn=lambda d: _profile(d, "measurementUnit") is not None,
-    ),
-    SFSensorDescription(
-        key="waist",
-        translation_key="waist",
-        native_unit_of_measurement="cm",
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:tape-measure",
-        value_fn=lambda d: _metric(d, "waist"),
-        available_fn=lambda d: _has_metric(d, "waist"),
-    ),
-    SFSensorDescription(
-        key="hip",
-        translation_key="hip",
-        native_unit_of_measurement="cm",
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:tape-measure",
-        value_fn=lambda d: _metric(d, "hip"),
-        available_fn=lambda d: _has_metric(d, "hip"),
     ),
     # --- Cardio / Vitalwerte --------------------------------------------
     SFSensorDescription(
@@ -452,7 +438,7 @@ SENSORS: tuple[SFSensorDescription, ...] = (
             or d.get("profile", {}).get("homeClubName")
         ),
     ),
-)
+) + _body_log_descriptions()
 
 
 async def async_setup_entry(
@@ -654,18 +640,26 @@ class SelectionFitnessSensor(
         """Zeige Quelle und Messzeitpunkt bei Körpermesswerten."""
         key = self.entity_description.key
         measurements = (self.coordinator.data or {}).get("measurements", {})
+        body_metric = self.entity_description.body_metric
+        if body_metric:
+            m = measurements.get(body_metric)
+            if not m:
+                return None
+            scale = self.entity_description.scale
+            attrs = {
+                "measured_at": m.get("createdAt"),
+                "source": m.get("sourceLabel") or m.get("source"),
+            }
+            if m.get("low") is not None and m.get("high") is not None:
+                attrs["normal_low"] = _scaled(m["low"], scale)
+                attrs["normal_high"] = _scaled(m["high"], scale)
+            return attrs
         # Mapping Sensor-Key -> Metrik-Typ für Attribute
         type_map = {
             "weight": "weight",
             "body_fat": "bodyFat",
             "bmi": "BMI",
-            "muscle_mass": "muscleMass",
-            "lean_body_mass": "leanBodyMass",
-            "visceral_fat": "visceralFat",
-            "bmr": "basalMetabolicRate",
             "height": "height",
-            "waist": "waist",
-            "hip": "hip",
             "vo2max": "vo2Max",
             "resting_heart_rate": "restingHeartRate",
             "blood_pressure_systolic": "systolic",

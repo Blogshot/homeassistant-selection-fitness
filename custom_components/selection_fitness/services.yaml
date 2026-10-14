@@ -1,0 +1,81 @@
+add_body_measurement:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: selection_fitness
+    measured_at:
+      example: "2026-10-14 07:30:00"
+      selector:
+        datetime:
+    weight:
+      example: 74.7
+      selector:
+        number:
+          min: 30
+          max: 300
+          step: 0.1
+          unit_of_measurement: kg
+          mode: box
+    body_fat:
+      example: 10.1
+      selector:
+        number:
+          min: 4
+          max: 70
+          step: 0.1
+          unit_of_measurement: "%"
+          mode: box
+    height:
+      example: 189
+      selector:
+        number:
+          min: 120
+          max: 250
+          step: 0.5
+          unit_of_measurement: cm
+          mode: box
+
+add_cardio_measurement:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: selection_fitness
+    measured_at:
+      example: "2026-10-14 07:30:00"
+      selector:
+        datetime:
+    resting_heart_rate:
+      example: 55
+      selector:
+        number:
+          min: 30
+          max: 230
+          unit_of_measurement: bpm
+          mode: box
+    systolic:
+      example: 120
+      selector:
+        number:
+          min: 30
+          max: 200
+          unit_of_measurement: mmHg
+          mode: box
+    diastolic:
+      example: 80
+      selector:
+        number:
+          min: 30
+          max: 200
+          unit_of_measurement: mmHg
+          mode: box
+    vo2max:
+      example: 45
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.1
+          unit_of_measurement: ml/kg/min
+          mode: box

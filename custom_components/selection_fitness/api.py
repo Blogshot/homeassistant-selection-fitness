@@ -372,6 +372,120 @@ class SelectionFitnessClient:
         return None
 
     # ------------------------------------------------------------------ #
+    # Generische POST-Hilfe (JSON) mit Auto-Relogin bei 401
+    # ------------------------------------------------------------------ #
+    async def _post_json(self, url: str, payload: dict[str, Any], label: str = "") -> str:
+        if self._session_id is None:
+            await self.login()
+        for attempt in (1, 2):
+            try:
+                async with self._session.post(
+                    url, json=payload, headers=self._headers()
+                ) as resp:
+                    if resp.status == 401 and attempt == 1:
+                        _LOGGER.debug("401 bei %s -> Relogin", url)
+                        self._session_id = None
+                        await self.login()
+                        continue
+                    text = await resp.text()
+                    _LOGGER.debug(
+                        "selfit POST %s -> HTTP %s: %s",
+                        label or url, resp.status, text[:180].replace("\n", " "),
+                    )
+                    if resp.status >= 400:
+                        raise SelectionFitnessApiError(
+                            f"HTTP {resp.status} bei {url}: {text[:200]}"
+                        )
+                    return text
+            except aiohttp.ClientError as err:
+                raise SelectionFitnessApiError(f"Netzwerkfehler {url}: {err}") from err
+        raise SelectionFitnessApiError(f"Erneut 401 bei {url} nach Relogin")
+
+    # ------------------------------------------------------------------ #
+    # Schreibende Endpunkte (Health-Connect-Sync der App)
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def _completed_at(measured_at: datetime, tz_name: str) -> str:
+        """completedAt im App-Format yyyy-MM-dd'T'HH:mm:ss.SSSSSS.
+
+        Die App formatiert in UTC, der Server interpretiert den Wert aber als
+        Ortszeit der mitgesendeten Zeitzone (getestet: 18:00 + Europe/Berlin
+        -> gespeichert 16:00Z). Daher wird in die Ortszeit umgerechnet.
+        """
+        from zoneinfo import ZoneInfo
+
+        if measured_at.tzinfo is None:
+            measured_at = measured_at.replace(tzinfo=ZoneInfo(tz_name))
+        local = measured_at.astimezone(ZoneInfo(tz_name))
+        return local.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    async def _post_connected_measurement(
+        self,
+        category: str,
+        values: dict[str, Any],
+        measured_at: datetime,
+        tz_name: str,
+        source: str,
+    ) -> None:
+        payload: dict[str, Any] = {
+            "appName": "healthConnect",
+            "originalSource": source,
+            "timezone": tz_name,
+            "completedAt": self._completed_at(measured_at, tz_name),
+        }
+        # Die App lässt leere Felder weg (JsonInclude.NON_NULL).
+        payload.update({k: v for k, v in values.items() if v is not None})
+        url = (
+            f"{self._mobile}/connected-app-measurements/api/v1.0/"
+            f"exerciser/{self.uuid}/{category}"
+        )
+        await self._post_json(url, payload, label=f"measure/{category}")
+
+    async def post_body_measurement(
+        self,
+        measured_at: datetime,
+        tz_name: str,
+        weight: float | None = None,
+        body_fat: float | None = None,
+        height: float | None = None,
+        source: str = "Home Assistant",
+    ) -> None:
+        """Körperwerte schreiben: POST {mobile}/connected-app-measurements/
+        api/v1.0/exerciser/{uuid}/bmi  (kg, %, cm).
+
+        Achtung: fehlt `height`, ergänzt der Server die aktuelle Profilgröße
+        und berechnet daraus den BMI. Einträge lassen sich nicht löschen.
+        """
+        await self._post_connected_measurement(
+            "bmi",
+            {"weight": weight, "bodyFat": body_fat, "height": height},
+            measured_at, tz_name, source,
+        )
+
+    async def post_cardio_measurement(
+        self,
+        measured_at: datetime,
+        tz_name: str,
+        resting_heart_rate: int | None = None,
+        systolic: int | None = None,
+        diastolic: int | None = None,
+        vo2max: float | None = None,
+        source: str = "Home Assistant",
+    ) -> None:
+        """Cardio-Werte schreiben: POST {mobile}/connected-app-measurements/
+        api/v1.0/exerciser/{uuid}/cardio."""
+        await self._post_connected_measurement(
+            "cardio",
+            {
+                "bpm": resting_heart_rate,
+                "systolic": systolic,
+                "diastolic": diastolic,
+                "vo2max": vo2max,
+            },
+            measured_at, tz_name, source,
+        )
+
+    # ------------------------------------------------------------------ #
     # Datenendpunkte
     # ------------------------------------------------------------------ #
     async def get_profile(self) -> dict[str, Any]:
@@ -723,6 +837,53 @@ class SelectionFitnessClient:
                     continue
                 points.append((dt, float(val)))
         return points
+
+    async def get_body_measurement_log(self, full: bool = False) -> list[dict[str, Any]]:
+        """Körpermessungen (manuell, Waage im Studio, Health Connect …).
+
+        GET {mobile}/measurements/api/v1.0/exercisers/{uuid}/body-measurements
+            ?startDate=yyyy-MM-dd&endDate=yyyy-MM-dd
+        Der Server liefert je Fenster nur ein Jahr und ältere Einträge teils
+        mehrfach; daher jahresweise abfragen und deduplizieren.
+        full=False fragt nur das laufende Jahr ab.
+        Rückgabe: [{created_at: datetime, createdAt, source, sourceLabel,
+        metrics: {TYPE: value}}], aufsteigend nach Zeit.
+        """
+        url = f"{self._mobile}/measurements/api/v1.0/exercisers/{self.uuid}/body-measurements"
+        windows = list(_year_windows_desc())
+        if not full:
+            windows = windows[:1]
+        seen: set[tuple] = set()
+        entries: list[dict[str, Any]] = []
+        for _year, start, end in windows:
+            data = await self._get(
+                url, params={"startDate": start, "endDate": end}, label="body-measurements"
+            )
+            items = (data or {}).get("measurements") if isinstance(data, dict) else data
+            for it in items or []:
+                metrics = {
+                    m.get("type"): m.get("value")
+                    for m in it.get("metrics") or []
+                    if m.get("type") and isinstance(m.get("value"), (int, float))
+                }
+                created_at = _parse_history_date(it.get("createdAt"))
+                if not metrics or created_at is None:
+                    continue
+                key = (it.get("createdAt"), tuple(sorted(metrics.items())))
+                if key in seen:
+                    continue
+                seen.add(key)
+                entries.append(
+                    {
+                        "created_at": created_at,
+                        "createdAt": it.get("createdAt"),
+                        "source": it.get("source"),
+                        "sourceLabel": it.get("sourceLabel"),
+                        "metrics": metrics,
+                    }
+                )
+        entries.sort(key=lambda e: e["created_at"])
+        return entries
 
     async def get_measurements(self) -> dict[str, dict[str, Any]]:
         """Aktuelle Körpermesswerte über den Mobile-API-Host.
