@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Selection Fitness kimlik bilgilerinizle oturum açın.",
+        "data": {
+          "email": "E-posta",
+          "password": "Parola",
+          "base_url": "Sunucu URL'si (yalnızca gerekirse değiştirin)",
+          "mobile_api_url": "Mobil API URL'si (vücut verileri, BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Geçersiz e-posta veya parola.",
+      "cannot_connect": "Bağlantı kurulamadı.",
+      "unknown": "Beklenmeyen hata."
+    },
+    "abort": {
+      "already_configured": "Bu hesap zaten yapılandırılmış."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "Kilo"
+      },
+      "body_fat": {
+        "name": "Vücut yağı"
+      },
+      "bmi": {
+        "name": "VKİ"
+      },
+      "muscle_mass": {
+        "name": "Kas kütlesi"
+      },
+      "lean_body_mass": {
+        "name": "Yağsız kütle"
+      },
+      "visceral_fat": {
+        "name": "İç organ yağı"
+      },
+      "bmr": {
+        "name": "Bazal metabolizma hızı"
+      },
+      "height": {
+        "name": "Boy"
+      },
+      "gender": {
+        "name": "Cinsiyet"
+      },
+      "waist_hip_ratio": {
+        "name": "Bel-kalça oranı"
+      },
+      "bio_age": {
+        "name": "Vücut yaşı"
+      },
+      "muscle_age": {
+        "name": "Kas yaşı"
+      },
+      "upper_body_age": {
+        "name": "Üst vücut yaşı"
+      },
+      "core_age": {
+        "name": "Merkez bölge yaşı"
+      },
+      "lower_body_age": {
+        "name": "Alt vücut yaşı"
+      },
+      "upper_body_balance": {
+        "name": "Üst vücut dengesi"
+      },
+      "core_balance": {
+        "name": "Merkez bölge dengesi"
+      },
+      "lower_body_balance": {
+        "name": "Alt vücut dengesi"
+      },
+      "cardio_age": {
+        "name": "Kardiyo yaşı"
+      },
+      "flexibility_age": {
+        "name": "Esneklik yaşı"
+      },
+      "metabolic_age": {
+        "name": "Metabolik yaş"
+      },
+      "measurement_unit": {
+        "name": "Ölçü birimi"
+      },
+      "last_workout_plan": {
+        "name": "Son antrenman planı"
+      },
+      "last_workout_exercises": {
+        "name": "Son antrenmandaki egzersizler"
+      },
+      "waist": {
+        "name": "Bel çevresi"
+      },
+      "hip": {
+        "name": "Kalça çevresi"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "Dinlenik nabız"
+      },
+      "blood_pressure_systolic": {
+        "name": "Sistolik tansiyon"
+      },
+      "blood_pressure_diastolic": {
+        "name": "Diyastolik tansiyon"
+      },
+      "workout_count": {
+        "name": "Antrenman sayısı"
+      },
+      "last_workout": {
+        "name": "Son antrenman"
+      },
+      "check_in_count": {
+        "name": "Giriş sayısı"
+      },
+      "last_check_in": {
+        "name": "Son giriş"
+      },
+      "last_club": {
+        "name": "Son kulüp"
+      },
+      "membership_type": {
+        "name": "Üyelik"
+      },
+      "body_fat_mass": {
+        "name": "Yağ kütlesi"
+      },
+      "visceral_fat_area": {
+        "name": "İç organ yağ alanı"
+      },
+      "body_water": {
+        "name": "Vücut suyu"
+      },
+      "intracellular_water": {
+        "name": "Hücre içi su"
+      },
+      "extracellular_water": {
+        "name": "Hücre dışı su"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW oranı"
+      },
+      "phase_angle": {
+        "name": "Faz açısı"
+      },
+      "fat_left_arm": {
+        "name": "Yağ sol kol"
+      },
+      "fat_right_arm": {
+        "name": "Yağ sağ kol"
+      },
+      "fat_left_leg": {
+        "name": "Yağ sol bacak"
+      },
+      "fat_right_leg": {
+        "name": "Yağ sağ bacak"
+      },
+      "fat_trunk": {
+        "name": "Yağ gövde"
+      },
+      "lean_left_arm": {
+        "name": "Yağsız kütle sol kol"
+      },
+      "lean_right_arm": {
+        "name": "Yağsız kütle sağ kol"
+      },
+      "lean_left_leg": {
+        "name": "Yağsız kütle sol bacak"
+      },
+      "lean_right_leg": {
+        "name": "Yağsız kütle sağ bacak"
+      },
+      "lean_trunk": {
+        "name": "Yağsız kütle gövde"
+      },
+      "home_club": {
+        "name": "Ana kulüp"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Eğilim",
+            "state": {
+              "rising": "Yükseliyor",
+              "falling": "Düşüyor",
+              "stable": "Sabit"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Eğilim",
+            "state": {
+              "rising": "Yükseliyor",
+              "falling": "Düşüyor",
+              "stable": "Sabit"
+            }
+          }
+        },
+        "unit_of_measurement": "puan"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Eğilim",
+            "state": {
+              "rising": "Yükseliyor",
+              "falling": "Düşüyor",
+              "stable": "Sabit"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Eğilim",
+            "state": {
+              "rising": "Yükseliyor",
+              "falling": "Düşüyor",
+              "stable": "Sabit"
+            }
+          }
+        },
+        "unit_of_measurement": "puan"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Eğilim",
+            "state": {
+              "rising": "Yükseliyor",
+              "falling": "Düşüyor",
+              "stable": "Sabit"
+            }
+          }
+        },
+        "unit_of_measurement": "tekrar"
+      },
+      "machine_strength_test": {
+        "name": "{machine} kuvvet testi",
+        "unit_of_measurement": "puan"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – Seçenekler",
+        "data": {
+          "primary_metric": "Cihaz başına ana ölçüm (sensör durumu)",
+          "scan_interval_minutes": "Güncelleme aralığı (dakika)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "Vücut ölçümü gönder",
+      "description": "Kilo, vücut yağı ve/veya boyu ölçüm zamanıyla birlikte Selection Fitness hesabına yazar. Kayıtlar daha sonra silinemez.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Hesap",
+          "description": "Yalnızca birden fazla hesap yapılandırılmışsa gereklidir."
+        },
+        "measured_at": {
+          "name": "Ölçüm zamanı",
+          "description": "Ölçümün zamanı (varsayılan: şimdi)."
+        },
+        "weight": {
+          "name": "Kilo",
+          "description": "Vücut ağırlığı (kg)."
+        },
+        "body_fat": {
+          "name": "Vücut yağı",
+          "description": "Vücut yağ yüzdesi."
+        },
+        "height": {
+          "name": "Boy",
+          "description": "Boy (cm) (varsayılan: profildeki boy)."
+        },
+        "force_backdate": {
+          "name": "Geçmiş tarihi zorla",
+          "description": "En yeni ölçümden daha eski değerleri gönderir. Dikkat: sunucu bu durumda profildeki güncel kiloyu üzerine yazar – ardından yeniden girilmesi gerekir."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "Kardiyo ölçümü gönder",
+      "description": "Dinlenik nabız, tansiyon ve/veya VO2max değerini ölçüm zamanıyla birlikte Selection Fitness hesabına yazar. Kayıtlar daha sonra silinemez.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Hesap",
+          "description": "Yalnızca birden fazla hesap yapılandırılmışsa gereklidir."
+        },
+        "measured_at": {
+          "name": "Ölçüm zamanı",
+          "description": "Ölçümün zamanı (varsayılan: şimdi)."
+        },
+        "resting_heart_rate": {
+          "name": "Dinlenik nabız",
+          "description": "Dakikadaki atım sayısı olarak dinlenik nabız."
+        },
+        "systolic": {
+          "name": "Sistolik tansiyon",
+          "description": "mmHg cinsinden sistolik tansiyon (yalnızca diyastolik ile birlikte)."
+        },
+        "diastolic": {
+          "name": "Diyastolik tansiyon",
+          "description": "mmHg cinsinden diyastolik tansiyon (yalnızca sistolik ile birlikte)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "ml/kg/dk cinsinden maksimum oksijen tüketimi."
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "Kaldırılan ağırlık",
+        "strength": "Kuvvet testi",
+        "calories": "Kalori",
+        "activity_points": "Aktivite puanı",
+        "reps": "Tekrar"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym cihazları"
+    },
+    "machines_person": {
+      "name": "eGym cihazları ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "{entry_id} kimliğine sahip yüklü bir Selection Fitness girişi yok."
+    },
+    "no_account": {
+      "message": "Yapılandırılmış bir Selection Fitness hesabı yok."
+    },
+    "multiple_accounts": {
+      "message": "Birden fazla Selection Fitness hesabı yapılandırılmış – lütfen config_entry_id belirtin."
+    },
+    "measured_at_in_future": {
+      "message": "measured_at gelecekte olamaz."
+    },
+    "body_value_required": {
+      "message": "weight veya body_fat belirtin."
+    },
+    "cardio_value_required": {
+      "message": "En az bir ölçüm belirtin."
+    },
+    "blood_pressure_incomplete": {
+      "message": "Tansiyon için hem systolic hem diastolic gerekir."
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) en yeni ölçümden ({newest}) önce. Sunucu profildeki güncel kiloyu üzerine yazardı. Bilerek geçmiş tarihli kayıt eklemek için force_backdate: true ayarlayın ve ardından güncel kiloyu yeniden girin."
+    },
+    "send_failed": {
+      "message": "Ölçüm gönderilemedi: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: güncel kilo üzerine yazıldı"
+    },
+    "backdated_sent": {
+      "message": "{measured_at} tarihli geçmiş ölçüm gönderildi. Sunucu **profildeki güncel kiloyu üzerine yazdı**. Lütfen güncel kilonuzu yeniden girin, örneğin `selection_fitness.add_body_measurement` ile en yeni ölçümün zamanını kullanarak."
+    }
+  }
+}

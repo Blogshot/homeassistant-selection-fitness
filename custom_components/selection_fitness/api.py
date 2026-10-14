@@ -122,7 +122,7 @@ def compute_trend(sessions: list[dict[str, Any]], field: str = "weight") -> dict
     mean_w = sum(p[1] for p in pts) / n
     denom = sum((p[0] - mean_t) ** 2 for p in pts)
     if denom == 0:
-        return {"direction": "stabil", "slope_per_month": 0.0, "projected_next": round(mean_w, 1)}
+        return {"direction": "stable", "slope_per_month": 0.0, "projected_next": round(mean_w, 1)}
     slope = sum((p[0] - mean_t) * (p[1] - mean_w) for p in pts) / denom  # kg pro Sekunde
     slope_month = slope * 86400 * 30
     last_t, last_w = pts[-1]
@@ -131,11 +131,11 @@ def compute_trend(sessions: list[dict[str, Any]], field: str = "weight") -> dict
     avg_iv = sum(intervals) / len(intervals) if intervals else 0
     projected = last_w + slope * avg_iv
     if slope_month > 0.5:
-        direction = "steigend"
+        direction = "rising"
     elif slope_month < -0.5:
-        direction = "fallend"
+        direction = "falling"
     else:
-        direction = "stabil"
+        direction = "stable"
     return {
         "direction": direction,
         "slope_per_month": round(slope_month, 2),
@@ -222,6 +222,7 @@ class SelectionFitnessClient:
         base_url: str,
         mobile_api_url: str,
         device_uid: str,
+        language: str = "de",
     ) -> None:
         self._session = session
         self._email = email
@@ -229,6 +230,8 @@ class SelectionFitnessClient:
         self._base = base_url.rstrip("/")
         self._mobile = mobile_api_url.rstrip("/")
         self._device_uid = device_uid
+        # Language for names/texts from the API (ISO 639-1, e.g. "de" from "de-CH")
+        self._language = (language or "de").split("-")[0].lower()
 
         self._session_id: str | None = None  # "JSESSIONID=...."
         self.uuid: str | None = None
@@ -277,20 +280,20 @@ class SelectionFitnessClient:
             ) as resp:
                 body = await resp.text()
                 if resp.status == 401:
-                    raise SelectionFitnessAuthError("Ungültige Zugangsdaten (401)")
+                    raise SelectionFitnessAuthError("Invalid credentials (401)")
                 if resp.status in (400, 403):
                     raise SelectionFitnessAuthError(
-                        f"Login abgelehnt (HTTP {resp.status}): {body[:200]}"
+                        f"Login rejected (HTTP {resp.status}): {body[:200]}"
                     )
                 if resp.status >= 400:
                     raise SelectionFitnessApiError(
-                        f"Login-Fehler HTTP {resp.status}: {body[:200]}"
+                        f"Login error HTTP {resp.status}: {body[:200]}"
                     )
 
                 data = await resp.json(content_type=None)
                 self.uuid = data.get("uuid")
                 if not self.uuid:
-                    raise SelectionFitnessApiError("Keine uuid in Login-Antwort")
+                    raise SelectionFitnessApiError("No uuid in login response")
                 self.profile_login = data
 
                 # JSESSIONID aus Set-Cookie ziehen
@@ -303,11 +306,11 @@ class SelectionFitnessClient:
                             break
                 if not self._session_id:
                     raise SelectionFitnessApiError(
-                        "Kein JSESSIONID-Cookie in Login-Antwort"
+                        "No JSESSIONID cookie in login response"
                     )
                 _LOGGER.debug("Login ok, uuid=%s", self.uuid)
         except aiohttp.ClientError as err:
-            raise SelectionFitnessApiError(f"Netzwerkfehler beim Login: {err}") from err
+            raise SelectionFitnessApiError(f"Network error during login: {err}") from err
 
     @staticmethod
     def _extract_session_cookie(resp: aiohttp.ClientResponse) -> str | None:
@@ -335,7 +338,7 @@ class SelectionFitnessClient:
                     url, params=params, headers=self._headers()
                 ) as resp:
                     if resp.status == 401 and attempt == 1:
-                        _LOGGER.debug("401 bei %s -> Relogin", url)
+                        _LOGGER.debug("401 at %s -> re-login", url)
                         self._session_id = None
                         await self.login()
                         continue
@@ -354,7 +357,7 @@ class SelectionFitnessClient:
                         )
                     if resp.status >= 400:
                         raise SelectionFitnessApiError(
-                            f"HTTP {resp.status} bei {url}: {text[:200]}"
+                            f"HTTP {resp.status} at {url}: {text[:200]}"
                         )
                     if not text:
                         return None
@@ -365,10 +368,10 @@ class SelectionFitnessClient:
                 # Diagnose: Verbindungsfehler sichtbar machen (z.B. Mess-Host
                 # nicht erreichbar / DNS), damit die Ursache im Log steht.
                 _LOGGER.warning(
-                    "selfit-diag %s -> VERBINDUNGSFEHLER: %s",
+                    "selfit-diag %s -> CONNECTION ERROR: %s",
                     label or url, err,
                 )
-                raise SelectionFitnessApiError(f"Netzwerkfehler {url}: {err}") from err
+                raise SelectionFitnessApiError(f"Network error {url}: {err}") from err
         return None
 
     # ------------------------------------------------------------------ #
@@ -383,7 +386,7 @@ class SelectionFitnessClient:
                     url, json=payload, headers=self._headers()
                 ) as resp:
                     if resp.status == 401 and attempt == 1:
-                        _LOGGER.debug("401 bei %s -> Relogin", url)
+                        _LOGGER.debug("401 at %s -> re-login", url)
                         self._session_id = None
                         await self.login()
                         continue
@@ -394,12 +397,12 @@ class SelectionFitnessClient:
                     )
                     if resp.status >= 400:
                         raise SelectionFitnessApiError(
-                            f"HTTP {resp.status} bei {url}: {text[:200]}"
+                            f"HTTP {resp.status} at {url}: {text[:200]}"
                         )
                     return text
             except aiohttp.ClientError as err:
-                raise SelectionFitnessApiError(f"Netzwerkfehler {url}: {err}") from err
-        raise SelectionFitnessApiError(f"Erneut 401 bei {url} nach Relogin")
+                raise SelectionFitnessApiError(f"Network error {url}: {err}") from err
+        raise SelectionFitnessApiError(f"401 again at {url} after re-login")
 
     # ------------------------------------------------------------------ #
     # Schreibende Endpunkte (Health-Connect-Sync der App)
@@ -500,7 +503,7 @@ class SelectionFitnessClient:
         try:
             data = await self._get(url, label="latest-check-in", quiet_statuses={404})
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("latest-check-in nicht verfügbar: %s", err)
+            _LOGGER.debug("latest-check-in unavailable: %s", err)
             return None
         return data if isinstance(data, dict) else None
 
@@ -515,7 +518,7 @@ class SelectionFitnessClient:
                 quiet_statuses={400, 404},
             )
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("check-in history nicht verfügbar: %s", err)
+            _LOGGER.debug("check-in history unavailable: %s", err)
             return None
         if isinstance(data, list):
             return len(data)
@@ -537,12 +540,12 @@ class SelectionFitnessClient:
         params = {
             "completedAfter": "2010-01-01T00:00:00.000",
             "completedBefore": _iso8601("naive"),
-            "languageCode": "de",
+            "languageCode": self._language,
         }
         try:
             data = await self._get(url, params=params, label="workouts-v2.3")
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("workouts nicht verfügbar: %s", err)
+            _LOGGER.debug("workouts unavailable: %s", err)
             return []
         workouts: list[dict[str, Any]] = []
         if isinstance(data, dict):
@@ -566,12 +569,12 @@ class SelectionFitnessClient:
         # muscle/strength, metabolic/body, cardio, flexibility).
         params = {
             "types": "muscle,strength,cardio,metabolic,body,flexibility",
-            "languageCode": "de",
+            "languageCode": self._language,
         }
         try:
             data = await self._get(url, params=params, label="bioage")
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("bioage nicht verfügbar: %s", err)
+            _LOGGER.debug("bioage unavailable: %s", err)
             return {}
         if not isinstance(data, dict):
             return {}
@@ -628,9 +631,9 @@ class SelectionFitnessClient:
         """
         url = f"{self._mobile}/measurements/api/v1.0/exercisers/{self.uuid}/strength/latest"
         try:
-            data = await self._get(url, params={"languageCode": "de"}, label="strength")
+            data = await self._get(url, params={"languageCode": self._language}, label="strength")
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("strength nicht verfügbar: %s", err)
+            _LOGGER.debug("strength unavailable: %s", err)
             return {}
         result: dict[str, dict[str, Any]] = {}
         # Liste liegt unter "strengthMeasurements" (Fallbacks defensiv)
@@ -703,12 +706,12 @@ class SelectionFitnessClient:
             "startDate": start_date,
             "endDate": end_date,
             "exerciseId": str(exercise_id),
-            "languageCode": "de",
+            "languageCode": self._language,
         }
         try:
             data = await self._get(url, params=params, label="strength-history")
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("strength-history nicht verfügbar: %s", err)
+            _LOGGER.debug("strength-history unavailable: %s", err)
             return []
         items = data if isinstance(data, list) else None
         if items is None and isinstance(data, dict):
@@ -803,7 +806,7 @@ class SelectionFitnessClient:
                 url, params=params, label="bioage-history", quiet_statuses={404}
             )
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("bioage-history (%s) nicht verfügbar: %s", mtype, err)
+            _LOGGER.debug("bioage-history (%s) unavailable: %s", mtype, err)
             return []
         # Antwort: Liste von {type, history:[{date,value}]} (ggf. unter Schlüssel)
         series = data if isinstance(data, list) else None
@@ -902,11 +905,11 @@ class SelectionFitnessClient:
                 f"{self._mobile}/measurements/api/v1.1/exercisers/"
                 f"{self.uuid}/{category}/latest-metrics"
             )
-            params = {"types": ",".join(types), "languageCode": "de"}
+            params = {"types": ",".join(types), "languageCode": self._language}
             try:
                 data = await self._get(url, params=params, label=f"measure/{category}")
             except SelectionFitnessApiError as err:
-                _LOGGER.debug("Messwerte (%s) nicht verfügbar: %s", category, err)
+                _LOGGER.debug("Measurements (%s) unavailable: %s", category, err)
                 continue
             if isinstance(data, list):
                 for item in data:

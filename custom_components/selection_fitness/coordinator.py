@@ -51,7 +51,7 @@ def _resolve_mean_types() -> tuple[Any, Any]:
         none_val = getattr(enum, "NONE", None)
         if arithmetic is not None and none_val is not None:
             return arithmetic, none_val
-    _LOGGER.debug("StatisticMeanType nicht auflösbar – nur has_mean/has_sum")
+    _LOGGER.debug("StatisticMeanType not resolvable - using has_mean/has_sum only")
     return None, None
 
 
@@ -84,6 +84,8 @@ def _stat_metadata(statistic_id: str, unit: str | None, *, mean: bool) -> dict:
     meta["unit_class"] = converter.UNIT_CLASS if converter else None
     return meta
 
+
+_NO_STATE = object()
 
 _UNIT_TOKENS = ("KG", "LITER", "CM2", "CM", "KJ")
 
@@ -222,27 +224,27 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             try:
                 self._import_machine_statistics(machines)
             except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("Statistik-Import übersprungen: %s", err)
+                _LOGGER.debug("Statistics import skipped: %s", err)
             # Kraftmess-Historie je Gerät einmalig als Statistik importieren
             try:
                 await self._import_strength_statistics(machines)
             except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("Kraft-Statistik-Import übersprungen: %s", err)
+                _LOGGER.debug("Strength statistics import skipped: %s", err)
             # Workout-Gesamtzahl einmalig als kumulativen Verlauf importieren
             try:
                 self._import_workout_statistics(workouts)
             except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("Workout-Statistik-Import übersprungen: %s", err)
+                _LOGGER.debug("Workout statistics import skipped: %s", err)
             # Körpermessungs-Historie einmalig importieren
             try:
                 self._import_body_statistics(body_entries)
             except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("Körper-Statistik-Import übersprungen: %s", err)
+                _LOGGER.debug("Body statistics import skipped: %s", err)
             # BioAge-/Fitnessalter-Historie einmalig importieren (bis ~2020)
             try:
                 await self._import_bioage_statistics()
             except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("BioAge-Statistik-Import übersprungen: %s", err)
+                _LOGGER.debug("BioAge statistics import skipped: %s", err)
 
             return {
                 "firstname": firstname,
@@ -258,9 +260,9 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             }
         except SelectionFitnessAuthError as err:
             # Zugangsdaten ungültig -> Reauth auslösen
-            raise UpdateFailed(f"Authentifizierung fehlgeschlagen: {err}") from err
+            raise UpdateFailed(f"Authentication failed: {err}") from err
         except SelectionFitnessApiError as err:
-            raise UpdateFailed(f"API-Fehler: {err}") from err
+            raise UpdateFailed(f"API error: {err}") from err
 
     async def _update_body_log(self) -> list[dict[str, Any]]:
         """Aktualisiert das Körpermessungs-Log; Fehler behalten den alten Stand."""
@@ -269,7 +271,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 full=not self._body_log_full_done
             )
         except SelectionFitnessApiError as err:
-            _LOGGER.debug("Körpermessungen nicht verfügbar: %s", err)
+            _LOGGER.debug("Body measurements unavailable: %s", err)
         else:
             for e in entries:
                 key = (e["createdAt"], tuple(sorted(e["metrics"].items())))
@@ -326,7 +328,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         metric = self.entry.options.get(CONF_PRIMARY_METRIC, DEFAULT_PRIMARY_METRIC)
         if metric not in MACHINE_METRICS:
             metric = DEFAULT_PRIMARY_METRIC
-        field, unit, _dc, _icon, _label = MACHINE_METRICS[metric]
+        field, unit, _dc, _icon = MACHINE_METRICS[metric]
 
         ent_reg = er.async_get(self.hass)
         for code, m in (machines or {}).items():
@@ -349,12 +351,29 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 buckets[bucket] = max(float(val), buckets.get(bucket, float(val)))
             if not buckets:
                 continue
+            entity_unit = self._entity_unit(entity_id, unit)
+            if entity_unit is _NO_STATE:
+                continue  # unit not known yet -> next cycle
             stats = [
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = _stat_metadata(entity_id, unit, mean=True)
+            metadata = _stat_metadata(entity_id, entity_unit, mean=True)
             async_import_statistics(self.hass, metadata, stats)
+
+    def _entity_unit(self, entity_id: str, fallback: str | None) -> Any:
+        """Unit of the entity as shown in HA.
+
+        Some units come from the translations (e.g. strength points) and thus
+        depend on the system language; imported statistics must use exactly
+        that unit. Returns _NO_STATE if the entity has no state yet.
+        """
+        if fallback is not None:
+            return fallback
+        state = self.hass.states.get(entity_id)
+        if state is None:
+            return _NO_STATE
+        return state.attributes.get("unit_of_measurement")
 
     def _import_workout_statistics(self, workouts: list[dict[str, Any]]) -> None:
         """Legt die Workout-Gesamtzahl rückwirkend als kumulativen Verlauf an
@@ -474,6 +493,9 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = _stat_metadata(entity_id, "Pkt.", mean=True)
+            entity_unit = self._entity_unit(entity_id, None)
+            if entity_unit is _NO_STATE:
+                continue  # unit not known yet -> next cycle
+            metadata = _stat_metadata(entity_id, entity_unit, mean=True)
             async_import_statistics(self.hass, metadata, stats)
             self._strength_hist_done.add(code)

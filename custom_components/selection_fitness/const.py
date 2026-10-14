@@ -30,14 +30,16 @@ CONF_PRIMARY_METRIC = "primary_metric"
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=30)
 DEFAULT_PRIMARY_METRIC = "weight"
 
-# Wählbare Haupt-Metrik je Gerät (pro Person/Config-Entry einstellbar).
-# key -> (session-Feld, Einheit, device_class|None, icon, Anzeigename)
+# Selectable primary metric per machine (configurable per config entry).
+# key -> (session field, unit, device_class|None, icon)
+# unit None: the unit comes from the translations (entity.sensor.machine_<key>),
+# so it is shown in the user's language.
 MACHINE_METRICS: dict[str, tuple] = {
-    "weight": ("weight", "kg", "weight", "mdi:dumbbell", "Gestemmtes Gewicht"),
-    "strength": ("strength", "Pkt.", None, "mdi:arm-flex", "Kraftmessung"),
-    "calories": ("calories", "kcal", None, "mdi:fire", "Kalorien"),
-    "activity_points": ("activity_points", "Punkte", None, "mdi:star-four-points", "Aktivitätspunkte"),
-    "reps": ("reps", "Wdh.", None, "mdi:counter", "Wiederholungen"),
+    "weight": ("weight", "kg", "weight", "mdi:dumbbell"),
+    "strength": ("strength", None, None, "mdi:arm-flex"),
+    "calories": ("calories", "kcal", None, "mdi:fire"),
+    "activity_points": ("activity_points", None, None, "mdi:star-four-points"),
+    "reps": ("reps", None, None, "mdi:counter"),
 }
 
 # Messwert-Typen, die bei den latest-metrics Endpunkten angefragt werden.

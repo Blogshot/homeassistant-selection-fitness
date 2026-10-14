@@ -184,6 +184,78 @@
       },
       "home_club": {
         "name": "Home club"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Rising",
+              "falling": "Falling",
+              "stable": "Stable"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Rising",
+              "falling": "Falling",
+              "stable": "Stable"
+            }
+          }
+        },
+        "unit_of_measurement": "pts"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Rising",
+              "falling": "Falling",
+              "stable": "Stable"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Rising",
+              "falling": "Falling",
+              "stable": "Stable"
+            }
+          }
+        },
+        "unit_of_measurement": "points"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Rising",
+              "falling": "Falling",
+              "stable": "Stable"
+            }
+          }
+        },
+        "unit_of_measurement": "reps"
+      },
+      "machine_strength_test": {
+        "name": "{machine} strength test",
+        "unit_of_measurement": "pts"
       }
     }
   },
@@ -258,6 +330,60 @@
           "description": "Maximal oxygen uptake in ml/kg/min."
         }
       }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "Weight lifted",
+        "strength": "Strength test",
+        "calories": "Calories",
+        "activity_points": "Activity points",
+        "reps": "Repetitions"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym machines"
+    },
+    "machines_person": {
+      "name": "eGym machines ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "No loaded Selection Fitness entry with ID {entry_id}."
+    },
+    "no_account": {
+      "message": "No Selection Fitness account is set up."
+    },
+    "multiple_accounts": {
+      "message": "Several Selection Fitness accounts are set up – please specify config_entry_id."
+    },
+    "measured_at_in_future": {
+      "message": "measured_at must not be in the future."
+    },
+    "body_value_required": {
+      "message": "Specify weight or body_fat."
+    },
+    "cardio_value_required": {
+      "message": "Specify at least one measurement."
+    },
+    "blood_pressure_incomplete": {
+      "message": "Blood pressure needs both systolic and diastolic."
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) is before the newest measurement ({newest}). The server would overwrite the current weight in the profile. To backdate on purpose, set force_backdate: true and enter the current weight again afterwards."
+    },
+    "send_failed": {
+      "message": "The measurement could not be sent: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: current weight overwritten"
+    },
+    "backdated_sent": {
+      "message": "The backdated measurement from {measured_at} has been sent. The server has **overwritten the current weight in the profile**. Please enter your current weight again, e.g. with `selection_fitness.add_body_measurement` and the time of the newest measurement."
     }
   }
 }

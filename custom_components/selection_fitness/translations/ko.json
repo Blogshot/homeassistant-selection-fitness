@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Selection Fitness 계정 정보로 로그인하세요.",
+        "data": {
+          "email": "이메일",
+          "password": "비밀번호",
+          "base_url": "서버 URL(필요한 경우에만 변경)",
+          "mobile_api_url": "모바일 API URL(신체 데이터, BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "이메일 또는 비밀번호가 올바르지 않습니다.",
+      "cannot_connect": "연결하지 못했습니다.",
+      "unknown": "예기치 않은 오류입니다."
+    },
+    "abort": {
+      "already_configured": "이 계정은 이미 구성되어 있습니다."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "체중"
+      },
+      "body_fat": {
+        "name": "체지방률"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "근육량"
+      },
+      "lean_body_mass": {
+        "name": "제지방량"
+      },
+      "visceral_fat": {
+        "name": "내장지방"
+      },
+      "bmr": {
+        "name": "기초대사량"
+      },
+      "height": {
+        "name": "키"
+      },
+      "gender": {
+        "name": "성별"
+      },
+      "waist_hip_ratio": {
+        "name": "허리-엉덩이 비율"
+      },
+      "bio_age": {
+        "name": "신체 나이"
+      },
+      "muscle_age": {
+        "name": "근육 나이"
+      },
+      "upper_body_age": {
+        "name": "상체 나이"
+      },
+      "core_age": {
+        "name": "코어 나이"
+      },
+      "lower_body_age": {
+        "name": "하체 나이"
+      },
+      "upper_body_balance": {
+        "name": "상체 균형"
+      },
+      "core_balance": {
+        "name": "코어 균형"
+      },
+      "lower_body_balance": {
+        "name": "하체 균형"
+      },
+      "cardio_age": {
+        "name": "심폐 나이"
+      },
+      "flexibility_age": {
+        "name": "유연성 나이"
+      },
+      "metabolic_age": {
+        "name": "대사 나이"
+      },
+      "measurement_unit": {
+        "name": "측정 단위"
+      },
+      "last_workout_plan": {
+        "name": "최근 운동 계획"
+      },
+      "last_workout_exercises": {
+        "name": "최근 운동의 종목"
+      },
+      "waist": {
+        "name": "허리둘레"
+      },
+      "hip": {
+        "name": "엉덩이둘레"
+      },
+      "vo2max": {
+        "name": "최대산소섭취량"
+      },
+      "resting_heart_rate": {
+        "name": "안정 시 심박수"
+      },
+      "blood_pressure_systolic": {
+        "name": "수축기 혈압"
+      },
+      "blood_pressure_diastolic": {
+        "name": "이완기 혈압"
+      },
+      "workout_count": {
+        "name": "운동 횟수"
+      },
+      "last_workout": {
+        "name": "최근 운동"
+      },
+      "check_in_count": {
+        "name": "체크인 횟수"
+      },
+      "last_check_in": {
+        "name": "최근 체크인"
+      },
+      "last_club": {
+        "name": "최근 이용 클럽"
+      },
+      "membership_type": {
+        "name": "회원권"
+      },
+      "body_fat_mass": {
+        "name": "체지방량"
+      },
+      "visceral_fat_area": {
+        "name": "내장지방 면적"
+      },
+      "body_water": {
+        "name": "체수분"
+      },
+      "intracellular_water": {
+        "name": "세포내수분"
+      },
+      "extracellular_water": {
+        "name": "세포외수분"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW 비율"
+      },
+      "phase_angle": {
+        "name": "위상각"
+      },
+      "fat_left_arm": {
+        "name": "왼팔 지방"
+      },
+      "fat_right_arm": {
+        "name": "오른팔 지방"
+      },
+      "fat_left_leg": {
+        "name": "왼다리 지방"
+      },
+      "fat_right_leg": {
+        "name": "오른다리 지방"
+      },
+      "fat_trunk": {
+        "name": "몸통 지방"
+      },
+      "lean_left_arm": {
+        "name": "왼팔 제지방량"
+      },
+      "lean_right_arm": {
+        "name": "오른팔 제지방량"
+      },
+      "lean_left_leg": {
+        "name": "왼다리 제지방량"
+      },
+      "lean_right_leg": {
+        "name": "오른다리 제지방량"
+      },
+      "lean_trunk": {
+        "name": "몸통 제지방량"
+      },
+      "home_club": {
+        "name": "홈 클럽"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "추세",
+            "state": {
+              "rising": "상승",
+              "falling": "하락",
+              "stable": "안정"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "추세",
+            "state": {
+              "rising": "상승",
+              "falling": "하락",
+              "stable": "안정"
+            }
+          }
+        },
+        "unit_of_measurement": "점"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "추세",
+            "state": {
+              "rising": "상승",
+              "falling": "하락",
+              "stable": "안정"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "추세",
+            "state": {
+              "rising": "상승",
+              "falling": "하락",
+              "stable": "안정"
+            }
+          }
+        },
+        "unit_of_measurement": "포인트"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "추세",
+            "state": {
+              "rising": "상승",
+              "falling": "하락",
+              "stable": "안정"
+            }
+          }
+        },
+        "unit_of_measurement": "회"
+      },
+      "machine_strength_test": {
+        "name": "{machine} 근력 측정",
+        "unit_of_measurement": "점"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – 옵션",
+        "data": {
+          "primary_metric": "기구별 기본 지표(센서 상태)",
+          "scan_interval_minutes": "업데이트 간격(분)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "신체 측정값 보내기",
+      "description": "체중, 체지방률 및/또는 키를 측정 시간과 함께 Selection Fitness 계정에 기록합니다. 기록된 항목은 나중에 삭제할 수 없습니다.",
+      "fields": {
+        "config_entry_id": {
+          "name": "계정",
+          "description": "여러 계정이 구성된 경우에만 필요합니다."
+        },
+        "measured_at": {
+          "name": "측정 시간",
+          "description": "측정 시간(기본값: 현재)."
+        },
+        "weight": {
+          "name": "체중",
+          "description": "체중(kg)."
+        },
+        "body_fat": {
+          "name": "체지방률",
+          "description": "체지방 비율(%)."
+        },
+        "height": {
+          "name": "키",
+          "description": "키(cm)(기본값: 프로필의 키)."
+        },
+        "force_backdate": {
+          "name": "과거 날짜 강제",
+          "description": "최신 측정보다 오래된 값을 보냅니다. 주의: 서버가 프로필의 현재 체중을 덮어쓰므로 이후 다시 입력해야 합니다."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "심폐 측정값 보내기",
+      "description": "안정 시 심박수, 혈압 및/또는 최대산소섭취량을 측정 시간과 함께 Selection Fitness 계정에 기록합니다. 기록된 항목은 나중에 삭제할 수 없습니다.",
+      "fields": {
+        "config_entry_id": {
+          "name": "계정",
+          "description": "여러 계정이 구성된 경우에만 필요합니다."
+        },
+        "measured_at": {
+          "name": "측정 시간",
+          "description": "측정 시간(기본값: 현재)."
+        },
+        "resting_heart_rate": {
+          "name": "안정 시 심박수",
+          "description": "분당 심박수로 나타낸 안정 시 심박수."
+        },
+        "systolic": {
+          "name": "수축기 혈압",
+          "description": "수축기 혈압(mmHg, 이완기 혈압과 함께만)."
+        },
+        "diastolic": {
+          "name": "이완기 혈압",
+          "description": "이완기 혈압(mmHg, 수축기 혈압과 함께만)."
+        },
+        "vo2max": {
+          "name": "최대산소섭취량",
+          "description": "최대산소섭취량(ml/kg/min)."
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "들어 올린 무게",
+        "strength": "근력 측정",
+        "calories": "칼로리",
+        "activity_points": "활동 포인트",
+        "reps": "반복 횟수"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym 기구"
+    },
+    "machines_person": {
+      "name": "eGym 기구({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "ID가 {entry_id}인 로드된 Selection Fitness 항목이 없습니다."
+    },
+    "no_account": {
+      "message": "구성된 Selection Fitness 계정이 없습니다."
+    },
+    "multiple_accounts": {
+      "message": "여러 Selection Fitness 계정이 구성되어 있습니다. config_entry_id를 지정하세요."
+    },
+    "measured_at_in_future": {
+      "message": "measured_at은 미래일 수 없습니다."
+    },
+    "body_value_required": {
+      "message": "weight 또는 body_fat을 지정하세요."
+    },
+    "cardio_value_required": {
+      "message": "측정값을 하나 이상 지정하세요."
+    },
+    "blood_pressure_incomplete": {
+      "message": "혈압에는 systolic과 diastolic이 모두 필요합니다."
+    },
+    "backdated_rejected": {
+      "message": "measured_at({measured_at})이 최신 측정({newest})보다 이전입니다. 서버가 프로필의 현재 체중을 덮어쓰게 됩니다. 의도적으로 과거 값을 기록하려면 force_backdate: true로 설정한 뒤 현재 체중을 다시 입력하세요."
+    },
+    "send_failed": {
+      "message": "측정값을 보낼 수 없습니다: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: 현재 체중을 덮어씀"
+    },
+    "backdated_sent": {
+      "message": "{measured_at}의 과거 측정값을 보냈습니다. 서버가 **프로필의 현재 체중을 덮어썼습니다**. `selection_fitness.add_body_measurement`와 최신 측정 시간 등을 사용해 현재 체중을 다시 입력하세요."
+    }
+  }
+}

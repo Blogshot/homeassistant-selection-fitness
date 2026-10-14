@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Selection Fitness の認証情報でサインインしてください。",
+        "data": {
+          "email": "メールアドレス",
+          "password": "パスワード",
+          "base_url": "サーバー URL（必要な場合のみ変更）",
+          "mobile_api_url": "モバイル API URL（身体データ、BioAge）"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "メールアドレスまたはパスワードが無効です。",
+      "cannot_connect": "接続に失敗しました。",
+      "unknown": "予期しないエラーです。"
+    },
+    "abort": {
+      "already_configured": "このアカウントは既に設定されています。"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "体重"
+      },
+      "body_fat": {
+        "name": "体脂肪率"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "筋肉量"
+      },
+      "lean_body_mass": {
+        "name": "除脂肪体重"
+      },
+      "visceral_fat": {
+        "name": "内臓脂肪"
+      },
+      "bmr": {
+        "name": "基礎代謝量"
+      },
+      "height": {
+        "name": "身長"
+      },
+      "gender": {
+        "name": "性別"
+      },
+      "waist_hip_ratio": {
+        "name": "ウエスト・ヒップ比"
+      },
+      "bio_age": {
+        "name": "身体年齢"
+      },
+      "muscle_age": {
+        "name": "筋肉年齢"
+      },
+      "upper_body_age": {
+        "name": "上半身年齢"
+      },
+      "core_age": {
+        "name": "体幹年齢"
+      },
+      "lower_body_age": {
+        "name": "下半身年齢"
+      },
+      "upper_body_balance": {
+        "name": "上半身バランス"
+      },
+      "core_balance": {
+        "name": "体幹バランス"
+      },
+      "lower_body_balance": {
+        "name": "下半身バランス"
+      },
+      "cardio_age": {
+        "name": "心肺年齢"
+      },
+      "flexibility_age": {
+        "name": "柔軟性年齢"
+      },
+      "metabolic_age": {
+        "name": "代謝年齢"
+      },
+      "measurement_unit": {
+        "name": "単位系"
+      },
+      "last_workout_plan": {
+        "name": "最新のトレーニングプラン"
+      },
+      "last_workout_exercises": {
+        "name": "最新トレーニングの種目"
+      },
+      "waist": {
+        "name": "ウエスト"
+      },
+      "hip": {
+        "name": "ヒップ"
+      },
+      "vo2max": {
+        "name": "最大酸素摂取量"
+      },
+      "resting_heart_rate": {
+        "name": "安静時心拍数"
+      },
+      "blood_pressure_systolic": {
+        "name": "最高血圧"
+      },
+      "blood_pressure_diastolic": {
+        "name": "最低血圧"
+      },
+      "workout_count": {
+        "name": "トレーニング回数"
+      },
+      "last_workout": {
+        "name": "最新トレーニング"
+      },
+      "check_in_count": {
+        "name": "チェックイン回数"
+      },
+      "last_check_in": {
+        "name": "最新チェックイン"
+      },
+      "last_club": {
+        "name": "最新のジム"
+      },
+      "membership_type": {
+        "name": "会員種別"
+      },
+      "body_fat_mass": {
+        "name": "体脂肪量"
+      },
+      "visceral_fat_area": {
+        "name": "内臓脂肪面積"
+      },
+      "body_water": {
+        "name": "体水分量"
+      },
+      "intracellular_water": {
+        "name": "細胞内水分"
+      },
+      "extracellular_water": {
+        "name": "細胞外水分"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW 比"
+      },
+      "phase_angle": {
+        "name": "位相角"
+      },
+      "fat_left_arm": {
+        "name": "左腕の脂肪"
+      },
+      "fat_right_arm": {
+        "name": "右腕の脂肪"
+      },
+      "fat_left_leg": {
+        "name": "左脚の脂肪"
+      },
+      "fat_right_leg": {
+        "name": "右脚の脂肪"
+      },
+      "fat_trunk": {
+        "name": "体幹の脂肪"
+      },
+      "lean_left_arm": {
+        "name": "左腕の除脂肪量"
+      },
+      "lean_right_arm": {
+        "name": "右腕の除脂肪量"
+      },
+      "lean_left_leg": {
+        "name": "左脚の除脂肪量"
+      },
+      "lean_right_leg": {
+        "name": "右脚の除脂肪量"
+      },
+      "lean_trunk": {
+        "name": "体幹の除脂肪量"
+      },
+      "home_club": {
+        "name": "ホームジム"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "傾向",
+            "state": {
+              "rising": "上昇",
+              "falling": "下降",
+              "stable": "横ばい"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "傾向",
+            "state": {
+              "rising": "上昇",
+              "falling": "下降",
+              "stable": "横ばい"
+            }
+          }
+        },
+        "unit_of_measurement": "pt"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "傾向",
+            "state": {
+              "rising": "上昇",
+              "falling": "下降",
+              "stable": "横ばい"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "傾向",
+            "state": {
+              "rising": "上昇",
+              "falling": "下降",
+              "stable": "横ばい"
+            }
+          }
+        },
+        "unit_of_measurement": "ポイント"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "傾向",
+            "state": {
+              "rising": "上昇",
+              "falling": "下降",
+              "stable": "横ばい"
+            }
+          }
+        },
+        "unit_of_measurement": "回"
+      },
+      "machine_strength_test": {
+        "name": "{machine} 筋力測定",
+        "unit_of_measurement": "pt"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – オプション",
+        "data": {
+          "primary_metric": "マシンごとの主要指標（センサーの状態）",
+          "scan_interval_minutes": "更新間隔（分）"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "身体測定値を送信",
+      "description": "体重、体脂肪率、身長を測定日時とともに Selection Fitness アカウントに書き込みます。書き込んだ項目は後から削除できません。",
+      "fields": {
+        "config_entry_id": {
+          "name": "アカウント",
+          "description": "複数のアカウントを設定している場合のみ必要です。"
+        },
+        "measured_at": {
+          "name": "測定日時",
+          "description": "測定の日時（既定：現在）。"
+        },
+        "weight": {
+          "name": "体重",
+          "description": "体重（kg）。"
+        },
+        "body_fat": {
+          "name": "体脂肪率",
+          "description": "体脂肪率（%）。"
+        },
+        "height": {
+          "name": "身長",
+          "description": "身長（cm）（既定：プロフィールの身長）。"
+        },
+        "force_backdate": {
+          "name": "過去日付を強制",
+          "description": "最新の測定より古い値を送信します。注意：サーバーがプロフィールの現在の体重を上書きするため、後で入力し直す必要があります。"
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "心肺測定値を送信",
+      "description": "安静時心拍数、血圧、最大酸素摂取量を測定日時とともに Selection Fitness アカウントに書き込みます。書き込んだ項目は後から削除できません。",
+      "fields": {
+        "config_entry_id": {
+          "name": "アカウント",
+          "description": "複数のアカウントを設定している場合のみ必要です。"
+        },
+        "measured_at": {
+          "name": "測定日時",
+          "description": "測定の日時（既定：現在）。"
+        },
+        "resting_heart_rate": {
+          "name": "安静時心拍数",
+          "description": "安静時心拍数（拍/分）。"
+        },
+        "systolic": {
+          "name": "最高血圧",
+          "description": "最高血圧（mmHg、最低血圧と一緒にのみ）。"
+        },
+        "diastolic": {
+          "name": "最低血圧",
+          "description": "最低血圧（mmHg、最高血圧と一緒にのみ）。"
+        },
+        "vo2max": {
+          "name": "最大酸素摂取量",
+          "description": "最大酸素摂取量（ml/kg/min）。"
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "挙上重量",
+        "strength": "筋力測定",
+        "calories": "カロリー",
+        "activity_points": "アクティビティポイント",
+        "reps": "回数"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym マシン"
+    },
+    "machines_person": {
+      "name": "eGym マシン（{person}）"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "ID {entry_id} の読み込み済み Selection Fitness エントリがありません。"
+    },
+    "no_account": {
+      "message": "Selection Fitness アカウントが設定されていません。"
+    },
+    "multiple_accounts": {
+      "message": "複数の Selection Fitness アカウントが設定されています。config_entry_id を指定してください。"
+    },
+    "measured_at_in_future": {
+      "message": "measured_at に未来の日時は指定できません。"
+    },
+    "body_value_required": {
+      "message": "weight または body_fat を指定してください。"
+    },
+    "cardio_value_required": {
+      "message": "少なくとも 1 つの測定値を指定してください。"
+    },
+    "blood_pressure_incomplete": {
+      "message": "血圧には systolic と diastolic の両方が必要です。"
+    },
+    "backdated_rejected": {
+      "message": "measured_at（{measured_at}）が最新の測定（{newest}）より前です。サーバーがプロフィールの現在の体重を上書きしてしまいます。意図的に過去の値を登録するには force_backdate: true を設定し、その後現在の体重を入力し直してください。"
+    },
+    "send_failed": {
+      "message": "測定値を送信できませんでした：{error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness：現在の体重が上書きされました"
+    },
+    "backdated_sent": {
+      "message": "{measured_at} の過去の測定値を送信しました。サーバーが**プロフィールの現在の体重を上書きしました**。`selection_fitness.add_body_measurement` と最新の測定日時などを使って、現在の体重を入力し直してください。"
+    }
+  }
+}

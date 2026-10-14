@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "अपने Selection Fitness क्रेडेंशियल से साइन इन करें।",
+        "data": {
+          "email": "ईमेल",
+          "password": "पासवर्ड",
+          "base_url": "सर्वर URL (केवल ज़रूरत होने पर बदलें)",
+          "mobile_api_url": "मोबाइल API URL (शरीर का डेटा, BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "ईमेल या पासवर्ड अमान्य है।",
+      "cannot_connect": "कनेक्ट नहीं हो सका।",
+      "unknown": "अनपेक्षित त्रुटि।"
+    },
+    "abort": {
+      "already_configured": "यह खाता पहले से कॉन्फ़िगर है।"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "वज़न"
+      },
+      "body_fat": {
+        "name": "शरीर की वसा"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "मांसपेशी द्रव्यमान"
+      },
+      "lean_body_mass": {
+        "name": "वसा-रहित द्रव्यमान"
+      },
+      "visceral_fat": {
+        "name": "आंत की वसा"
+      },
+      "bmr": {
+        "name": "बेसल मेटाबॉलिक रेट"
+      },
+      "height": {
+        "name": "लंबाई"
+      },
+      "gender": {
+        "name": "लिंग"
+      },
+      "waist_hip_ratio": {
+        "name": "कमर-कूल्हा अनुपात"
+      },
+      "bio_age": {
+        "name": "शरीर की आयु"
+      },
+      "muscle_age": {
+        "name": "मांसपेशी आयु"
+      },
+      "upper_body_age": {
+        "name": "ऊपरी शरीर की आयु"
+      },
+      "core_age": {
+        "name": "कोर की आयु"
+      },
+      "lower_body_age": {
+        "name": "निचले शरीर की आयु"
+      },
+      "upper_body_balance": {
+        "name": "ऊपरी शरीर का संतुलन"
+      },
+      "core_balance": {
+        "name": "कोर का संतुलन"
+      },
+      "lower_body_balance": {
+        "name": "निचले शरीर का संतुलन"
+      },
+      "cardio_age": {
+        "name": "कार्डियो आयु"
+      },
+      "flexibility_age": {
+        "name": "लचीलापन आयु"
+      },
+      "metabolic_age": {
+        "name": "मेटाबॉलिक आयु"
+      },
+      "measurement_unit": {
+        "name": "माप की इकाई"
+      },
+      "last_workout_plan": {
+        "name": "अंतिम वर्कआउट प्लान"
+      },
+      "last_workout_exercises": {
+        "name": "अंतिम वर्कआउट के व्यायाम"
+      },
+      "waist": {
+        "name": "कमर"
+      },
+      "hip": {
+        "name": "कूल्हा"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "आराम की हृदय गति"
+      },
+      "blood_pressure_systolic": {
+        "name": "सिस्टोलिक रक्तचाप"
+      },
+      "blood_pressure_diastolic": {
+        "name": "डायस्टोलिक रक्तचाप"
+      },
+      "workout_count": {
+        "name": "वर्कआउट की संख्या"
+      },
+      "last_workout": {
+        "name": "अंतिम वर्कआउट"
+      },
+      "check_in_count": {
+        "name": "चेक-इन की संख्या"
+      },
+      "last_check_in": {
+        "name": "अंतिम चेक-इन"
+      },
+      "last_club": {
+        "name": "अंतिम क्लब"
+      },
+      "membership_type": {
+        "name": "सदस्यता"
+      },
+      "body_fat_mass": {
+        "name": "वसा द्रव्यमान"
+      },
+      "visceral_fat_area": {
+        "name": "आंत की वसा का क्षेत्रफल"
+      },
+      "body_water": {
+        "name": "शरीर का पानी"
+      },
+      "intracellular_water": {
+        "name": "अंतःकोशिकीय पानी"
+      },
+      "extracellular_water": {
+        "name": "बाह्यकोशिकीय पानी"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW अनुपात"
+      },
+      "phase_angle": {
+        "name": "फ़ेज़ एंगल"
+      },
+      "fat_left_arm": {
+        "name": "वसा बायाँ हाथ"
+      },
+      "fat_right_arm": {
+        "name": "वसा दायाँ हाथ"
+      },
+      "fat_left_leg": {
+        "name": "वसा बायाँ पैर"
+      },
+      "fat_right_leg": {
+        "name": "वसा दायाँ पैर"
+      },
+      "fat_trunk": {
+        "name": "वसा धड़"
+      },
+      "lean_left_arm": {
+        "name": "वसा-रहित द्रव्यमान बायाँ हाथ"
+      },
+      "lean_right_arm": {
+        "name": "वसा-रहित द्रव्यमान दायाँ हाथ"
+      },
+      "lean_left_leg": {
+        "name": "वसा-रहित द्रव्यमान बायाँ पैर"
+      },
+      "lean_right_leg": {
+        "name": "वसा-रहित द्रव्यमान दायाँ पैर"
+      },
+      "lean_trunk": {
+        "name": "वसा-रहित द्रव्यमान धड़"
+      },
+      "home_club": {
+        "name": "होम क्लब"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "रुझान",
+            "state": {
+              "rising": "बढ़ रहा",
+              "falling": "घट रहा",
+              "stable": "स्थिर"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "रुझान",
+            "state": {
+              "rising": "बढ़ रहा",
+              "falling": "घट रहा",
+              "stable": "स्थिर"
+            }
+          }
+        },
+        "unit_of_measurement": "अंक"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "रुझान",
+            "state": {
+              "rising": "बढ़ रहा",
+              "falling": "घट रहा",
+              "stable": "स्थिर"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "रुझान",
+            "state": {
+              "rising": "बढ़ रहा",
+              "falling": "घट रहा",
+              "stable": "स्थिर"
+            }
+          }
+        },
+        "unit_of_measurement": "अंक"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "रुझान",
+            "state": {
+              "rising": "बढ़ रहा",
+              "falling": "घट रहा",
+              "stable": "स्थिर"
+            }
+          }
+        },
+        "unit_of_measurement": "बार"
+      },
+      "machine_strength_test": {
+        "name": "{machine} शक्ति परीक्षण",
+        "unit_of_measurement": "अंक"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – विकल्प",
+        "data": {
+          "primary_metric": "प्रति मशीन मुख्य मीट्रिक (सेंसर स्थिति)",
+          "scan_interval_minutes": "अपडेट अंतराल (मिनट)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "शरीर का माप भेजें",
+      "description": "वज़न, शरीर की वसा और/या लंबाई को माप के समय के साथ Selection Fitness खाते में लिखता है। प्रविष्टियाँ बाद में हटाई नहीं जा सकतीं।",
+      "fields": {
+        "config_entry_id": {
+          "name": "खाता",
+          "description": "केवल तभी ज़रूरी है जब कई खाते कॉन्फ़िगर हों।"
+        },
+        "measured_at": {
+          "name": "माप का समय",
+          "description": "माप का समय (डिफ़ॉल्ट: अभी)।"
+        },
+        "weight": {
+          "name": "वज़न",
+          "description": "शरीर का वज़न kg में।"
+        },
+        "body_fat": {
+          "name": "शरीर की वसा",
+          "description": "शरीर की वसा का प्रतिशत।"
+        },
+        "height": {
+          "name": "लंबाई",
+          "description": "लंबाई cm में (डिफ़ॉल्ट: प्रोफ़ाइल की लंबाई)।"
+        },
+        "force_backdate": {
+          "name": "पिछली तारीख ज़बरदस्ती",
+          "description": "नवीनतम माप से पुराने मान भेजें। ध्यान दें: सर्वर तब प्रोफ़ाइल का वर्तमान वज़न बदल देता है – उसे बाद में फिर से दर्ज करना होगा।"
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "कार्डियो माप भेजें",
+      "description": "आराम की हृदय गति, रक्तचाप और/या VO2max को माप के समय के साथ Selection Fitness खाते में लिखता है। प्रविष्टियाँ बाद में हटाई नहीं जा सकतीं।",
+      "fields": {
+        "config_entry_id": {
+          "name": "खाता",
+          "description": "केवल तभी ज़रूरी है जब कई खाते कॉन्फ़िगर हों।"
+        },
+        "measured_at": {
+          "name": "माप का समय",
+          "description": "माप का समय (डिफ़ॉल्ट: अभी)।"
+        },
+        "resting_heart_rate": {
+          "name": "आराम की हृदय गति",
+          "description": "आराम की हृदय गति, धड़कन प्रति मिनट में।"
+        },
+        "systolic": {
+          "name": "सिस्टोलिक रक्तचाप",
+          "description": "सिस्टोलिक रक्तचाप mmHg में (केवल डायस्टोलिक के साथ)।"
+        },
+        "diastolic": {
+          "name": "डायस्टोलिक रक्तचाप",
+          "description": "डायस्टोलिक रक्तचाप mmHg में (केवल सिस्टोलिक के साथ)।"
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "अधिकतम ऑक्सीजन ग्रहण ml/kg/min में।"
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "उठाया गया वज़न",
+        "strength": "शक्ति परीक्षण",
+        "calories": "कैलोरी",
+        "activity_points": "गतिविधि अंक",
+        "reps": "दोहराव"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym मशीनें"
+    },
+    "machines_person": {
+      "name": "eGym मशीनें ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "ID {entry_id} वाली कोई लोड की गई Selection Fitness प्रविष्टि नहीं है।"
+    },
+    "no_account": {
+      "message": "कोई Selection Fitness खाता कॉन्फ़िगर नहीं है।"
+    },
+    "multiple_accounts": {
+      "message": "कई Selection Fitness खाते कॉन्फ़िगर हैं – कृपया config_entry_id बताएँ।"
+    },
+    "measured_at_in_future": {
+      "message": "measured_at भविष्य में नहीं हो सकता।"
+    },
+    "body_value_required": {
+      "message": "weight या body_fat बताएँ।"
+    },
+    "cardio_value_required": {
+      "message": "कम से कम एक माप बताएँ।"
+    },
+    "blood_pressure_incomplete": {
+      "message": "रक्तचाप के लिए systolic और diastolic दोनों ज़रूरी हैं।"
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) नवीनतम माप ({newest}) से पहले का है। सर्वर प्रोफ़ाइल का वर्तमान वज़न बदल देगा। जानबूझकर पिछली तारीख का मान जोड़ने के लिए force_backdate: true सेट करें और उसके बाद वर्तमान वज़न फिर से दर्ज करें।"
+    },
+    "send_failed": {
+      "message": "माप भेजा नहीं जा सका: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: वर्तमान वज़न बदल दिया गया"
+    },
+    "backdated_sent": {
+      "message": "{measured_at} का पिछली तारीख वाला माप भेज दिया गया है। सर्वर ने **प्रोफ़ाइल का वर्तमान वज़न बदल दिया है**। कृपया अपना वर्तमान वज़न फिर से दर्ज करें, जैसे `selection_fitness.add_body_measurement` और नवीनतम माप के समय के साथ।"
+    }
+  }
+}

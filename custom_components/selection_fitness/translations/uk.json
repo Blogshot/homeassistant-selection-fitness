@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Увійдіть з обліковими даними Selection Fitness.",
+        "data": {
+          "email": "Електронна пошта",
+          "password": "Пароль",
+          "base_url": "URL сервера (змінювати лише за потреби)",
+          "mobile_api_url": "URL мобільного API (дані тіла, BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Невірна електронна пошта або пароль.",
+      "cannot_connect": "Не вдалося підключитися.",
+      "unknown": "Неочікувана помилка."
+    },
+    "abort": {
+      "already_configured": "Цей обліковий запис уже налаштовано."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "Вага"
+      },
+      "body_fat": {
+        "name": "Жирова тканина"
+      },
+      "bmi": {
+        "name": "ІМТ"
+      },
+      "muscle_mass": {
+        "name": "М'язова маса"
+      },
+      "lean_body_mass": {
+        "name": "Безжирова маса"
+      },
+      "visceral_fat": {
+        "name": "Вісцеральний жир"
+      },
+      "bmr": {
+        "name": "Основний обмін"
+      },
+      "height": {
+        "name": "Зріст"
+      },
+      "gender": {
+        "name": "Стать"
+      },
+      "waist_hip_ratio": {
+        "name": "Співвідношення талії та стегон"
+      },
+      "bio_age": {
+        "name": "Біологічний вік"
+      },
+      "muscle_age": {
+        "name": "М'язовий вік"
+      },
+      "upper_body_age": {
+        "name": "Вік верхньої частини тіла"
+      },
+      "core_age": {
+        "name": "Вік м'язів кора"
+      },
+      "lower_body_age": {
+        "name": "Вік нижньої частини тіла"
+      },
+      "upper_body_balance": {
+        "name": "Баланс верхньої частини тіла"
+      },
+      "core_balance": {
+        "name": "Баланс м'язів кора"
+      },
+      "lower_body_balance": {
+        "name": "Баланс нижньої частини тіла"
+      },
+      "cardio_age": {
+        "name": "Кардіовік"
+      },
+      "flexibility_age": {
+        "name": "Вік гнучкості"
+      },
+      "metabolic_age": {
+        "name": "Метаболічний вік"
+      },
+      "measurement_unit": {
+        "name": "Одиниця виміру"
+      },
+      "last_workout_plan": {
+        "name": "Останній план тренувань"
+      },
+      "last_workout_exercises": {
+        "name": "Вправи останнього тренування"
+      },
+      "waist": {
+        "name": "Обхват талії"
+      },
+      "hip": {
+        "name": "Обхват стегон"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "Пульс у спокої"
+      },
+      "blood_pressure_systolic": {
+        "name": "Систолічний тиск"
+      },
+      "blood_pressure_diastolic": {
+        "name": "Діастолічний тиск"
+      },
+      "workout_count": {
+        "name": "Кількість тренувань"
+      },
+      "last_workout": {
+        "name": "Останнє тренування"
+      },
+      "check_in_count": {
+        "name": "Кількість відвідувань"
+      },
+      "last_check_in": {
+        "name": "Останнє відвідування"
+      },
+      "last_club": {
+        "name": "Останній клуб"
+      },
+      "membership_type": {
+        "name": "Абонемент"
+      },
+      "body_fat_mass": {
+        "name": "Жирова маса"
+      },
+      "visceral_fat_area": {
+        "name": "Площа вісцерального жиру"
+      },
+      "body_water": {
+        "name": "Вода в організмі"
+      },
+      "intracellular_water": {
+        "name": "Внутрішньоклітинна вода"
+      },
+      "extracellular_water": {
+        "name": "Позаклітинна вода"
+      },
+      "ecw_tbw_ratio": {
+        "name": "Співвідношення ECW/TBW"
+      },
+      "phase_angle": {
+        "name": "Фазовий кут"
+      },
+      "fat_left_arm": {
+        "name": "Жир ліва рука"
+      },
+      "fat_right_arm": {
+        "name": "Жир права рука"
+      },
+      "fat_left_leg": {
+        "name": "Жир ліва нога"
+      },
+      "fat_right_leg": {
+        "name": "Жир права нога"
+      },
+      "fat_trunk": {
+        "name": "Жир тулуб"
+      },
+      "lean_left_arm": {
+        "name": "Безжирова маса ліва рука"
+      },
+      "lean_right_arm": {
+        "name": "Безжирова маса права рука"
+      },
+      "lean_left_leg": {
+        "name": "Безжирова маса ліва нога"
+      },
+      "lean_right_leg": {
+        "name": "Безжирова маса права нога"
+      },
+      "lean_trunk": {
+        "name": "Безжирова маса тулуб"
+      },
+      "home_club": {
+        "name": "Домашній клуб"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Тренд",
+            "state": {
+              "rising": "Зростає",
+              "falling": "Знижується",
+              "stable": "Стабільно"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Тренд",
+            "state": {
+              "rising": "Зростає",
+              "falling": "Знижується",
+              "stable": "Стабільно"
+            }
+          }
+        },
+        "unit_of_measurement": "бал."
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Тренд",
+            "state": {
+              "rising": "Зростає",
+              "falling": "Знижується",
+              "stable": "Стабільно"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Тренд",
+            "state": {
+              "rising": "Зростає",
+              "falling": "Знижується",
+              "stable": "Стабільно"
+            }
+          }
+        },
+        "unit_of_measurement": "бали"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Тренд",
+            "state": {
+              "rising": "Зростає",
+              "falling": "Знижується",
+              "stable": "Стабільно"
+            }
+          }
+        },
+        "unit_of_measurement": "повт."
+      },
+      "machine_strength_test": {
+        "name": "{machine} тест сили",
+        "unit_of_measurement": "бал."
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – Параметри",
+        "data": {
+          "primary_metric": "Основний показник тренажера (стан сенсора)",
+          "scan_interval_minutes": "Інтервал оновлення (хвилини)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "Надіслати вимірювання тіла",
+      "description": "Записує вагу, відсоток жиру та/або зріст із часом вимірювання до облікового запису Selection Fitness. Записи не можна згодом видалити.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Обліковий запис",
+          "description": "Потрібно лише, якщо налаштовано кілька облікових записів."
+        },
+        "measured_at": {
+          "name": "Час вимірювання",
+          "description": "Час вимірювання (за замовчуванням: зараз)."
+        },
+        "weight": {
+          "name": "Вага",
+          "description": "Маса тіла в кг."
+        },
+        "body_fat": {
+          "name": "Жирова тканина",
+          "description": "Відсоток жирової тканини."
+        },
+        "height": {
+          "name": "Зріст",
+          "description": "Зріст у см (за замовчуванням: зріст із профілю)."
+        },
+        "force_backdate": {
+          "name": "Примусово заднім числом",
+          "description": "Надсилати значення, старші за останнє вимірювання. Увага: сервер при цьому перезапише поточну вагу в профілі – її потрібно буде ввести знову."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "Надіслати кардіовимірювання",
+      "description": "Записує пульс у спокої, артеріальний тиск та/або VO2max із часом вимірювання до облікового запису Selection Fitness. Записи не можна згодом видалити.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Обліковий запис",
+          "description": "Потрібно лише, якщо налаштовано кілька облікових записів."
+        },
+        "measured_at": {
+          "name": "Час вимірювання",
+          "description": "Час вимірювання (за замовчуванням: зараз)."
+        },
+        "resting_heart_rate": {
+          "name": "Пульс у спокої",
+          "description": "Пульс у спокої в ударах за хвилину."
+        },
+        "systolic": {
+          "name": "Систолічний тиск",
+          "description": "Систолічний тиск у мм рт. ст. (лише разом із діастолічним)."
+        },
+        "diastolic": {
+          "name": "Діастолічний тиск",
+          "description": "Діастолічний тиск у мм рт. ст. (лише разом із систолічним)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "Максимальне споживання кисню в мл/кг/хв."
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "Піднята вага",
+        "strength": "Тест сили",
+        "calories": "Калорії",
+        "activity_points": "Бали активності",
+        "reps": "Повторення"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "Тренажери eGym"
+    },
+    "machines_person": {
+      "name": "Тренажери eGym ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "Немає завантаженого запису Selection Fitness з ID {entry_id}."
+    },
+    "no_account": {
+      "message": "Обліковий запис Selection Fitness не налаштовано."
+    },
+    "multiple_accounts": {
+      "message": "Налаштовано кілька облікових записів Selection Fitness – вкажіть config_entry_id."
+    },
+    "measured_at_in_future": {
+      "message": "measured_at не може бути в майбутньому."
+    },
+    "body_value_required": {
+      "message": "Вкажіть weight або body_fat."
+    },
+    "cardio_value_required": {
+      "message": "Вкажіть принаймні одне вимірювання."
+    },
+    "blood_pressure_incomplete": {
+      "message": "Для тиску потрібні і systolic, і diastolic."
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) раніше за останнє вимірювання ({newest}). Сервер перезаписав би поточну вагу в профілі. Щоб навмисно додати значення заднім числом, встановіть force_backdate: true, а потім знову введіть поточну вагу."
+    },
+    "send_failed": {
+      "message": "Не вдалося надіслати вимірювання: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: поточну вагу перезаписано"
+    },
+    "backdated_sent": {
+      "message": "Вимірювання заднім числом від {measured_at} надіслано. Сервер **перезаписав поточну вагу в профілі**. Введіть поточну вагу знову, наприклад за допомогою `selection_fitness.add_body_measurement` з часом останнього вимірювання."
+    }
+  }
+}

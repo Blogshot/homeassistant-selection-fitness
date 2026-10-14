@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "سجّل الدخول باستخدام بيانات اعتماد Selection Fitness الخاصة بك.",
+        "data": {
+          "email": "البريد الإلكتروني",
+          "password": "كلمة المرور",
+          "base_url": "عنوان URL للخادم (غيّره فقط عند الحاجة)",
+          "mobile_api_url": "عنوان URL لواجهة API للجوال (بيانات الجسم، BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "البريد الإلكتروني أو كلمة المرور غير صالحة.",
+      "cannot_connect": "تعذّر الاتصال.",
+      "unknown": "خطأ غير متوقع."
+    },
+    "abort": {
+      "already_configured": "تم إعداد هذا الحساب بالفعل."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "الوزن"
+      },
+      "body_fat": {
+        "name": "دهون الجسم"
+      },
+      "bmi": {
+        "name": "مؤشر كتلة الجسم"
+      },
+      "muscle_mass": {
+        "name": "الكتلة العضلية"
+      },
+      "lean_body_mass": {
+        "name": "الكتلة الخالية من الدهون"
+      },
+      "visceral_fat": {
+        "name": "الدهون الحشوية"
+      },
+      "bmr": {
+        "name": "معدل الأيض الأساسي"
+      },
+      "height": {
+        "name": "الطول"
+      },
+      "gender": {
+        "name": "الجنس"
+      },
+      "waist_hip_ratio": {
+        "name": "نسبة الخصر إلى الورك"
+      },
+      "bio_age": {
+        "name": "عمر الجسم"
+      },
+      "muscle_age": {
+        "name": "عمر العضلات"
+      },
+      "upper_body_age": {
+        "name": "عمر الجزء العلوي"
+      },
+      "core_age": {
+        "name": "عمر الجذع"
+      },
+      "lower_body_age": {
+        "name": "عمر الجزء السفلي"
+      },
+      "upper_body_balance": {
+        "name": "توازن الجزء العلوي"
+      },
+      "core_balance": {
+        "name": "توازن الجذع"
+      },
+      "lower_body_balance": {
+        "name": "توازن الجزء السفلي"
+      },
+      "cardio_age": {
+        "name": "عمر القلب والرئتين"
+      },
+      "flexibility_age": {
+        "name": "عمر المرونة"
+      },
+      "metabolic_age": {
+        "name": "العمر الأيضي"
+      },
+      "measurement_unit": {
+        "name": "وحدة القياس"
+      },
+      "last_workout_plan": {
+        "name": "آخر خطة تدريب"
+      },
+      "last_workout_exercises": {
+        "name": "تمارين آخر تدريب"
+      },
+      "waist": {
+        "name": "محيط الخصر"
+      },
+      "hip": {
+        "name": "محيط الورك"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "معدل نبض القلب أثناء الراحة"
+      },
+      "blood_pressure_systolic": {
+        "name": "ضغط الدم الانقباضي"
+      },
+      "blood_pressure_diastolic": {
+        "name": "ضغط الدم الانبساطي"
+      },
+      "workout_count": {
+        "name": "عدد التمارين"
+      },
+      "last_workout": {
+        "name": "آخر تدريب"
+      },
+      "check_in_count": {
+        "name": "عدد مرات تسجيل الحضور"
+      },
+      "last_check_in": {
+        "name": "آخر تسجيل حضور"
+      },
+      "last_club": {
+        "name": "آخر نادٍ"
+      },
+      "membership_type": {
+        "name": "العضوية"
+      },
+      "body_fat_mass": {
+        "name": "كتلة الدهون"
+      },
+      "visceral_fat_area": {
+        "name": "مساحة الدهون الحشوية"
+      },
+      "body_water": {
+        "name": "ماء الجسم"
+      },
+      "intracellular_water": {
+        "name": "الماء داخل الخلايا"
+      },
+      "extracellular_water": {
+        "name": "الماء خارج الخلايا"
+      },
+      "ecw_tbw_ratio": {
+        "name": "نسبة ECW/TBW"
+      },
+      "phase_angle": {
+        "name": "زاوية الطور"
+      },
+      "fat_left_arm": {
+        "name": "دهون الذراع اليسرى"
+      },
+      "fat_right_arm": {
+        "name": "دهون الذراع اليمنى"
+      },
+      "fat_left_leg": {
+        "name": "دهون الساق اليسرى"
+      },
+      "fat_right_leg": {
+        "name": "دهون الساق اليمنى"
+      },
+      "fat_trunk": {
+        "name": "دهون الجذع"
+      },
+      "lean_left_arm": {
+        "name": "الكتلة الخالية من الدهون للذراع اليسرى"
+      },
+      "lean_right_arm": {
+        "name": "الكتلة الخالية من الدهون للذراع اليمنى"
+      },
+      "lean_left_leg": {
+        "name": "الكتلة الخالية من الدهون للساق اليسرى"
+      },
+      "lean_right_leg": {
+        "name": "الكتلة الخالية من الدهون للساق اليمنى"
+      },
+      "lean_trunk": {
+        "name": "الكتلة الخالية من الدهون للجذع"
+      },
+      "home_club": {
+        "name": "النادي الأساسي"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "الاتجاه",
+            "state": {
+              "rising": "صاعد",
+              "falling": "هابط",
+              "stable": "مستقر"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "الاتجاه",
+            "state": {
+              "rising": "صاعد",
+              "falling": "هابط",
+              "stable": "مستقر"
+            }
+          }
+        },
+        "unit_of_measurement": "نقطة"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "الاتجاه",
+            "state": {
+              "rising": "صاعد",
+              "falling": "هابط",
+              "stable": "مستقر"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "الاتجاه",
+            "state": {
+              "rising": "صاعد",
+              "falling": "هابط",
+              "stable": "مستقر"
+            }
+          }
+        },
+        "unit_of_measurement": "نقاط"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "الاتجاه",
+            "state": {
+              "rising": "صاعد",
+              "falling": "هابط",
+              "stable": "مستقر"
+            }
+          }
+        },
+        "unit_of_measurement": "تكرار"
+      },
+      "machine_strength_test": {
+        "name": "{machine} اختبار القوة",
+        "unit_of_measurement": "نقطة"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – الخيارات",
+        "data": {
+          "primary_metric": "المقياس الرئيسي لكل جهاز (حالة المستشعر)",
+          "scan_interval_minutes": "فترة التحديث (بالدقائق)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "إرسال قياس الجسم",
+      "description": "يكتب الوزن و/أو دهون الجسم و/أو الطول مع وقت القياس في حساب Selection Fitness. لا يمكن حذف الإدخالات لاحقًا.",
+      "fields": {
+        "config_entry_id": {
+          "name": "الحساب",
+          "description": "مطلوب فقط عند إعداد عدة حسابات."
+        },
+        "measured_at": {
+          "name": "وقت القياس",
+          "description": "وقت القياس (الافتراضي: الآن)."
+        },
+        "weight": {
+          "name": "الوزن",
+          "description": "وزن الجسم بالكيلوغرام."
+        },
+        "body_fat": {
+          "name": "دهون الجسم",
+          "description": "نسبة دهون الجسم."
+        },
+        "height": {
+          "name": "الطول",
+          "description": "الطول بالسنتيمتر (الافتراضي: الطول من الملف الشخصي)."
+        },
+        "force_backdate": {
+          "name": "فرض تاريخ سابق",
+          "description": "إرسال قيم أقدم من أحدث قياس. تنبيه: سيستبدل الخادم حينها الوزن الحالي في الملف الشخصي، ويجب إدخاله مجددًا بعد ذلك."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "إرسال قياس القلب",
+      "description": "يكتب معدل النبض أثناء الراحة و/أو ضغط الدم و/أو VO2max مع وقت القياس في حساب Selection Fitness. لا يمكن حذف الإدخالات لاحقًا.",
+      "fields": {
+        "config_entry_id": {
+          "name": "الحساب",
+          "description": "مطلوب فقط عند إعداد عدة حسابات."
+        },
+        "measured_at": {
+          "name": "وقت القياس",
+          "description": "وقت القياس (الافتراضي: الآن)."
+        },
+        "resting_heart_rate": {
+          "name": "معدل النبض أثناء الراحة",
+          "description": "معدل النبض أثناء الراحة بالنبضات في الدقيقة."
+        },
+        "systolic": {
+          "name": "ضغط الدم الانقباضي",
+          "description": "ضغط الدم الانقباضي بوحدة mmHg (مع الانبساطي فقط)."
+        },
+        "diastolic": {
+          "name": "ضغط الدم الانبساطي",
+          "description": "ضغط الدم الانبساطي بوحدة mmHg (مع الانقباضي فقط)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "الحد الأقصى لاستهلاك الأكسجين بوحدة ml/kg/min."
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "الوزن المرفوع",
+        "strength": "اختبار القوة",
+        "calories": "السعرات الحرارية",
+        "activity_points": "نقاط النشاط",
+        "reps": "التكرارات"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "أجهزة eGym"
+    },
+    "machines_person": {
+      "name": "أجهزة eGym ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "لا يوجد إدخال Selection Fitness محمّل بالمعرّف {entry_id}."
+    },
+    "no_account": {
+      "message": "لم يتم إعداد أي حساب Selection Fitness."
+    },
+    "multiple_accounts": {
+      "message": "تم إعداد عدة حسابات Selection Fitness – يُرجى تحديد config_entry_id."
+    },
+    "measured_at_in_future": {
+      "message": "لا يمكن أن يكون measured_at في المستقبل."
+    },
+    "body_value_required": {
+      "message": "حدّد weight أو body_fat."
+    },
+    "cardio_value_required": {
+      "message": "حدّد قياسًا واحدًا على الأقل."
+    },
+    "blood_pressure_incomplete": {
+      "message": "يتطلب ضغط الدم كلًا من systolic و diastolic."
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) أقدم من أحدث قياس ({newest}). سيستبدل الخادم الوزن الحالي في الملف الشخصي. لإدخال قيمة سابقة عن قصد، اضبط force_backdate: true ثم أدخل الوزن الحالي مجددًا."
+    },
+    "send_failed": {
+      "message": "تعذّر إرسال القياس: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: تم استبدال الوزن الحالي"
+    },
+    "backdated_sent": {
+      "message": "تم إرسال القياس ذي التاريخ السابق من {measured_at}. وقد **استبدل الخادم الوزن الحالي في الملف الشخصي**. يُرجى إدخال وزنك الحالي مجددًا، مثلًا باستخدام `selection_fitness.add_body_measurement` مع وقت أحدث قياس."
+    }
+  }
+}

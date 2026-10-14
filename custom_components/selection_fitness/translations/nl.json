@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Meld je aan met je Selection Fitness-inloggegevens.",
+        "data": {
+          "email": "E-mail",
+          "password": "Wachtwoord",
+          "base_url": "Server-URL (alleen wijzigen indien nodig)",
+          "mobile_api_url": "Mobiele API-URL (lichaamsgegevens, BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ongeldig e-mailadres of wachtwoord.",
+      "cannot_connect": "Verbinding mislukt.",
+      "unknown": "Onverwachte fout."
+    },
+    "abort": {
+      "already_configured": "Dit account is al geconfigureerd."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "Gewicht"
+      },
+      "body_fat": {
+        "name": "Vetpercentage"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "Spiermassa"
+      },
+      "lean_body_mass": {
+        "name": "Vetvrije massa"
+      },
+      "visceral_fat": {
+        "name": "Visceraal vet"
+      },
+      "bmr": {
+        "name": "Basaal metabolisme"
+      },
+      "height": {
+        "name": "Lengte"
+      },
+      "gender": {
+        "name": "Geslacht"
+      },
+      "waist_hip_ratio": {
+        "name": "Taille-heupverhouding"
+      },
+      "bio_age": {
+        "name": "Lichaamsleeftijd"
+      },
+      "muscle_age": {
+        "name": "Spierleeftijd"
+      },
+      "upper_body_age": {
+        "name": "Leeftijd bovenlichaam"
+      },
+      "core_age": {
+        "name": "Leeftijd core"
+      },
+      "lower_body_age": {
+        "name": "Leeftijd onderlichaam"
+      },
+      "upper_body_balance": {
+        "name": "Balans bovenlichaam"
+      },
+      "core_balance": {
+        "name": "Balans core"
+      },
+      "lower_body_balance": {
+        "name": "Balans onderlichaam"
+      },
+      "cardio_age": {
+        "name": "Cardioleeftijd"
+      },
+      "flexibility_age": {
+        "name": "Flexibiliteitsleeftijd"
+      },
+      "metabolic_age": {
+        "name": "Metabole leeftijd"
+      },
+      "measurement_unit": {
+        "name": "Meeteenheid"
+      },
+      "last_workout_plan": {
+        "name": "Laatste trainingsschema"
+      },
+      "last_workout_exercises": {
+        "name": "Oefeningen laatste training"
+      },
+      "waist": {
+        "name": "Tailleomtrek"
+      },
+      "hip": {
+        "name": "Heupomtrek"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "Rusthartslag"
+      },
+      "blood_pressure_systolic": {
+        "name": "Bloeddruk systolisch"
+      },
+      "blood_pressure_diastolic": {
+        "name": "Bloeddruk diastolisch"
+      },
+      "workout_count": {
+        "name": "Aantal trainingen"
+      },
+      "last_workout": {
+        "name": "Laatste training"
+      },
+      "check_in_count": {
+        "name": "Aantal check-ins"
+      },
+      "last_check_in": {
+        "name": "Laatste check-in"
+      },
+      "last_club": {
+        "name": "Laatste club"
+      },
+      "membership_type": {
+        "name": "Lidmaatschap"
+      },
+      "body_fat_mass": {
+        "name": "Vetmassa"
+      },
+      "visceral_fat_area": {
+        "name": "Visceraal vetoppervlak"
+      },
+      "body_water": {
+        "name": "Lichaamsvocht"
+      },
+      "intracellular_water": {
+        "name": "Intracellulair vocht"
+      },
+      "extracellular_water": {
+        "name": "Extracellulair vocht"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW-verhouding"
+      },
+      "phase_angle": {
+        "name": "Fasehoek"
+      },
+      "fat_left_arm": {
+        "name": "Vet linkerarm"
+      },
+      "fat_right_arm": {
+        "name": "Vet rechterarm"
+      },
+      "fat_left_leg": {
+        "name": "Vet linkerbeen"
+      },
+      "fat_right_leg": {
+        "name": "Vet rechterbeen"
+      },
+      "fat_trunk": {
+        "name": "Vet romp"
+      },
+      "lean_left_arm": {
+        "name": "Vetvrije massa linkerarm"
+      },
+      "lean_right_arm": {
+        "name": "Vetvrije massa rechterarm"
+      },
+      "lean_left_leg": {
+        "name": "Vetvrije massa linkerbeen"
+      },
+      "lean_right_leg": {
+        "name": "Vetvrije massa rechterbeen"
+      },
+      "lean_trunk": {
+        "name": "Vetvrije massa romp"
+      },
+      "home_club": {
+        "name": "Thuisclub"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Stijgend",
+              "falling": "Dalend",
+              "stable": "Stabiel"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Stijgend",
+              "falling": "Dalend",
+              "stable": "Stabiel"
+            }
+          }
+        },
+        "unit_of_measurement": "ptn"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Stijgend",
+              "falling": "Dalend",
+              "stable": "Stabiel"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Stijgend",
+              "falling": "Dalend",
+              "stable": "Stabiel"
+            }
+          }
+        },
+        "unit_of_measurement": "punten"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Trend",
+            "state": {
+              "rising": "Stijgend",
+              "falling": "Dalend",
+              "stable": "Stabiel"
+            }
+          }
+        },
+        "unit_of_measurement": "herh."
+      },
+      "machine_strength_test": {
+        "name": "{machine} krachtmeting",
+        "unit_of_measurement": "ptn"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – Opties",
+        "data": {
+          "primary_metric": "Hoofdmetriek per toestel (sensorstatus)",
+          "scan_interval_minutes": "Update-interval (minuten)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "Lichaamsmeting verzenden",
+      "description": "Schrijft gewicht, vetpercentage en/of lengte met meettijdstip naar het Selection Fitness-account. Items kunnen achteraf niet worden verwijderd.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Alleen nodig als er meerdere accounts zijn geconfigureerd."
+        },
+        "measured_at": {
+          "name": "Gemeten op",
+          "description": "Tijdstip van de meting (standaard: nu)."
+        },
+        "weight": {
+          "name": "Gewicht",
+          "description": "Lichaamsgewicht in kg."
+        },
+        "body_fat": {
+          "name": "Vetpercentage",
+          "description": "Lichaamsvetpercentage."
+        },
+        "height": {
+          "name": "Lengte",
+          "description": "Lengte in cm (standaard: lengte uit het profiel)."
+        },
+        "force_backdate": {
+          "name": "Terugdateren afdwingen",
+          "description": "Waarden verzenden die ouder zijn dan de nieuwste meting. Let op: de server overschrijft dan het huidige gewicht in het profiel – dat moet daarna opnieuw worden ingevoerd."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "Cardiometing verzenden",
+      "description": "Schrijft rusthartslag, bloeddruk en/of VO2max met meettijdstip naar het Selection Fitness-account. Items kunnen achteraf niet worden verwijderd.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Alleen nodig als er meerdere accounts zijn geconfigureerd."
+        },
+        "measured_at": {
+          "name": "Gemeten op",
+          "description": "Tijdstip van de meting (standaard: nu)."
+        },
+        "resting_heart_rate": {
+          "name": "Rusthartslag",
+          "description": "Rusthartslag in slagen per minuut."
+        },
+        "systolic": {
+          "name": "Bloeddruk systolisch",
+          "description": "Systolische bloeddruk in mmHg (alleen samen met diastolisch)."
+        },
+        "diastolic": {
+          "name": "Bloeddruk diastolisch",
+          "description": "Diastolische bloeddruk in mmHg (alleen samen met systolisch)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "Maximale zuurstofopname in ml/kg/min."
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "Getild gewicht",
+        "strength": "Krachtmeting",
+        "calories": "Calorieën",
+        "activity_points": "Activiteitspunten",
+        "reps": "Herhalingen"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym-toestellen"
+    },
+    "machines_person": {
+      "name": "eGym-toestellen ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "Geen geladen Selection Fitness-item met ID {entry_id}."
+    },
+    "no_account": {
+      "message": "Er is geen Selection Fitness-account geconfigureerd."
+    },
+    "multiple_accounts": {
+      "message": "Er zijn meerdere Selection Fitness-accounts geconfigureerd – geef config_entry_id op."
+    },
+    "measured_at_in_future": {
+      "message": "measured_at mag niet in de toekomst liggen."
+    },
+    "body_value_required": {
+      "message": "Geef weight of body_fat op."
+    },
+    "cardio_value_required": {
+      "message": "Geef ten minste één meetwaarde op."
+    },
+    "blood_pressure_incomplete": {
+      "message": "Bloeddruk vereist zowel systolic als diastolic."
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) ligt vóór de nieuwste meting ({newest}). De server zou het huidige gewicht in het profiel overschrijven. Stel force_backdate: true in om bewust terug te dateren en voer daarna het huidige gewicht opnieuw in."
+    },
+    "send_failed": {
+      "message": "De meting kon niet worden verzonden: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: huidig gewicht overschreven"
+    },
+    "backdated_sent": {
+      "message": "De teruggedateerde meting van {measured_at} is verzonden. De server heeft **het huidige gewicht in het profiel overschreven**. Voer je huidige gewicht opnieuw in, bijv. met `selection_fitness.add_body_measurement` en het tijdstip van de nieuwste meting."
+    }
+  }
+}

@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "使用您的 Selection Fitness 帳號登入。",
+        "data": {
+          "email": "電子郵件",
+          "password": "密碼",
+          "base_url": "伺服器 URL（僅在需要時變更）",
+          "mobile_api_url": "行動 API URL（身體資料、BioAge）"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "電子郵件或密碼無效。",
+      "cannot_connect": "連線失敗。",
+      "unknown": "未預期的錯誤。"
+    },
+    "abort": {
+      "already_configured": "此帳號已設定。"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "體重"
+      },
+      "body_fat": {
+        "name": "體脂率"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "肌肉量"
+      },
+      "lean_body_mass": {
+        "name": "除脂體重"
+      },
+      "visceral_fat": {
+        "name": "內臟脂肪"
+      },
+      "bmr": {
+        "name": "基礎代謝率"
+      },
+      "height": {
+        "name": "身高"
+      },
+      "gender": {
+        "name": "性別"
+      },
+      "waist_hip_ratio": {
+        "name": "腰臀比"
+      },
+      "bio_age": {
+        "name": "身體年齡"
+      },
+      "muscle_age": {
+        "name": "肌肉年齡"
+      },
+      "upper_body_age": {
+        "name": "上半身年齡"
+      },
+      "core_age": {
+        "name": "核心年齡"
+      },
+      "lower_body_age": {
+        "name": "下半身年齡"
+      },
+      "upper_body_balance": {
+        "name": "上半身平衡"
+      },
+      "core_balance": {
+        "name": "核心平衡"
+      },
+      "lower_body_balance": {
+        "name": "下半身平衡"
+      },
+      "cardio_age": {
+        "name": "心肺年齡"
+      },
+      "flexibility_age": {
+        "name": "柔軟度年齡"
+      },
+      "metabolic_age": {
+        "name": "代謝年齡"
+      },
+      "measurement_unit": {
+        "name": "計量單位"
+      },
+      "last_workout_plan": {
+        "name": "最近訓練計畫"
+      },
+      "last_workout_exercises": {
+        "name": "最近訓練的動作"
+      },
+      "waist": {
+        "name": "腰圍"
+      },
+      "hip": {
+        "name": "臀圍"
+      },
+      "vo2max": {
+        "name": "最大攝氧量"
+      },
+      "resting_heart_rate": {
+        "name": "靜止心率"
+      },
+      "blood_pressure_systolic": {
+        "name": "收縮壓"
+      },
+      "blood_pressure_diastolic": {
+        "name": "舒張壓"
+      },
+      "workout_count": {
+        "name": "訓練次數"
+      },
+      "last_workout": {
+        "name": "最近訓練"
+      },
+      "check_in_count": {
+        "name": "簽到次數"
+      },
+      "last_check_in": {
+        "name": "最近簽到"
+      },
+      "last_club": {
+        "name": "最近健身房"
+      },
+      "membership_type": {
+        "name": "會員資格"
+      },
+      "body_fat_mass": {
+        "name": "脂肪量"
+      },
+      "visceral_fat_area": {
+        "name": "內臟脂肪面積"
+      },
+      "body_water": {
+        "name": "身體水分"
+      },
+      "intracellular_water": {
+        "name": "細胞內水分"
+      },
+      "extracellular_water": {
+        "name": "細胞外水分"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW 比值"
+      },
+      "phase_angle": {
+        "name": "相位角"
+      },
+      "fat_left_arm": {
+        "name": "左臂脂肪"
+      },
+      "fat_right_arm": {
+        "name": "右臂脂肪"
+      },
+      "fat_left_leg": {
+        "name": "左腿脂肪"
+      },
+      "fat_right_leg": {
+        "name": "右腿脂肪"
+      },
+      "fat_trunk": {
+        "name": "軀幹脂肪"
+      },
+      "lean_left_arm": {
+        "name": "左臂除脂量"
+      },
+      "lean_right_arm": {
+        "name": "右臂除脂量"
+      },
+      "lean_left_leg": {
+        "name": "左腿除脂量"
+      },
+      "lean_right_leg": {
+        "name": "右腿除脂量"
+      },
+      "lean_trunk": {
+        "name": "軀幹除脂量"
+      },
+      "home_club": {
+        "name": "常去健身房"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趨勢",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "穩定"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趨勢",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "穩定"
+            }
+          }
+        },
+        "unit_of_measurement": "分"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趨勢",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "穩定"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趨勢",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "穩定"
+            }
+          }
+        },
+        "unit_of_measurement": "積分"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趨勢",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "穩定"
+            }
+          }
+        },
+        "unit_of_measurement": "次"
+      },
+      "machine_strength_test": {
+        "name": "{machine} 肌力測試",
+        "unit_of_measurement": "分"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – 選項",
+        "data": {
+          "primary_metric": "每台器材的主要指標（感測器狀態）",
+          "scan_interval_minutes": "更新間隔（分鐘）"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "傳送身體測量資料",
+      "description": "將體重、體脂率和/或身高連同測量時間寫入 Selection Fitness 帳號。寫入的項目之後無法刪除。",
+      "fields": {
+        "config_entry_id": {
+          "name": "帳號",
+          "description": "僅在設定了多個帳號時需要。"
+        },
+        "measured_at": {
+          "name": "測量時間",
+          "description": "測量的時間（預設：現在）。"
+        },
+        "weight": {
+          "name": "體重",
+          "description": "體重，單位 kg。"
+        },
+        "body_fat": {
+          "name": "體脂率",
+          "description": "體脂百分比。"
+        },
+        "height": {
+          "name": "身高",
+          "description": "身高，單位 cm（預設：個人資料中的身高）。"
+        },
+        "force_backdate": {
+          "name": "強制補登",
+          "description": "傳送早於最新測量的資料。注意：伺服器會因此覆寫個人資料中的目前體重，之後需要重新輸入。"
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "傳送心肺測量資料",
+      "description": "將靜止心率、血壓和/或最大攝氧量連同測量時間寫入 Selection Fitness 帳號。寫入的項目之後無法刪除。",
+      "fields": {
+        "config_entry_id": {
+          "name": "帳號",
+          "description": "僅在設定了多個帳號時需要。"
+        },
+        "measured_at": {
+          "name": "測量時間",
+          "description": "測量的時間（預設：現在）。"
+        },
+        "resting_heart_rate": {
+          "name": "靜止心率",
+          "description": "靜止心率，單位為每分鐘心跳次數。"
+        },
+        "systolic": {
+          "name": "收縮壓",
+          "description": "收縮壓，單位 mmHg（須與舒張壓一起提供）。"
+        },
+        "diastolic": {
+          "name": "舒張壓",
+          "description": "舒張壓，單位 mmHg（須與收縮壓一起提供）。"
+        },
+        "vo2max": {
+          "name": "最大攝氧量",
+          "description": "最大攝氧量，單位 ml/kg/min。"
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "舉起重量",
+        "strength": "肌力測試",
+        "calories": "卡路里",
+        "activity_points": "活動積分",
+        "reps": "重複次數"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym 器材"
+    },
+    "machines_person": {
+      "name": "eGym 器材（{person}）"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "沒有 ID 為 {entry_id} 的已載入 Selection Fitness 項目。"
+    },
+    "no_account": {
+      "message": "尚未設定 Selection Fitness 帳號。"
+    },
+    "multiple_accounts": {
+      "message": "已設定多個 Selection Fitness 帳號，請指定 config_entry_id。"
+    },
+    "measured_at_in_future": {
+      "message": "measured_at 不能是未來的時間。"
+    },
+    "body_value_required": {
+      "message": "請指定 weight 或 body_fat。"
+    },
+    "cardio_value_required": {
+      "message": "請至少指定一項測量值。"
+    },
+    "blood_pressure_incomplete": {
+      "message": "血壓需要同時提供 systolic 和 diastolic。"
+    },
+    "backdated_rejected": {
+      "message": "measured_at（{measured_at}）早於最新測量（{newest}）。伺服器會因此覆寫個人資料中的目前體重。如需刻意補登，請設定 force_backdate: true，之後重新輸入目前體重。"
+    },
+    "send_failed": {
+      "message": "無法傳送測量資料：{error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness：目前體重已被覆寫"
+    },
+    "backdated_sent": {
+      "message": "{measured_at} 的補登測量已傳送。伺服器已**覆寫個人資料中的目前體重**。請重新輸入目前體重，例如使用 `selection_fitness.add_body_measurement` 並填入最新測量的時間。"
+    }
+  }
+}

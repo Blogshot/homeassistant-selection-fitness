@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "Faça login com suas credenciais Selection Fitness.",
+        "data": {
+          "email": "E-mail",
+          "password": "Senha",
+          "base_url": "URL do servidor (alterar apenas se necessário)",
+          "mobile_api_url": "URL da API móvel (dados corporais, BioAge)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "E-mail ou senha inválidos.",
+      "cannot_connect": "Falha na conexão.",
+      "unknown": "Erro inesperado."
+    },
+    "abort": {
+      "already_configured": "Esta conta já está configurada."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "Peso"
+      },
+      "body_fat": {
+        "name": "Gordura corporal"
+      },
+      "bmi": {
+        "name": "IMC"
+      },
+      "muscle_mass": {
+        "name": "Massa muscular"
+      },
+      "lean_body_mass": {
+        "name": "Massa magra"
+      },
+      "visceral_fat": {
+        "name": "Gordura visceral"
+      },
+      "bmr": {
+        "name": "Taxa metabólica basal"
+      },
+      "height": {
+        "name": "Altura"
+      },
+      "gender": {
+        "name": "Sexo"
+      },
+      "waist_hip_ratio": {
+        "name": "Relação cintura-quadril"
+      },
+      "bio_age": {
+        "name": "Idade corporal"
+      },
+      "muscle_age": {
+        "name": "Idade muscular"
+      },
+      "upper_body_age": {
+        "name": "Idade da parte superior"
+      },
+      "core_age": {
+        "name": "Idade do core"
+      },
+      "lower_body_age": {
+        "name": "Idade da parte inferior"
+      },
+      "upper_body_balance": {
+        "name": "Equilíbrio da parte superior"
+      },
+      "core_balance": {
+        "name": "Equilíbrio do core"
+      },
+      "lower_body_balance": {
+        "name": "Equilíbrio da parte inferior"
+      },
+      "cardio_age": {
+        "name": "Idade cardiovascular"
+      },
+      "flexibility_age": {
+        "name": "Idade de flexibilidade"
+      },
+      "metabolic_age": {
+        "name": "Idade metabólica"
+      },
+      "measurement_unit": {
+        "name": "Unidade de medida"
+      },
+      "last_workout_plan": {
+        "name": "Último plano de treino"
+      },
+      "last_workout_exercises": {
+        "name": "Exercícios do último treino"
+      },
+      "waist": {
+        "name": "Cintura"
+      },
+      "hip": {
+        "name": "Quadril"
+      },
+      "vo2max": {
+        "name": "VO2max"
+      },
+      "resting_heart_rate": {
+        "name": "Frequência cardíaca em repouso"
+      },
+      "blood_pressure_systolic": {
+        "name": "Pressão arterial sistólica"
+      },
+      "blood_pressure_diastolic": {
+        "name": "Pressão arterial diastólica"
+      },
+      "workout_count": {
+        "name": "Número de treinos"
+      },
+      "last_workout": {
+        "name": "Último treino"
+      },
+      "check_in_count": {
+        "name": "Número de check-ins"
+      },
+      "last_check_in": {
+        "name": "Último check-in"
+      },
+      "last_club": {
+        "name": "Última academia"
+      },
+      "membership_type": {
+        "name": "Assinatura"
+      },
+      "body_fat_mass": {
+        "name": "Massa gorda"
+      },
+      "visceral_fat_area": {
+        "name": "Área de gordura visceral"
+      },
+      "body_water": {
+        "name": "Água corporal"
+      },
+      "intracellular_water": {
+        "name": "Água intracelular"
+      },
+      "extracellular_water": {
+        "name": "Água extracelular"
+      },
+      "ecw_tbw_ratio": {
+        "name": "Relação ECW/TBW"
+      },
+      "phase_angle": {
+        "name": "Ângulo de fase"
+      },
+      "fat_left_arm": {
+        "name": "Gordura braço esquerdo"
+      },
+      "fat_right_arm": {
+        "name": "Gordura braço direito"
+      },
+      "fat_left_leg": {
+        "name": "Gordura perna esquerda"
+      },
+      "fat_right_leg": {
+        "name": "Gordura perna direita"
+      },
+      "fat_trunk": {
+        "name": "Gordura tronco"
+      },
+      "lean_left_arm": {
+        "name": "Massa magra braço esquerdo"
+      },
+      "lean_right_arm": {
+        "name": "Massa magra braço direito"
+      },
+      "lean_left_leg": {
+        "name": "Massa magra perna esquerda"
+      },
+      "lean_right_leg": {
+        "name": "Massa magra perna direita"
+      },
+      "lean_trunk": {
+        "name": "Massa magra tronco"
+      },
+      "home_club": {
+        "name": "Academia principal"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Tendência",
+            "state": {
+              "rising": "Em alta",
+              "falling": "Em queda",
+              "stable": "Estável"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Tendência",
+            "state": {
+              "rising": "Em alta",
+              "falling": "Em queda",
+              "stable": "Estável"
+            }
+          }
+        },
+        "unit_of_measurement": "pts"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Tendência",
+            "state": {
+              "rising": "Em alta",
+              "falling": "Em queda",
+              "stable": "Estável"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Tendência",
+            "state": {
+              "rising": "Em alta",
+              "falling": "Em queda",
+              "stable": "Estável"
+            }
+          }
+        },
+        "unit_of_measurement": "pontos"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "Tendência",
+            "state": {
+              "rising": "Em alta",
+              "falling": "Em queda",
+              "stable": "Estável"
+            }
+          }
+        },
+        "unit_of_measurement": "rep."
+      },
+      "machine_strength_test": {
+        "name": "{machine} teste de força",
+        "unit_of_measurement": "pts"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – Opções",
+        "data": {
+          "primary_metric": "Métrica principal por máquina (estado do sensor)",
+          "scan_interval_minutes": "Intervalo de atualização (minutos)"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "Enviar medição corporal",
+      "description": "Registra peso, gordura corporal e/ou altura com a hora da medição na conta Selection Fitness. As entradas não podem ser excluídas depois.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Conta",
+          "description": "Necessário apenas se houver várias contas configuradas."
+        },
+        "measured_at": {
+          "name": "Medido em",
+          "description": "Hora da medição (padrão: agora)."
+        },
+        "weight": {
+          "name": "Peso",
+          "description": "Peso corporal em kg."
+        },
+        "body_fat": {
+          "name": "Gordura corporal",
+          "description": "Porcentagem de gordura corporal."
+        },
+        "height": {
+          "name": "Altura",
+          "description": "Altura em cm (padrão: altura do perfil)."
+        },
+        "force_backdate": {
+          "name": "Forçar data anterior",
+          "description": "Enviar valores mais antigos do que a medição mais recente. Atenção: o servidor então substitui o peso atual do perfil, que precisará ser inserido novamente."
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "Enviar medição cardiovascular",
+      "description": "Registra frequência cardíaca em repouso, pressão arterial e/ou VO2max com a hora da medição na conta Selection Fitness. As entradas não podem ser excluídas depois.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Conta",
+          "description": "Necessário apenas se houver várias contas configuradas."
+        },
+        "measured_at": {
+          "name": "Medido em",
+          "description": "Hora da medição (padrão: agora)."
+        },
+        "resting_heart_rate": {
+          "name": "Frequência cardíaca em repouso",
+          "description": "Frequência cardíaca em repouso em batimentos por minuto."
+        },
+        "systolic": {
+          "name": "Pressão arterial sistólica",
+          "description": "Pressão arterial sistólica em mmHg (apenas em conjunto com a diastólica)."
+        },
+        "diastolic": {
+          "name": "Pressão arterial diastólica",
+          "description": "Pressão arterial diastólica em mmHg (apenas em conjunto com a sistólica)."
+        },
+        "vo2max": {
+          "name": "VO2max",
+          "description": "Consumo máximo de oxigênio em ml/kg/min."
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "Peso levantado",
+        "strength": "Teste de força",
+        "calories": "Calorias",
+        "activity_points": "Pontos de atividade",
+        "reps": "Repetições"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "Máquinas eGym"
+    },
+    "machines_person": {
+      "name": "Máquinas eGym ({person})"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "Não existe nenhuma entrada Selection Fitness carregada com o ID {entry_id}."
+    },
+    "no_account": {
+      "message": "Não está configurada nenhuma conta Selection Fitness."
+    },
+    "multiple_accounts": {
+      "message": "Estão configuradas várias contas Selection Fitness – indique config_entry_id."
+    },
+    "measured_at_in_future": {
+      "message": "measured_at não pode estar no futuro."
+    },
+    "body_value_required": {
+      "message": "Indique weight ou body_fat."
+    },
+    "cardio_value_required": {
+      "message": "Indique pelo menos uma medição."
+    },
+    "blood_pressure_incomplete": {
+      "message": "A pressão arterial requer systolic e diastolic."
+    },
+    "backdated_rejected": {
+      "message": "measured_at ({measured_at}) é anterior à medição mais recente ({newest}). O servidor substituiria o peso atual do perfil. Para registrar uma data anterior de propósito, defina force_backdate: true e insira o peso atual novamente depois."
+    },
+    "send_failed": {
+      "message": "Não foi possível enviar a medição: {error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness: peso atual substituído"
+    },
+    "backdated_sent": {
+      "message": "A medição com data anterior de {measured_at} foi enviada. O servidor **substituiu o peso atual do perfil**. Insira seu peso atual novamente, por exemplo com `selection_fitness.add_body_measurement` e a hora da medição mais recente."
+    }
+  }
+}

@@ -475,6 +475,19 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+def _machines_device_info(coordinator: SelectionFitnessCoordinator) -> DeviceInfo:
+    """Shared device for all eGym machines of one person (name translated)."""
+    fn = (coordinator.data or {}).get("firstname") or ""
+    named = bool(fn) and fn != "Selection Fitness"
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{coordinator.client.uuid}_machines")},
+        translation_key="machines_person" if named else "machines",
+        translation_placeholders={"person": fn} if named else None,
+        manufacturer="eGym",
+        model="Fitness Machines",
+    )
+
+
 class SelectionFitnessStrengthSensor(
     CoordinatorEntity[SelectionFitnessCoordinator], SensorEntity
 ):
@@ -482,7 +495,8 @@ class SelectionFitnessStrengthSensor(
 
     _attr_has_entity_name = True
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_unit_of_measurement = "Pkt."
+    # name and unit ("points") come from the translations
+    _attr_translation_key = "machine_strength_test"
     _attr_icon = "mdi:arm-flex"
 
     def __init__(
@@ -493,16 +507,9 @@ class SelectionFitnessStrengthSensor(
     ) -> None:
         super().__init__(coordinator)
         self._code = code
-        self._attr_name = f"{name} Kraftmessung"
+        self._attr_translation_placeholders = {"machine": name}
         self._attr_unique_id = f"{coordinator.client.uuid}_strength_{code}"
-        fn = (coordinator.data or {}).get("firstname") or ""
-        dev_name = f"eGym Geräte ({fn})" if fn and fn != "Selection Fitness" else "eGym Geräte"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.client.uuid}_machines")},
-            name=dev_name,
-            manufacturer="eGym",
-            model="Fitness Machines",
-        )
+        self._attr_device_info = _machines_device_info(coordinator)
         m = ((coordinator.data or {}).get("machines") or {}).get(code) or {}
         if m.get("image"):
             self._attr_entity_picture = m["image"]
@@ -547,22 +554,18 @@ class SelectionFitnessMachineSensor(
         super().__init__(coordinator)
         self._code = code
         self._metric = metric
-        field, unit, dev_class, icon, _label = MACHINE_METRICS[metric]
+        field, unit, dev_class, icon = MACHINE_METRICS[metric]
         self._field = field
-        self._attr_name = name
-        self._attr_native_unit_of_measurement = unit
+        # name "{machine}"; unit from the translations if unit is None
+        self._attr_translation_key = f"machine_{metric}"
+        self._attr_translation_placeholders = {"machine": name}
+        if unit is not None:
+            self._attr_native_unit_of_measurement = unit
         self._attr_icon = icon
         if dev_class == "weight":
             self._attr_device_class = SensorDeviceClass.WEIGHT
         self._attr_unique_id = f"{coordinator.client.uuid}_machine_{code}"
-        fn = (coordinator.data or {}).get("firstname") or ""
-        dev_name = f"eGym Geräte ({fn})" if fn and fn != "Selection Fitness" else "eGym Geräte"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.client.uuid}_machines")},
-            name=dev_name,
-            manufacturer="eGym",
-            model="Fitness Machines",
-        )
+        self._attr_device_info = _machines_device_info(coordinator)
         m = ((coordinator.data or {}).get("machines") or {}).get(code) or {}
         if m.get("image"):
             self._attr_entity_picture = m["image"]

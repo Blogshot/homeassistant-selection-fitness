@@ -1,182 +1,191 @@
 # Selection Fitness → Home Assistant
 
-Eine Custom-Integration, die deine Körper-, Fitness- und Trainingsdaten aus der
-**Selection Fitness** App (Netpulse / eGym White-Label,
-`com.netpulse.mobile.selectionfitness`) als Entities in Home Assistant abbildet
-– ohne MQTT, mit Login direkt in der UI.
+A custom integration that brings your body, fitness and training data from the
+**Selection Fitness** app (Netpulse / eGym white label,
+`com.netpulse.mobile.selectionfitness`) into Home Assistant as entities – no
+MQTT, login directly in the UI.
 
-Die Integration spricht dieselbe Backend-API wie die App („App-Impersonation"):
-Sie meldet sich mit deinen Zugangsdaten an und liest **deine eigenen** Daten.
-Es werden keine Schutzmechanismen umgangen.
+The integration talks to the same backend API as the app ("app impersonation"):
+it signs in with your credentials and reads **your own** data. No protection
+mechanisms are bypassed.
 
 [![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Blogshot&repository=homeassistant-selection-fitness&category=integration)
 
-> Ein Klick auf den Button öffnet das Repository direkt in HACS auf deiner
-> Home-Assistant-Instanz.
+> Clicking the button opens the repository directly in HACS on your Home
+> Assistant instance.
 
 ---
 
-## Funktionsumfang
+## Features
 
-- **Körperdaten** aus dem Profil: Gewicht, Größe, Geschlecht, Maßeinheit, Heimatstudio
-- **eGym BioAge / Fitness-Alter**: Körperalter, Kraft-/Muskelalter, Cardio-Alter,
-  Flexibilitätsalter, Stoffwechselalter – inkl. Oberkörper-/Rumpf-/Unterkörper-Alter
-  und den Muskel-Balance-/Dysbalance-Zuständen
-- **Werte hinter dem BioAge**: Körperfett, BMI, VO2max, Ruhepuls, Blutdruck,
-  Taille-Hüft-Verhältnis
-- **Körperanalyse-Waage im Studio** (InBody / fithub): Muskel-, Mager- und
-  Fettmasse, viszerales Fett, Grundumsatz, Körperwasser (intra-/extrazellulär,
-  ECW/TBW), Phasenwinkel und Segmentwerte für Arme, Beine und Rumpf – inkl.
-  Normbereich als Attribut und rückwirkender Historie
-- **Training**: Anzahl Workouts, letztes Training, Trainingsplan, Übungen im letzten Training
-- **Pro Gerät** (eGym-Maschinen): ein Sensor je Gerät mit der gewählten Haupt-Metrik,
-  **Geräte-Bild**, Trend & Prognose, und allen weiteren Werten als Attribute
-- **Kraftmessung je Gerät**: der feste eGym-Testwert (unabhängig vom eingestellten
-  Gewicht) inkl. Fortschritt/Veränderung – als Attribut und als wählbare Haupt-Metrik
-- **Rückwirkende Historie**: die Geräte-Werte werden als HA-Langzeitstatistik
-  importiert → volle Verlaufs-Graphen, auch für die Zeit vor der Installation
-- **Mehrere Personen**: jeder Account ist ein eigener Eintrag mit eigenem
-  Geräte-Set; Geräte-/Entity-Namen werden pro Person benannt
-- **Messwerte zurückschreiben**: Gewicht, Körperfett, Ruhepuls, Blutdruck und
-  VO2max per Service ins Konto senden – mit echtem Messzeitpunkt, z. B. von
-  einer Waage in Home Assistant
+- **Body data** from the profile: weight, height, gender, unit system, home club
+- **eGym BioAge / fitness age**: body age, muscle age, cardio age, flexibility
+  age, metabolic age – including upper body / core / lower body age and the
+  muscle balance states
+- **Values behind BioAge**: body fat, BMI, VO2max, resting heart rate, blood
+  pressure, waist-hip ratio
+- **Body composition scale at the gym** (InBody / fithub): muscle, lean and fat
+  mass, visceral fat, basal metabolic rate, body water (intra-/extracellular,
+  ECW/TBW), phase angle and segment values for arms, legs and trunk – with the
+  normal range as attributes and backfilled history
+- **Training**: workout count, last workout, workout plan, exercises in the last workout
+- **Per machine** (eGym machines): one sensor per machine with the selected
+  primary metric, **machine image**, trend & forecast, and all other values as
+  attributes
+- **Strength test per machine**: the fixed eGym test value (independent of the
+  weight set on the machine) including progress/change – as attribute and as a
+  selectable primary metric
+- **Backfilled history**: machine values are imported as HA long-term
+  statistics → full history graphs, also for the time before installation
+- **Multiple people**: each account is its own entry with its own device set;
+  device and entity names are prefixed per person
+- **Write measurements back**: send weight, body fat, resting heart rate, blood
+  pressure and VO2max to the account via services – with the real measurement
+  time, e.g. from a scale in Home Assistant
+- **Translated UI** in 18 languages (see below)
 
-Es werden nur Sensoren angelegt, für die dein Account auch Daten liefert.
-Aktualisierung alle **30 Minuten** (`DEFAULT_SCAN_INTERVAL` in `const.py`).
+Only sensors for which your account actually provides data are created.
+Updates every **30 minutes** (configurable in the options).
 
 ---
 
 ## Screenshots
 
-> ⚠️ **Beispielansichten (Mockups) mit illustrativen Werten** – keine echten
-> Messdaten. Sie zeigen nur, wie die Integration in der Oberfläche aussieht.
+> ⚠️ **Example views (mockups) with illustrative values** – not real
+> measurements. They only show what the integration looks like in the UI.
 
-| Login-Dialog | Geräteseite mit Entities |
+| Login dialog | Device page with entities |
 |---|---|
-| ![Config-Flow (Beispiel)](images/config_flow.png) | ![Geräteseite (Beispiel)](images/device.png) |
+| ![Config flow (example)](images/config_flow.png) | ![Device page (example)](images/device.png) |
 
 ---
 
 ## Installation
 
-### Über HACS (empfohlen)
+### Via HACS (recommended)
 
-1. Auf den **„Open in HACS"-Button** oben klicken (oder in HACS →
-   *Benutzerdefinierte Repositories* → `Blogshot/homeassistant-selection-fitness`,
-   Kategorie *Integration*).
-2. *Selection Fitness* herunterladen, Home Assistant **neu starten**.
-3. **Einstellungen → Geräte & Dienste → Integration hinzufügen** → *Selection Fitness*.
-4. **E-Mail** und **Passwort** eingeben. Die URL-Felder bleiben in der Regel auf
-   den Vorgaben.
+1. Click the **"Open in HACS" button** above (or in HACS → *Custom
+   repositories* → `Blogshot/homeassistant-selection-fitness`, category
+   *Integration*).
+2. Download *Selection Fitness* and **restart** Home Assistant.
+3. **Settings → Devices & services → Add integration** → *Selection Fitness*.
+4. Enter your **email** and **password**. The URL fields can usually stay at
+   their defaults.
 
-Für eine **zweite Person** die Integration einfach erneut hinzufügen und die
-anderen Zugangsdaten eingeben – es entsteht ein getrenntes Geräte-Set.
+For a **second person**, simply add the integration again with the other
+credentials – a separate device set is created.
 
-### Manuell
+### Manual
 
-Ordner `custom_components/selection_fitness/` ins HA-Config-Verzeichnis kopieren
-(`<config>/custom_components/selection_fitness/__init__.py`), neu starten, dann
-wie oben hinzufügen.
+Copy the folder `custom_components/selection_fitness/` into your HA config
+directory (`<config>/custom_components/selection_fitness/__init__.py`), restart,
+then add it as above.
 
 ---
 
-## Konfiguration: Haupt-Metrik pro Gerät
+## Configuration: primary metric per machine
 
-Über **Einstellungen → Geräte & Dienste → Selection Fitness → Konfigurieren**
-lässt sich wählen, welche Metrik der Geräte-Sensor als **Status** zeigt:
+Under **Settings → Devices & services → Selection Fitness → Configure** you can
+choose which metric the machine sensor shows as its **state**:
 
-- **Gewicht** (gestemmtes Gewicht, Standard)
-- **Kraftmessung** (fester eGym-Testwert, unabhängig vom eingestellten Gewicht)
-- **Kalorien**
-- **Aktivitätspunkte**
-- **Wiederholungen**
+- **Weight lifted** (default)
+- **Strength test** (fixed eGym test value, independent of the set weight)
+- **Calories**
+- **Activity points**
+- **Repetitions**
 
-Die jeweils anderen Werte bleiben als **Attribute** am Sensor verfügbar
-(`weight_kg`, `reps`, `sets`, `calories`, `activity_points`, `strength_value`,
+The other values stay available as **attributes** on the sensor (`weight_kg`,
+`reps`, `sets`, `calories`, `activity_points`, `strength_value`,
 `strength_progress`, `strength_change_pct`, `strength_measured_at`, `trend`,
 `trend_per_month`, `projected_next`, `last_trained`, `session_count`,
-`training_method`, `source`, `exercise_code`). So kann jede Person die für sie
-relevante Größe als Hauptwert nutzen – manche das gestemmte Gewicht, andere die
-Kraftmessung, andere die Kalorien.
+`training_method`, `source`, `exercise_code`). This way everyone can use the
+value that matters to them as the main value – the weight lifted, the strength
+test or the calories.
 
 ---
 
-## Entities (Auswahl)
+## Entities (selection)
 
-**Körper & BioAge:** `…_gewicht`, `…_koerpergroesse`, `…_geschlecht`,
-`…_koerperalter`, `…_kraftalter`, `…_cardio_alter`, `…_flexibilitaetsalter`,
-`…_stoffwechselalter`, `…_oberkoerper_alter`, `…_rumpf_alter`,
-`…_unterkoerper_alter`, `…_oberkoerper_balance`, `…_koerperfett`, `…_bmi`,
-`…_vo2max`, `…_ruhepuls`, `…_blutdruck_systolisch`, …
+Entity names follow the language of your Home Assistant instance. The examples
+use English entity IDs.
 
-**Körperanalyse (Waage):** `…_muskelmasse`, `…_fettmasse`, `…_koerperwasser`,
-`…_phasenwinkel`, `…_grundumsatz`, … – jeweils mit `measured_at`, `source` und,
-sofern die Waage ihn liefert, `normal_low`/`normal_high`. Die zehn Segmentwerte
-(Fett/Magermasse je Arm, Bein und Rumpf) werden angelegt, sind aber standardmäßig
-deaktiviert.
+**Body & BioAge:** `…_weight`, `…_height`, `…_gender`, `…_body_age`,
+`…_muscle_age`, `…_cardio_age`, `…_flexibility_age`, `…_metabolic_age`,
+`…_upper_body_age`, `…_core_age`, `…_lower_body_age`, `…_upper_body_balance`,
+`…_body_fat`, `…_bmi`, `…_vo2max`, `…_resting_heart_rate`,
+`…_blood_pressure_systolic`, …
 
-**Training:** `…_anzahl_workouts`, `…_letztes_training`,
-`…_letzter_trainingsplan`, `…_uebungen_im_letzten_training`
+**Body composition (scale):** `…_muscle_mass`, `…_body_fat_mass`,
+`…_body_water`, `…_phase_angle`, `…_basal_metabolic_rate`, … – each with
+`measured_at`, `source` and, if the scale provides it,
+`normal_low`/`normal_high`. The ten segment values (fat/lean mass per arm, leg
+and trunk) are created but disabled by default.
 
-**Pro Gerät:** `…_<geraetename>` (z. B. `…_egym_beinpresse`) mit Haupt-Metrik,
-Bild, Trend/Prognose und allen Werten als Attribute.
+**Training:** `…_workout_count`, `…_last_workout`, `…_last_workout_plan`,
+`…_exercises_in_last_workout`
 
-Die Namen tragen den Vornamen der Person als Präfix, sodass bei mehreren
-Accounts nichts kollidiert.
+**Per machine:** `…_<machine name>` (e.g. `…_egym_leg_press`) with the primary
+metric, image, trend/forecast and all values as attributes, plus
+`…_<machine name>_strength_test`.
 
----
-
-## Historie, Trend & Prognose
-
-- **Verlauf:** Home Assistant zeichnet jeden Sensor ab Installation automatisch
-  auf. Zusätzlich werden die **Geräte-Werte rückwirkend** als Langzeitstatistik
-  importiert – das gestemmte Gewicht aus der Workout-Historie **und** die
-  **Kraftmessungshistorie** je Gerät (eigener eGym-Endpunkt). So sind die
-  Verlaufs-Graphen sofort rückwirkend gefüllt.
-- **Fitness-Alter rückwirkend:** Körper-, Kraft-, Cardio-, Stoffwechsel- und
-  Flexibilitätsalter werden über den `bioage/history`-Endpunkt bis zur ersten
-  Messung (oft mehrere Jahre zurück) als Langzeitstatistik importiert.
-- **Jahresweise Abfrage:** Der eGym-Server liefert pro Anfrage nur ein Jahr
-  (die App schaltet zwischen Jahren um). Die Historie wird daher Jahr für Jahr
-  abgefragt und zusammengeführt – mit Früh-Stopp nach zwei leeren Jahren.
-- **Duplikatfrei:** Statistiken sind pro `(statistic_id, Stunde)` eindeutig; der
-  Import ist ein Upsert (überschreibt denselben Stundenbucket), daher entstehen
-  beim 30-Minuten-Pull **keine Duplikate**.
-- **Trend/Prognose:** je Gerät wird aus den letzten Sessions eine lineare
-  Regression gebildet (`trend`: steigend/fallend/stabil, `trend_per_month` in
-  Einheit/Monat, `projected_next` als grobe Prognose des nächsten Werts).
+Names are prefixed with the person's first name, so nothing collides with
+multiple accounts.
 
 ---
 
-## Messwerte senden (Services)
+## History, trend & forecast
 
-> ⚠️ Gesendete Werte landen dauerhaft im Selection-/eGym-Konto und fließen in
-> die BioAge-Auswertung ein. Die API bietet **keine Möglichkeit, Messwerte
-> wieder zu löschen** – vor allem bei rückwirkenden Werten vorsichtig sein.
+- **History:** Home Assistant records every sensor from installation onward.
+  In addition, **machine values are backfilled** as long-term statistics – the
+  weight lifted from the workout history **and** the **strength test history**
+  per machine (separate eGym endpoint). History graphs are filled right away.
+- **Fitness age backfill:** body, muscle, cardio, metabolic and flexibility age
+  are imported via the `bioage/history` endpoint back to the first measurement
+  (often several years).
+- **Body composition backfill:** all values from the body measurement log
+  (e.g. every scan of the scale at the gym) are imported as long-term
+  statistics.
+- **Year-by-year queries:** the eGym server returns only one year per request
+  (the app switches between years). The history is therefore fetched year by
+  year and merged – stopping early after two empty years.
+- **No duplicates:** statistics are unique per `(statistic_id, hour)`; the
+  import is an upsert (it overwrites the same hourly bucket), so the 30-minute
+  poll creates **no duplicates**.
+- **Trend/forecast:** per machine, a linear regression over the latest sessions
+  is computed (`trend`: rising/falling/stable, `trend_per_month` in unit/month,
+  `projected_next` as a rough forecast of the next value).
 
-| Service | Felder |
+---
+
+## Sending measurements (services)
+
+> ⚠️ Sent values are stored permanently in the Selection/eGym account and feed
+> into the BioAge evaluation. The API offers **no way to delete measurements**
+> – be especially careful with backdated values.
+
+| Service | Fields |
 |---|---|
 | `selection_fitness.add_body_measurement` | `weight` (kg), `body_fat` (%), `height` (cm) |
 | `selection_fitness.add_cardio_measurement` | `resting_heart_rate` (bpm), `systolic` + `diastolic` (mmHg), `vo2max` |
 
-Beide akzeptieren optional `measured_at` (Standard: jetzt) und
-`config_entry_id` (nur nötig bei mehreren Konten). Ohne `height` wird die
-Größe aus dem Profil mitgesendet, sonst würde der Server sie selbst ergänzen.
+Both optionally accept `measured_at` (default: now) and `config_entry_id`
+(only needed with several accounts). Without `height`, the height from the
+profile is sent along; otherwise the server would add it on its own.
 
-**Rückwirkende Körperwerte:** Der Server übernimmt jedes gesendete Gewicht als
-*aktuelles* Profilgewicht – auch wenn `measured_at` in der Vergangenheit liegt.
-`add_body_measurement` lehnt deshalb Werte ab, die älter als die neueste
-bekannte Messung sind. Mit `force_backdate: true` werden sie trotzdem gesendet;
-danach erscheint eine Benachrichtigung, und das aktuelle Gewicht muss neu
-eingetragen werden. Cardio-Werte sind davon nicht betroffen.
-In der App erscheinen die Werte mit der Quelle „Home Assistant / HealthConnect“.
+**Backdated body values:** the server takes every weight it receives as the
+*current* profile weight – even if `measured_at` lies in the past.
+`add_body_measurement` therefore rejects values older than the newest known
+measurement. With `force_backdate: true` they are sent anyway; afterwards a
+notification appears and the current weight has to be entered again. Cardio
+values are not affected.
+In the app, the values show up with the source "Home Assistant / HealthConnect".
 
-Beispiel-Automation für eine Waage:
+Example automation for a scale:
 
 ```yaml
 triggers:
   - trigger: state
-    entity_id: sensor.waage_gewicht
+    entity_id: sensor.scale_weight
 conditions:
   - condition: template
     value_template: "{{ trigger.to_state.state | is_number }}"
@@ -189,76 +198,91 @@ actions:
 
 ---
 
-## Wie es funktioniert (Reverse Engineering)
+## Languages
 
-Analyse der APK (v1.7, Build 119).
+The UI (setup, options, entity and device names, units, services and error
+messages) is translated into English, German, Spanish, French, Italian, Dutch,
+Polish, Portuguese (Portugal and Brazil), Russian, Ukrainian, Turkish, Chinese
+(Simplified and Traditional), Japanese, Korean, Arabic and Hindi. Home Assistant
+uses the language of your instance; other languages fall back to English.
+
+Machine and exercise names come from the eGym API, which is queried in the
+language of your instance as well.
+
+---
+
+## How it works (reverse engineering)
+
+Analysis of the APK (v1.7, build 119).
 
 ### Auth
 - **Login:** `POST https://selectionfitness.netpulse.com/np/exerciser/login`,
-  **form-urlencoded** mit `username=<email>&password=<passwort>`.
-  (Feldname ist `username`, nicht `login`; Body ist form-encoded, nicht JSON.)
-- Antwort liefert `uuid` und setzt `Set-Cookie: JSESSIONID=…`.
-- **Autorisierung** aller weiteren Requests = dieser `Cookie: JSESSIONID=…`.
-  Kein API-Key, kein Secret, keine Play-Integrity-Prüfung.
+  **form-urlencoded** with `username=<email>&password=<password>`.
+  (The field name is `username`, not `login`; the body is form-encoded, not JSON.)
+- The response contains the `uuid` and sets `Set-Cookie: JSESSIONID=…`.
+- **Authorization** of all further requests = this `Cookie: JSESSIONID=…`.
+  No API key, no secret, no Play Integrity check.
 
-### Pflicht-Header
+### Required headers
 ```
 X-NP-User-Agent: clientType=MOBILE_DEVICE; devicePlatform=ANDROID; deviceUid=<uuid>; applicationName=SelectionFitness; applicationVersion=1.7; applicationVersionCode=119
 X-NP-API-Version: 1.5
 X-NP-APP-Version: 119
 ```
 
-### Endpunkte
-Haupt-Host `https://selectionfitness.netpulse.com`:
-- `GET /np/exerciser/{uuid}/profile` – Profil (inkl. weight, height, gender …)
-- `GET /workouts/api/workouts/v2.3/exercisers/{uuid}/workouts?completedAfter=…&completedBefore=…&languageCode=de`
-  – komplette Trainingshistorie (`{workouts:[{completedAt, workoutPlanLabel,
+### Endpoints
+Main host `https://selectionfitness.netpulse.com`:
+- `GET /np/exerciser/{uuid}/profile` – profile (incl. weight, height, gender …)
+- `GET /workouts/api/workouts/v2.3/exercisers/{uuid}/workouts?completedAfter=…&completedBefore=…&languageCode=en`
+  – full training history (`{workouts:[{completedAt, workoutPlanLabel,
   exercises:[{name, exerciseCode, source, attributes:{calories, activity_points,
   sets_of_…:[{reps,weight}]}}]}]}`)
 
-eGym-Mobile-API-Host `https://mobile-api.int.api.egym.com`:
-- `GET /analysis/api/v1.0/exercisers/{uuid}/bioage?types=strength,cardio,metabolic,flexibility&languageCode=de`
-  – BioAge-Summary (`totalDetails`, `muscleDetails`, `cardioDetails`,
-  `flexDetails`, `metabolicDetails`, je mit `{value}`-Werten)
+eGym mobile API host `https://mobile-api.int.api.egym.com`:
+- `GET /analysis/api/v1.0/exercisers/{uuid}/bioage?types=strength,cardio,metabolic,flexibility&languageCode=en`
+  – BioAge summary (`totalDetails`, `muscleDetails`, `cardioDetails`,
+  `flexDetails`, `metabolicDetails`, each with `{value}` entries)
+- `GET /measurements/api/v1.0/exercisers/{uuid}/body-measurements?startDate=…&endDate=…`
+  – body measurement log (manual entries, gym scale, Health Connect), one year
+  per request
 
-Datumsformat der App: `yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ` (numerischer Offset).
+App date format: `yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ` (numeric offset).
 
-### Schreiben (Health-Connect-Sync der App)
+### Writing (the app's Health Connect sync)
 - `POST {mobile}/connected-app-measurements/api/v1.0/exerciser/{uuid}/bmi`
   – JSON `{appName:"healthConnect", originalSource, timezone, completedAt,
-  weight(kg), height(cm), bodyFat(%)}`, leere Felder werden weggelassen
+  weight(kg), height(cm), bodyFat(%)}`, empty fields are omitted
 - `POST {mobile}/connected-app-measurements/api/v1.0/exerciser/{uuid}/cardio`
-  – analog mit `bpm`, `systolic`, `diastolic`, `vo2max`
-- `completedAt` im Format `yyyy-MM-dd'T'HH:mm:ss.SSSSSS` ohne Offset. Die App
-  formatiert in UTC, der Server wertet den Wert aber als **Ortszeit** der
-  Zeitzone in `timezone` aus – die Integration sendet daher Ortszeit.
-- Antwort `200` mit leerem Body, Messwerte haben keine ID; die App kennt
-  keinen Lösch-Endpunkt für Messwerte.
+  – likewise with `bpm`, `systolic`, `diastolic`, `vo2max`
+- `completedAt` in the format `yyyy-MM-dd'T'HH:mm:ss.SSSSSS` without offset.
+  The app formats it in UTC, but the server interprets it as **local time** of
+  the time zone in `timezone` – so the integration sends local time.
+- Response `200` with an empty body; measurements have no ID, and the app has
+  no delete endpoint for measurements.
 
 ---
 
-## Bekannte Einschränkungen
+## Known limitations
 
-- **Check-ins / Studiobesuche:** liefern `Membership not found`, wenn der Account
-  serverseitig keinen Mitgliedschafts-Datensatz hat – die betreffenden Sensoren
-  erscheinen dann nicht. Das ist account-/brandseitig, nicht durch die
-  Integration lösbar.
-- **Positives/negatives Bewegungsgewicht:** eGym-Trainingsmethoden (`regular`,
-  `negative`, `isokinetic`, `adaptive`, `explonic`) können pro Trainingswoche
-  unterschiedliche Gewichte für die positive/negative Phase bedeuten. Die API
-  liefert pro Satz ein `weight`; das Feld `training_method` wird als Attribut
-  mitgeführt, sofern vorhanden. Eine getrennte pos/neg-Auswertung ist als
-  Erweiterung vorgesehen.
-- **Kraftmessung vs. gestemmtes Gewicht:** die gezeigte Haupt-Metrik ist frei
-  wählbar (siehe oben), da je nach Nutzer das gestemmte Gewicht, die Kalorien
-  oder die Kraftmessung relevanter ist.
+- **Check-ins / gym visits:** return `Membership not found` if the account has
+  no membership record on the server – the corresponding sensors are then not
+  created. This is on the account/brand side and cannot be solved by the
+  integration.
+- **Positive/negative movement weight:** eGym training methods (`regular`,
+  `negative`, `isokinetic`, `adaptive`, `explonic`) can mean different weights
+  for the positive/negative phase per training week. The API provides one
+  `weight` per set; the `training_method` field is passed along as an attribute
+  if present. A separate positive/negative evaluation is planned.
+- **Strength test vs. weight lifted:** the primary metric can be chosen freely
+  (see above), as depending on the user the weight lifted, the calories or the
+  strength test is more relevant.
 
 ---
 
-## Hinweise
+## Notes
 
-- Lesend, bis auf die Services oben – geschrieben wird nur, wenn du einen
-  Service aufrufst.
-- Session-Cookies laufen serverseitig ab; die Integration meldet sich bei `401`
-  automatisch neu an.
-- Nur für den eigenen Account gedacht.
+- Read-only except for the services above – data is only written when you call
+  a service.
+- Session cookies expire on the server; the integration signs in again
+  automatically on `401`.
+- Intended for your own account only.

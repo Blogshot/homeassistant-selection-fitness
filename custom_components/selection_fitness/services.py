@@ -15,6 +15,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.translation import async_get_translations
 from homeassistant.util import dt as dt_util
 
 from .api import SelectionFitnessApiError
@@ -70,15 +71,19 @@ def _get_coordinator(hass: HomeAssistant, call: ServiceCall):
         coordinator = coordinators.get(entry_id)
         if coordinator is None:
             raise ServiceValidationError(
-                f"Kein geladener Selection-Fitness-Eintrag mit ID {entry_id}"
+                translation_domain=DOMAIN,
+                translation_key="entry_not_found",
+                translation_placeholders={"entry_id": entry_id},
             )
         return coordinator
     if len(coordinators) == 1:
         return next(iter(coordinators.values()))
     if not coordinators:
-        raise ServiceValidationError("Kein Selection-Fitness-Konto eingerichtet")
+        raise ServiceValidationError(
+            translation_domain=DOMAIN, translation_key="no_account"
+        )
     raise ServiceValidationError(
-        "Mehrere Selection-Fitness-Konten eingerichtet – bitte config_entry_id angeben"
+        translation_domain=DOMAIN, translation_key="multiple_accounts"
     )
 
 
@@ -87,7 +92,9 @@ def _measured_at(call: ServiceCall):
     if measured_at.tzinfo is None:
         measured_at = measured_at.replace(tzinfo=dt_util.get_default_time_zone())
     if measured_at > dt_util.now():
-        raise ServiceValidationError("measured_at darf nicht in der Zukunft liegen")
+        raise ServiceValidationError(
+            translation_domain=DOMAIN, translation_key="measured_at_in_future"
+        )
     return measured_at
 
 
@@ -96,7 +103,7 @@ _CURRENT_BODY_TYPES = ("WEIGHT_KG", "BODY_FAT_PERCENTS")
 
 
 def _newest_body_measurement(coordinator):
-    """Zeitpunkt der neuesten bekannten Gewichts-/Körperfettmessung."""
+    """Time of the newest known weight/body fat measurement."""
     measurements = (coordinator.data or {}).get("measurements") or {}
     newest = None
     for mtype in _CURRENT_BODY_TYPES:
@@ -105,6 +112,30 @@ def _newest_body_measurement(coordinator):
         if dt is not None and (newest is None or dt > newest):
             newest = dt
     return newest
+
+
+def _fmt(value) -> str:
+    """Local date/time, language-neutral (ISO style)."""
+    return f"{dt_util.as_local(value):%Y-%m-%d %H:%M}"
+
+
+async def _notification_texts(
+    hass: HomeAssistant, key: str, placeholders: dict[str, str]
+) -> tuple[str, str]:
+    """Title and message of a notification in the system language
+    (translations: exceptions.<key>_title / exceptions.<key>)."""
+    prefix = f"component.{DOMAIN}.exceptions.{key}"
+    texts: dict[str, str] = {}
+    for language in (hass.config.language, "en"):
+        strings = await async_get_translations(hass, language, "exceptions", [DOMAIN])
+        if f"{prefix}.message" in strings:
+            texts = strings
+            break
+    title = texts.get(f"{prefix}_title.message", "Selection Fitness")
+    message = texts.get(f"{prefix}.message", key)
+    for name, value in placeholders.items():
+        message = message.replace("{" + name + "}", value)
+    return title, message
 
 
 @callback
@@ -116,7 +147,9 @@ def async_setup_services(hass: HomeAssistant) -> None:
             k: call.data.get(k) for k in (ATTR_WEIGHT, ATTR_BODY_FAT, ATTR_HEIGHT)
         }
         if values[ATTR_WEIGHT] is None and values[ATTR_BODY_FAT] is None:
-            raise ServiceValidationError("weight oder body_fat muss angegeben werden")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN, translation_key="body_value_required"
+            )
         coordinator = _get_coordinator(hass, call)
         if values[ATTR_HEIGHT] is None:
             # Ohne Größe ergänzt der Server selbst die Profilgröße – explizit
@@ -131,11 +164,12 @@ def async_setup_services(hass: HomeAssistant) -> None:
         backdated = newest is not None and measured_at < newest
         if backdated and not call.data[ATTR_FORCE_BACKDATE]:
             raise ServiceValidationError(
-                f"measured_at ({dt_util.as_local(measured_at):%d.%m.%Y %H:%M}) liegt vor "
-                f"der neuesten Messung ({dt_util.as_local(newest):%d.%m.%Y %H:%M}). "
-                "Der Server würde damit das aktuelle Gewicht im Profil überschreiben. "
-                "Zum bewussten Nachtragen force_backdate: true setzen und danach das "
-                "aktuelle Gewicht neu eintragen."
+                translation_domain=DOMAIN,
+                translation_key="backdated_rejected",
+                translation_placeholders={
+                    "measured_at": _fmt(measured_at),
+                    "newest": _fmt(newest),
+                },
             )
         try:
             await coordinator.client.post_body_measurement(
@@ -144,20 +178,23 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 **values,
             )
         except SelectionFitnessApiError as err:
-            raise HomeAssistantError(f"Messwert konnte nicht gesendet werden: {err}") from err
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="send_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
         if backdated:
             _LOGGER.warning(
-                "Rückwirkender Körpermesswert vom %s gesendet – das aktuelle Gewicht "
-                "im Selection-Fitness-Profil wurde überschrieben", measured_at,
+                "Backdated body measurement from %s sent - the current weight in the "
+                "Selection Fitness profile has been overwritten", measured_at,
+            )
+            title, message = await _notification_texts(
+                hass, "backdated_sent", {"measured_at": _fmt(measured_at)}
             )
             persistent_notification.async_create(
                 hass,
-                f"Der rückwirkende Messwert vom {dt_util.as_local(measured_at):%d.%m.%Y %H:%M} "
-                "wurde gesendet. Dabei hat der Server das **aktuelle Gewicht im Profil "
-                "überschrieben**. Bitte das aktuelle Gewicht neu eintragen, z. B. mit "
-                "`selection_fitness.add_body_measurement` und dem Zeitpunkt der neuesten "
-                "Messung.",
-                title="Selection Fitness: aktuelles Gewicht überschrieben",
+                message,
+                title=title,
                 notification_id=f"{DOMAIN}_backdated_{coordinator.entry.entry_id}",
             )
         await coordinator.async_request_refresh()
@@ -168,9 +205,13 @@ def async_setup_services(hass: HomeAssistant) -> None:
             for k in (ATTR_RESTING_HEART_RATE, ATTR_SYSTOLIC, ATTR_DIASTOLIC, ATTR_VO2MAX)
         }
         if all(v is None for v in values.values()):
-            raise ServiceValidationError("Mindestens ein Messwert muss angegeben werden")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN, translation_key="cardio_value_required"
+            )
         if (values[ATTR_SYSTOLIC] is None) != (values[ATTR_DIASTOLIC] is None):
-            raise ServiceValidationError("Blutdruck braucht systolic und diastolic")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN, translation_key="blood_pressure_incomplete"
+            )
         coordinator = _get_coordinator(hass, call)
         try:
             await coordinator.client.post_cardio_measurement(
@@ -179,7 +220,11 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 **values,
             )
         except SelectionFitnessApiError as err:
-            raise HomeAssistantError(f"Messwert konnte nicht gesendet werden: {err}") from err
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="send_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
         await coordinator.async_request_refresh()
 
     hass.services.async_register(DOMAIN, SERVICE_ADD_BODY, _add_body, schema=BODY_SCHEMA)

@@ -14,6 +14,11 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .api import (
     SelectionFitnessApiError,
@@ -110,7 +115,13 @@ class SelectionFitnessOptionsFlow(OptionsFlow):
                 vol.Optional(
                     CONF_PRIMARY_METRIC,
                     default=opts.get(CONF_PRIMARY_METRIC, DEFAULT_PRIMARY_METRIC),
-                ): vol.In(list(MACHINE_METRICS.keys())),
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=list(MACHINE_METRICS),
+                        translation_key="primary_metric",
+                        mode=SelectSelectorMode.DROPDOWN,
+                    )
+                ),
                 vol.Optional(
                     "scan_interval_minutes",
                     default=opts.get("scan_interval_minutes", 30),

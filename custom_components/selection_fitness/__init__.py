@@ -55,6 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # früheren Version nicht hängen bleibt.
         mobile_api_url=DEFAULT_MOBILE_API_URL,
         device_uid=device_uid,
+        language=hass.config.language,
     )
 
     try:

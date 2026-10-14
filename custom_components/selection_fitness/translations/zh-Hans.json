@@ -1,0 +1,389 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selection Fitness",
+        "description": "使用您的 Selection Fitness 账号登录。",
+        "data": {
+          "email": "电子邮箱",
+          "password": "密码",
+          "base_url": "服务器 URL（仅在需要时更改）",
+          "mobile_api_url": "移动 API URL（身体数据、BioAge）"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "电子邮箱或密码无效。",
+      "cannot_connect": "连接失败。",
+      "unknown": "意外错误。"
+    },
+    "abort": {
+      "already_configured": "此账号已配置。"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "体重"
+      },
+      "body_fat": {
+        "name": "体脂率"
+      },
+      "bmi": {
+        "name": "BMI"
+      },
+      "muscle_mass": {
+        "name": "肌肉量"
+      },
+      "lean_body_mass": {
+        "name": "去脂体重"
+      },
+      "visceral_fat": {
+        "name": "内脏脂肪"
+      },
+      "bmr": {
+        "name": "基础代谢率"
+      },
+      "height": {
+        "name": "身高"
+      },
+      "gender": {
+        "name": "性别"
+      },
+      "waist_hip_ratio": {
+        "name": "腰臀比"
+      },
+      "bio_age": {
+        "name": "身体年龄"
+      },
+      "muscle_age": {
+        "name": "肌肉年龄"
+      },
+      "upper_body_age": {
+        "name": "上半身年龄"
+      },
+      "core_age": {
+        "name": "核心年龄"
+      },
+      "lower_body_age": {
+        "name": "下半身年龄"
+      },
+      "upper_body_balance": {
+        "name": "上半身平衡"
+      },
+      "core_balance": {
+        "name": "核心平衡"
+      },
+      "lower_body_balance": {
+        "name": "下半身平衡"
+      },
+      "cardio_age": {
+        "name": "心肺年龄"
+      },
+      "flexibility_age": {
+        "name": "柔韧性年龄"
+      },
+      "metabolic_age": {
+        "name": "代谢年龄"
+      },
+      "measurement_unit": {
+        "name": "计量单位"
+      },
+      "last_workout_plan": {
+        "name": "最近训练计划"
+      },
+      "last_workout_exercises": {
+        "name": "最近训练的动作"
+      },
+      "waist": {
+        "name": "腰围"
+      },
+      "hip": {
+        "name": "臀围"
+      },
+      "vo2max": {
+        "name": "最大摄氧量"
+      },
+      "resting_heart_rate": {
+        "name": "静息心率"
+      },
+      "blood_pressure_systolic": {
+        "name": "收缩压"
+      },
+      "blood_pressure_diastolic": {
+        "name": "舒张压"
+      },
+      "workout_count": {
+        "name": "训练次数"
+      },
+      "last_workout": {
+        "name": "最近训练"
+      },
+      "check_in_count": {
+        "name": "签到次数"
+      },
+      "last_check_in": {
+        "name": "最近签到"
+      },
+      "last_club": {
+        "name": "最近健身房"
+      },
+      "membership_type": {
+        "name": "会员资格"
+      },
+      "body_fat_mass": {
+        "name": "脂肪量"
+      },
+      "visceral_fat_area": {
+        "name": "内脏脂肪面积"
+      },
+      "body_water": {
+        "name": "身体水分"
+      },
+      "intracellular_water": {
+        "name": "细胞内水分"
+      },
+      "extracellular_water": {
+        "name": "细胞外水分"
+      },
+      "ecw_tbw_ratio": {
+        "name": "ECW/TBW 比值"
+      },
+      "phase_angle": {
+        "name": "相位角"
+      },
+      "fat_left_arm": {
+        "name": "左臂脂肪"
+      },
+      "fat_right_arm": {
+        "name": "右臂脂肪"
+      },
+      "fat_left_leg": {
+        "name": "左腿脂肪"
+      },
+      "fat_right_leg": {
+        "name": "右腿脂肪"
+      },
+      "fat_trunk": {
+        "name": "躯干脂肪"
+      },
+      "lean_left_arm": {
+        "name": "左臂去脂量"
+      },
+      "lean_right_arm": {
+        "name": "右臂去脂量"
+      },
+      "lean_left_leg": {
+        "name": "左腿去脂量"
+      },
+      "lean_right_leg": {
+        "name": "右腿去脂量"
+      },
+      "lean_trunk": {
+        "name": "躯干去脂量"
+      },
+      "home_club": {
+        "name": "常去健身房"
+      },
+      "machine_weight": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趋势",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "稳定"
+            }
+          }
+        }
+      },
+      "machine_strength": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趋势",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "稳定"
+            }
+          }
+        },
+        "unit_of_measurement": "分"
+      },
+      "machine_calories": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趋势",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "稳定"
+            }
+          }
+        }
+      },
+      "machine_activity_points": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趋势",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "稳定"
+            }
+          }
+        },
+        "unit_of_measurement": "积分"
+      },
+      "machine_reps": {
+        "name": "{machine}",
+        "state_attributes": {
+          "trend": {
+            "name": "趋势",
+            "state": {
+              "rising": "上升",
+              "falling": "下降",
+              "stable": "稳定"
+            }
+          }
+        },
+        "unit_of_measurement": "次"
+      },
+      "machine_strength_test": {
+        "name": "{machine} 力量测试",
+        "unit_of_measurement": "分"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Selection Fitness – 选项",
+        "data": {
+          "primary_metric": "每台器械的主要指标（传感器状态）",
+          "scan_interval_minutes": "更新间隔（分钟）"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_body_measurement": {
+      "name": "发送身体测量数据",
+      "description": "将体重、体脂率和/或身高连同测量时间写入 Selection Fitness 账号。写入的条目之后无法删除。",
+      "fields": {
+        "config_entry_id": {
+          "name": "账号",
+          "description": "仅在配置了多个账号时需要。"
+        },
+        "measured_at": {
+          "name": "测量时间",
+          "description": "测量的时间（默认：现在）。"
+        },
+        "weight": {
+          "name": "体重",
+          "description": "体重，单位 kg。"
+        },
+        "body_fat": {
+          "name": "体脂率",
+          "description": "体脂百分比。"
+        },
+        "height": {
+          "name": "身高",
+          "description": "身高，单位 cm（默认：资料中的身高）。"
+        },
+        "force_backdate": {
+          "name": "强制补录",
+          "description": "发送早于最新测量的数据。注意：服务器会因此覆盖资料中的当前体重，之后需要重新录入。"
+        }
+      }
+    },
+    "add_cardio_measurement": {
+      "name": "发送心肺测量数据",
+      "description": "将静息心率、血压和/或最大摄氧量连同测量时间写入 Selection Fitness 账号。写入的条目之后无法删除。",
+      "fields": {
+        "config_entry_id": {
+          "name": "账号",
+          "description": "仅在配置了多个账号时需要。"
+        },
+        "measured_at": {
+          "name": "测量时间",
+          "description": "测量的时间（默认：现在）。"
+        },
+        "resting_heart_rate": {
+          "name": "静息心率",
+          "description": "静息心率，单位为每分钟心跳次数。"
+        },
+        "systolic": {
+          "name": "收缩压",
+          "description": "收缩压，单位 mmHg（须与舒张压一起提供）。"
+        },
+        "diastolic": {
+          "name": "舒张压",
+          "description": "舒张压，单位 mmHg（须与收缩压一起提供）。"
+        },
+        "vo2max": {
+          "name": "最大摄氧量",
+          "description": "最大摄氧量，单位 ml/kg/min。"
+        }
+      }
+    }
+  },
+  "selector": {
+    "primary_metric": {
+      "options": {
+        "weight": "举起重量",
+        "strength": "力量测试",
+        "calories": "卡路里",
+        "activity_points": "活动积分",
+        "reps": "重复次数"
+      }
+    }
+  },
+  "device": {
+    "machines": {
+      "name": "eGym 器械"
+    },
+    "machines_person": {
+      "name": "eGym 器械（{person}）"
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "没有 ID 为 {entry_id} 的已加载 Selection Fitness 条目。"
+    },
+    "no_account": {
+      "message": "尚未配置 Selection Fitness 账号。"
+    },
+    "multiple_accounts": {
+      "message": "已配置多个 Selection Fitness 账号，请指定 config_entry_id。"
+    },
+    "measured_at_in_future": {
+      "message": "measured_at 不能是将来的时间。"
+    },
+    "body_value_required": {
+      "message": "请指定 weight 或 body_fat。"
+    },
+    "cardio_value_required": {
+      "message": "请至少指定一项测量值。"
+    },
+    "blood_pressure_incomplete": {
+      "message": "血压需要同时提供 systolic 和 diastolic。"
+    },
+    "backdated_rejected": {
+      "message": "measured_at（{measured_at}）早于最新测量（{newest}）。服务器会因此覆盖资料中的当前体重。如需有意补录，请设置 force_backdate: true，之后重新录入当前体重。"
+    },
+    "send_failed": {
+      "message": "无法发送测量数据：{error}"
+    },
+    "backdated_sent_title": {
+      "message": "Selection Fitness：当前体重已被覆盖"
+    },
+    "backdated_sent": {
+      "message": "{measured_at} 的补录测量已发送。服务器已**覆盖资料中的当前体重**。请重新录入当前体重，例如使用 `selection_fitness.add_body_measurement` 并填写最新测量的时间。"
+    }
+  }
+}
