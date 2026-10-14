@@ -87,7 +87,8 @@ def _scaled(value: Any, scale: float) -> Any:
 
 _UNIT_DEVICE_CLASS = {
     "kg": SensorDeviceClass.WEIGHT,
-    "L": SensorDeviceClass.VOLUME,
+    # VOLUME erlaubt nur total/total_increasing, VOLUME_STORAGE auch measurement
+    "L": SensorDeviceClass.VOLUME_STORAGE,
     "cm": SensorDeviceClass.DISTANCE,
 }
 

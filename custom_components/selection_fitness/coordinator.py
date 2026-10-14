@@ -72,6 +72,16 @@ def _stat_metadata(statistic_id: str, unit: str | None, *, mean: bool) -> dict:
     mean_type = _MEAN_ARITHMETIC if mean else _MEAN_NONE
     if mean_type is not None:
         meta["mean_type"] = mean_type
+    # Ab HA 2026.11 Pflicht: unit_class passend zur Einheit (None = ohne
+    # Umrechnung). Ältere Kerne kennen das Feld bzw. die Tabelle nicht.
+    try:
+        from homeassistant.components.recorder.statistics import (
+            STATISTIC_UNIT_TO_UNIT_CONVERTER,
+        )
+    except ImportError:
+        return meta
+    converter = STATISTIC_UNIT_TO_UNIT_CONVERTER.get(unit)
+    meta["unit_class"] = converter.UNIT_CLASS if converter else None
     return meta
 
 
