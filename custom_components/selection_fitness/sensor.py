@@ -491,10 +491,13 @@ def _machines_device_info(coordinator: SelectionFitnessCoordinator) -> DeviceInf
 class SelectionFitnessStrengthSensor(
     CoordinatorEntity[SelectionFitnessCoordinator], SensorEntity
 ):
-    """eGym-Kraftmessung je Gerät (fester Testwert) mit Verlauf/Historie."""
+    """eGym-Kraftmessung je Gerät (fester Testwert) mit Verlauf/Historie.
+
+    Ohne state_class (siehe Geräte-Sensor): die Kraftmessung erfolgt nur beim
+    Test, nicht laufend. Die Verlaufshistorie kommt als externe Statistik.
+    """
 
     _attr_has_entity_name = True
-    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_translation_key = "machine_strength_test"
     _attr_native_unit_of_measurement = "pts"
     _attr_icon = "mdi:arm-flex"
@@ -539,10 +542,16 @@ class SelectionFitnessStrengthSensor(
 class SelectionFitnessMachineSensor(
     CoordinatorEntity[SelectionFitnessCoordinator], SensorEntity
 ):
-    """Ein eGym-Gerät: Zustand = wählbare Haupt-Metrik, alle Werte als Attribute."""
+    """Ein eGym-Gerät: Zustand = wählbare Haupt-Metrik, alle Werte als Attribute.
+
+    Bewusst OHNE state_class: Trainings sind sporadische Ereignisse, kein
+    kontinuierlicher Messwert. Sonst würde der Recorder den letzten Wert
+    stündlich rund um die Uhr als Statistik fortschreiben (ein Punkt alle x
+    Minuten statt pro Training). Die echte Pro-Training-Historie liefert der
+    Coordinator als eigene externe Langzeitstatistik.
+    """
 
     _attr_has_entity_name = True
-    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
