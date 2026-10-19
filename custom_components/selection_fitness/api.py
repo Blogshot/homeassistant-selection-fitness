@@ -100,6 +100,19 @@ def extract_machines(workouts: list[dict[str, Any]]) -> dict[str, dict[str, Any]
     return machines
 
 
+def counted_workouts(workouts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Workouts für die Workout-Anzahl: Studio und manuell eingetragen, ohne
+    reine Einträge verbundener Apps (z. B. FitBit "Tägliche Routine")."""
+    return [
+        w
+        for w in workouts or []
+        if any(
+            (e.get("source") or {}).get("code") != "connected_app"
+            for e in w.get("exercises") or []
+        )
+    ]
+
+
 def compute_trend(sessions: list[dict[str, Any]], field: str = "weight") -> dict[str, Any]:
     """Trend per linearer Regression über die letzten Sessions für ein
     beliebiges Metrik-Feld. Gibt Richtung, Steigung (pro Monat) und eine
@@ -164,6 +177,22 @@ HISTORY_MIN_YEAR = 2015
 
 #: Übungskatalog ändert sich selten und ist groß (~2000 Einträge)
 LIBRARY_CACHE_TTL = timedelta(hours=24)
+
+#: Schutz gegen Endlosschleifen beim seitenweisen Laden (je Seite 1000 Übungen)
+WORKOUT_MAX_PAGES = 50
+
+
+def _merge_workouts(
+    base: list[dict[str, Any]], newer: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Workouts nach Code zusammenführen; bei Dubletten gewinnt die Fassung
+    mit mehr Übungen (an Seitengrenzen schneidet der Server Workouts ab)."""
+    merged = {w["code"]: w for w in base}
+    for w in newer:
+        old = merged.get(w["code"])
+        if old is None or len(w.get("exercises") or []) >= len(old.get("exercises") or []):
+            merged[w["code"]] = w
+    return sorted(merged.values(), key=lambda w: w["completedAt"], reverse=True)
 
 
 def _year_windows_desc(min_year: int = HISTORY_MIN_YEAR):
@@ -240,6 +269,8 @@ class SelectionFitnessClient:
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
         self._library_cache: tuple[datetime, list[dict[str, Any]]] | None = None
+        # Vollständige Workout-Historie (None = noch nicht komplett geladen)
+        self._workouts_cache: list[dict[str, Any]] | None = None
 
     # ------------------------------------------------------------------ #
     # Header
@@ -596,25 +627,62 @@ class SelectionFitnessClient:
                     return len(data[key])
         return None
 
-    async def get_workouts(self) -> list[dict[str, Any]]:
-        """Trainings-/Workout-Historie (eGym Advanced Workouts).
+    async def get_workouts(self) -> list[dict[str, Any]] | None:
+        """Trainings-/Workout-Historie (eGym Advanced Workouts), vollständig.
 
         GET {base}/workouts/api/workouts/v2.3/exercisers/{uuid}/workouts
             ?completedAfter=<ISO>&completedBefore=<ISO>&languageCode=de
         Antwort: {"workouts": [ {code, completedAt, workoutPlanLabel,
         exercises:[...], ...}, ... ]}
+
+        Der Server liefert je Anfrage höchstens 1000 Übungen (neueste zuerst)
+        und schneidet dabei auch das älteste Workout mittendrin ab. Die
+        komplette Historie wird daher einmal seitenweise rückwärts geladen
+        (completedBefore = ältestes Workout + 1 s, vollständigere Fassung
+        gewinnt); danach genügt die neueste Seite, ältere Workouts kommen aus
+        dem Cache. Rückgabe None bei Fehlern.
         """
+        try:
+            page = await self._get_workouts_page(_iso8601("naive"))
+            if not page:
+                self._workouts_cache = []
+                return []
+            boundary = min(w["completedAt"] for w in page)
+            if self._workouts_cache is None:
+                older = await self._get_workouts_before(boundary)
+            else:
+                older = [w for w in self._workouts_cache if w["completedAt"] <= boundary]
+        except SelectionFitnessApiError as err:
+            _LOGGER.debug("workouts unavailable: %s", err)
+            return None
+        workouts = _merge_workouts(older, page)
+        self._workouts_cache = workouts
+        return workouts
+
+    async def _get_workouts_before(self, boundary: str) -> list[dict[str, Any]]:
+        """Alle Workouts bis einschließlich `boundary` (seitenweise)."""
+        collected: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for _ in range(WORKOUT_MAX_PAGES):
+            before = _parse_history_date(boundary) + timedelta(seconds=1)
+            page = await self._get_workouts_page(before.strftime("%Y-%m-%dT%H:%M:%S.000"))
+            new = [w for w in page if w["code"] not in seen]
+            collected = _merge_workouts(collected, page)
+            seen.update(w["code"] for w in page)
+            oldest = min((w["completedAt"] for w in page), default=boundary)
+            if not new or oldest >= boundary:
+                break
+            boundary = oldest
+        return collected
+
+    async def _get_workouts_page(self, completed_before: str) -> list[dict[str, Any]]:
         url = f"{self._base}/workouts/api/workouts/v2.3/exercisers/{self.uuid}/workouts"
         params = {
             "completedAfter": "2010-01-01T00:00:00.000",
-            "completedBefore": _iso8601("naive"),
+            "completedBefore": completed_before,
             "languageCode": self._language,
         }
-        try:
-            data = await self._get(url, params=params, label="workouts-v2.3")
-        except SelectionFitnessApiError as err:
-            _LOGGER.debug("workouts unavailable: %s", err)
-            return []
+        data = await self._get(url, params=params, label="workouts-v2.3")
         workouts: list[dict[str, Any]] = []
         if isinstance(data, dict):
             for key in ("workouts", "items", "data"):
@@ -623,7 +691,7 @@ class SelectionFitnessClient:
                     break
         elif isinstance(data, list):
             workouts = data
-        return workouts
+        return [w for w in workouts if w.get("code") and w.get("completedAt")]
 
     async def get_bioage(self) -> dict[str, Any]:
         """eGym BioAge-Summary: Körperalter, Kraft/Muskel, Cardio, Flexibilität,

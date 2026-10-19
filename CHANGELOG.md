@@ -3,6 +3,33 @@
 All notable changes to this integration. Versions match the `version` field in
 `custom_components/selection_fitness/manifest.json`.
 
+## [1.8.1] – 2026-10-19
+
+### Fixed
+- Only part of the workout history was loaded: the eGym server returns at most
+  1000 exercises per request (newest first), so every new workout pushed older
+  ones out and the workout count could go down. The history is now loaded page
+  by page once (back to the first workout, e.g. 601 instead of 226 workouts),
+  afterwards only the newest page is requested. Workouts cut off at a page
+  boundary are completed. Machine sensors and their statistics also get the
+  full history.
+- The workout count statistics showed far too many workouts per month (e.g.
+  240 instead of 10–12 in October). The sensor was `total_increasing`, so every
+  time the count went down (a failed request reporting 0, workouts removed on
+  the server, deleted manual workouts) Home Assistant treated it as a meter
+  reset and added the whole count to the sum again; the recorder's own hourly
+  rows also ran in a separate sum chain next to the imported history.
+  The sensor now has no `state_class`; its statistics come only from the
+  imported workout history (one point per workout). They are rebuilt on start
+  and whenever the workout list changes, which also removes the wrong values.
+- A failed workout request no longer drops the workout count to 0; the last
+  known workouts are kept.
+
+### Changed
+- The workout count (sensor and statistics) only counts gym and manually
+  logged workouts. Entries that come only from connected apps (e.g. FitBit
+  "daily routine") are no longer counted.
+
 ## [1.8.0] – 2026-10-19
 
 ### Added

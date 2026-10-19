@@ -18,7 +18,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .api import compute_trend
+from .api import compute_trend, counted_workouts
 from .const import (
     BODY_LOG_METRICS,
     CONF_PRIMARY_METRIC,
@@ -362,9 +362,11 @@ SENSORS: tuple[SFSensorDescription, ...] = (
     SFSensorDescription(
         key="workout_count",
         translation_key="workout_count",
-        state_class=SensorStateClass.TOTAL_INCREASING,
+        # Kein state_class: die Anzahl kann sinken (gelöschte Trainings), was
+        # total_increasing als Zähler-Reset werten würde. Die Statistik kommt
+        # allein aus dem Import im Coordinator (ein Punkt pro Training).
         icon="mdi:dumbbell",
-        value_fn=lambda d: len(_workouts(d)),
+        value_fn=lambda d: len(counted_workouts(_workouts(d))),
         available_fn=lambda d: bool(_workouts(d)),
     ),
     SFSensorDescription(

@@ -14,6 +14,7 @@ from .api import (
     SelectionFitnessApiError,
     SelectionFitnessAuthError,
     SelectionFitnessClient,
+    counted_workouts,
     extract_machines,
 )
 from .const import (
@@ -174,7 +175,8 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.client = client
         # Codes, für die die Kraftmess-Historie schon importiert wurde
         self._strength_hist_done: set[str] = set()
-        self._workout_stats_done = False
+        # (Anzahl, neuester Zeitpunkt) des zuletzt importierten Workout-Verlaufs
+        self._workout_stats_sig: tuple[int, datetime] | None = None
         self._bioage_hist_done = False
         # Körpermessungs-Log: einmal komplett, danach nur das laufende Jahr
         self._body_log: dict[tuple, dict[str, Any]] = {}
@@ -188,7 +190,11 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             profile = await self.client.get_profile()
             latest_check_in = await self.client.get_latest_check_in()
+            # Bei Fehlern (None) den letzten Stand behalten, statt die
+            # Workout-Anzahl kurz auf 0 fallen zu lassen.
             workouts = await self.client.get_workouts()
+            if workouts is None:
+                workouts = (self.data or {}).get("workouts") or []
             bioage = await self.client.get_bioage()
             # Die /measurements/*/latest-metrics Endpunkte liefern für diese
             # Brand HTTP 500. Körperwerte (u. a. Waage im Studio) kommen daher
@@ -240,7 +246,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 await self._import_strength_statistics(machines)
             except Exception as err:  # noqa: BLE001
                 _LOGGER.debug("Strength statistics import skipped: %s", err)
-            # Workout-Gesamtzahl einmalig als kumulativen Verlauf importieren
+            # Workout-Gesamtzahl als kumulativen Verlauf importieren (bei Änderung)
             try:
                 self._import_workout_statistics(workouts)
             except Exception as err:  # noqa: BLE001
@@ -372,11 +378,18 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             async_import_statistics(self.hass, metadata, stats)
 
     def _import_workout_statistics(self, workouts: list[dict[str, Any]]) -> None:
-        """Legt die Workout-Gesamtzahl rückwirkend als kumulativen Verlauf an
-        (1, 2, … N zu den jeweiligen Trainingszeitpunkten), damit der Sensor
-        nicht von 0 auf N springt. Einmalig, idempotent."""
-        if self._workout_stats_done:
-            return
+        """Legt die Workout-Gesamtzahl als kumulativen Verlauf an (1, 2, … N zu
+        den jeweiligen Trainingszeitpunkten) – ein Punkt pro Training.
+
+        Der Sensor hat kein state_class, der Recorder schreibt also selbst
+        nichts fort; dieser Import ist die einzige Quelle der Statistik. Er
+        läuft beim Start und immer dann, wenn sich die Trainingsliste ändert.
+        Vorher wird die Statistik geleert, damit gelöschte Trainings und alte,
+        vom Recorder kompilierte Zeilen (bis 1.8.0: total_increasing, das jede
+        Abnahme als Zähler-Reset gewertet und die Summe verdoppelt hat)
+        verschwinden.
+        """
+        from homeassistant.components.recorder import get_instance
         from homeassistant.components.recorder.statistics import (
             async_import_statistics,
         )
@@ -387,7 +400,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not entity_id:
             return  # Entity noch nicht da -> nächster Zyklus
         dated: list[datetime] = []
-        for w in workouts or []:
+        for w in counted_workouts(workouts):
             ca = w.get("completedAt") or w.get("createdAt")
             if not ca:
                 continue
@@ -398,6 +411,9 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not dated:
             return
         dated.sort()
+        signature = (len(dated), dated[-1])
+        if signature == self._workout_stats_sig:
+            return
         # Kumulativer Stand je Stundenbucket (letzter Index in der Stunde)
         buckets: dict[datetime, int] = {}
         for i, dt in enumerate(dated, start=1):
@@ -408,8 +424,10 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for b, v in sorted(buckets.items())
         ]
         metadata = _stat_metadata(entity_id, None, mean=False)
+        # Beide Aufgaben laufen in dieser Reihenfolge in der Recorder-Queue
+        get_instance(self.hass).async_clear_statistics([entity_id])
         async_import_statistics(self.hass, metadata, stats)
-        self._workout_stats_done = True
+        self._workout_stats_sig = signature
 
     async def _import_bioage_statistics(self) -> None:
         """Importiert die Historie der Fitness-Alter (Körper-, Kraft-, Cardio-,
