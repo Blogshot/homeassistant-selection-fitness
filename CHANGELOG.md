@@ -3,6 +3,35 @@
 All notable changes to this integration. Versions match the `version` field in
 `custom_components/selection_fitness/manifest.json`.
 
+## [1.8.0] – 2026-10-19
+
+### Added
+- Log workouts like in the app: a **Log workout** dialog on the integration
+  page (config subentry flow) and the `selection_fitness.add_workout` service.
+  Exercises come from the eGym catalog of the account; strength exercises take
+  sets with repetitions or duration and weight, cardio and classes take
+  duration, distance and calories. Workouts may contain several exercises and
+  sets with different values. Entries appear as "Manually Added" in the app
+  and can be deleted there.
+
+### Changed
+- Minimum Home Assistant version raised to 2025.3 (config subentries).
+
+## [1.7.2]
+
+### Fixed
+- Machine and strength test history is imported as entity statistics again
+  (external statistics from 1.7.1 were not persisted reliably). Only real
+  workouts and tests are imported.
+
+## [1.7.1]
+
+### Fixed
+- Machine and strength test sensors no longer have a `state_class`. Workouts
+  are sporadic events; previously the recorder kept writing the last value as
+  an hourly statistic around the clock, so graphs showed a point every hour
+  instead of one per workout.
+
 ## [1.7.0] – 2026-10-14
 
 ### Added

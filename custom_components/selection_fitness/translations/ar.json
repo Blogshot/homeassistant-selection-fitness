@@ -21,6 +21,62 @@
       "already_configured": "تم إعداد هذا الحساب بالفعل."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "تسجيل تمرين"
+      },
+      "entry_type": "تمرين",
+      "step": {
+        "user": {
+          "title": "تسجيل تمرين",
+          "description": "اختر تمرينًا – التمارين الأخيرة في الأعلى، اكتب للبحث.\n\nما أُضيف حتى الآن:\n{summary}",
+          "data": {
+            "exercise": "التمرين",
+            "completed_at": "الوقت"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "القيم لكل مجموعة. يمكن إضافة مجموعات بقيم مختلفة في الخطوة التالية.",
+          "data": {
+            "sets": "المجموعات",
+            "reps": "التكرارات لكل مجموعة",
+            "weight": "الوزن لكل مجموعة",
+            "duration": "المدة",
+            "distance": "المسافة",
+            "calories": "السعرات الحرارية"
+          },
+          "data_description": {
+            "duration": "لكل مجموعة في تمارين الثبات، والمدة الإجمالية في الكارديو والحصص.",
+            "calories": "اختياري – وإلا تحسبها eGym."
+          }
+        },
+        "next": {
+          "title": "تمرين",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "إضافة مجموعات بقيم مختلفة",
+            "add_exercise": "إضافة تمرين آخر",
+            "save": "حفظ التمرين"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "لم يُعثر على التمرين – يرجى اختياره من القائمة.",
+        "invalid_time": "وقت غير صالح.",
+        "in_future": "لا يمكن أن يكون الوقت في المستقبل.",
+        "reps_or_duration_required": "أدخل التكرارات أو المدة.",
+        "duration_required": "أدخل المدة."
+      },
+      "abort": {
+        "saved": "تم حفظ التمرين:\n{summary}",
+        "send_failed": "تعذّر حفظ التمرين: {error}",
+        "cannot_connect": "تعذّر تحميل كتالوج التمارين.",
+        "not_loaded": "إدخال Selection Fitness غير محمّل."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "الحد الأقصى لاستهلاك الأكسجين بوحدة ml/kg/min."
         }
       }
+    },
+    "add_workout": {
+      "name": "تسجيل تمرين",
+      "description": "يسجّل تمرينًا يدويًا بتمرين واحد كما في التطبيق. تحسب eGym السعرات ونقاط النشاط. يمكن حذف الإدخالات في التطبيق.",
+      "fields": {
+        "config_entry_id": {
+          "name": "الحساب",
+          "description": "مطلوب فقط عند إعداد عدة حسابات."
+        },
+        "completed_at": {
+          "name": "وقت الإنجاز",
+          "description": "وقت التمرين (الافتراضي: الآن)."
+        },
+        "exercise": {
+          "name": "التمرين",
+          "description": "الاسم الدقيق من كتالوج eGym أو رمز التمرين، مثل \"Crosstrainer\" أو \"1460\"."
+        },
+        "sets": {
+          "name": "المجموعات",
+          "description": "عدد المجموعات المتماثلة (الافتراضي: 1)."
+        },
+        "reps": {
+          "name": "التكرارات لكل مجموعة",
+          "description": "التكرارات لكل مجموعة."
+        },
+        "weight": {
+          "name": "الوزن لكل مجموعة",
+          "description": "الوزن لكل مجموعة بالكيلوغرام."
+        },
+        "duration": {
+          "name": "المدة",
+          "description": "لكل مجموعة في تمارين الثبات، والمدة الإجمالية في الكارديو والحصص."
+        },
+        "distance": {
+          "name": "المسافة",
+          "description": "المسافة بالكيلومتر."
+        },
+        "calories": {
+          "name": "السعرات الحرارية",
+          "description": "اختياري – وإلا تحسبها eGym."
+        },
+        "set_list": {
+          "name": "مجموعات منفردة",
+          "description": "مجموعات بقيم مختلفة، مثل [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]. تحل محل المجموعات والتكرارات والوزن."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "تم إرسال القياس ذي التاريخ السابق من {measured_at}. وقد **استبدل الخادم الوزن الحالي في الملف الشخصي**. يُرجى إدخال وزنك الحالي مجددًا، مثلًا باستخدام `selection_fitness.add_body_measurement` مع وقت أحدث قياس."
+    },
+    "unknown_exercise": {
+      "message": "لم يُعثر على التمرين \"{exercise}\" في كتالوج eGym. استخدم الاسم الدقيق أو رمز التمرين."
+    },
+    "reps_or_duration_required": {
+      "message": "يحتاج هذا التمرين إلى تكرارات أو مدة لكل مجموعة."
+    },
+    "duration_required": {
+      "message": "يحتاج هذا التمرين إلى مدة."
     }
   }
 }

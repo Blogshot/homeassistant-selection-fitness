@@ -21,6 +21,62 @@
       "already_configured": "이 계정은 이미 구성되어 있습니다."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "운동 기록"
+      },
+      "entry_type": "운동",
+      "step": {
+        "user": {
+          "title": "운동 기록",
+          "description": "운동을 선택하세요. 최근에 한 운동이 위에 표시되며, 입력하면 검색됩니다.\n\n지금까지 추가됨:\n{summary}",
+          "data": {
+            "exercise": "운동 종목",
+            "completed_at": "시간"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "세트당 값입니다. 다른 값의 세트는 다음 단계에서 추가할 수 있습니다.",
+          "data": {
+            "sets": "세트 수",
+            "reps": "세트당 반복 횟수",
+            "weight": "세트당 무게",
+            "duration": "시간",
+            "distance": "거리",
+            "calories": "칼로리"
+          },
+          "data_description": {
+            "duration": "정적 운동은 세트당, 유산소와 수업은 총 시간입니다.",
+            "calories": "선택 사항 – 입력하지 않으면 eGym이 계산합니다."
+          }
+        },
+        "next": {
+          "title": "운동",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "다른 값의 세트 추가",
+            "add_exercise": "다른 운동 종목 추가",
+            "save": "운동 저장"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "운동 종목을 찾을 수 없습니다. 목록에서 선택하세요.",
+        "invalid_time": "잘못된 시간입니다.",
+        "in_future": "시간은 미래일 수 없습니다.",
+        "reps_or_duration_required": "반복 횟수 또는 시간을 입력하세요.",
+        "duration_required": "시간을 입력하세요."
+      },
+      "abort": {
+        "saved": "운동이 저장되었습니다:\n{summary}",
+        "send_failed": "운동을 저장할 수 없습니다: {error}",
+        "cannot_connect": "운동 카탈로그를 불러올 수 없습니다.",
+        "not_loaded": "Selection Fitness 항목이 로드되지 않았습니다."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "최대산소섭취량(ml/kg/min)."
         }
       }
+    },
+    "add_workout": {
+      "name": "운동 기록",
+      "description": "앱에서처럼 운동 종목 하나로 수동 운동을 기록합니다. 칼로리와 활동 포인트는 eGym이 계산합니다. 기록은 앱에서 삭제할 수 있습니다.",
+      "fields": {
+        "config_entry_id": {
+          "name": "계정",
+          "description": "여러 계정이 구성된 경우에만 필요합니다."
+        },
+        "completed_at": {
+          "name": "완료 시간",
+          "description": "운동 시간(기본값: 지금)."
+        },
+        "exercise": {
+          "name": "운동 종목",
+          "description": "eGym 카탈로그의 정확한 이름 또는 운동 코드(예: \"Crosstrainer\" 또는 \"1460\")."
+        },
+        "sets": {
+          "name": "세트 수",
+          "description": "동일한 세트 수(기본값: 1)."
+        },
+        "reps": {
+          "name": "세트당 반복 횟수",
+          "description": "세트당 반복 횟수."
+        },
+        "weight": {
+          "name": "세트당 무게",
+          "description": "세트당 무게(kg)."
+        },
+        "duration": {
+          "name": "시간",
+          "description": "정적 운동은 세트당, 유산소와 수업은 총 시간입니다."
+        },
+        "distance": {
+          "name": "거리",
+          "description": "거리(km)."
+        },
+        "calories": {
+          "name": "칼로리",
+          "description": "선택 사항 – 입력하지 않으면 eGym이 계산합니다."
+        },
+        "set_list": {
+          "name": "개별 세트",
+          "description": "값이 다른 세트(예: [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]). 세트 수, 반복 횟수, 무게를 대신합니다."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "{measured_at}의 과거 측정값을 보냈습니다. 서버가 **프로필의 현재 체중을 덮어썼습니다**. `selection_fitness.add_body_measurement`와 최신 측정 시간 등을 사용해 현재 체중을 다시 입력하세요."
+    },
+    "unknown_exercise": {
+      "message": "eGym 카탈로그에서 운동 종목 \"{exercise}\"을(를) 찾을 수 없습니다. 정확한 이름이나 운동 코드를 사용하세요."
+    },
+    "reps_or_duration_required": {
+      "message": "이 운동은 세트당 반복 횟수 또는 시간이 필요합니다."
+    },
+    "duration_required": {
+      "message": "이 운동은 시간이 필요합니다."
     }
   }
 }

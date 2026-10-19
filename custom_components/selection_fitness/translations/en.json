@@ -21,6 +21,62 @@
       "already_configured": "This account is already configured."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "Log workout"
+      },
+      "entry_type": "Workout",
+      "step": {
+        "user": {
+          "title": "Log workout",
+          "description": "Choose an exercise – recently trained ones are at the top, type to search.\n\nAdded so far:\n{summary}",
+          "data": {
+            "exercise": "Exercise",
+            "completed_at": "Time"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "Values per set. Sets with different values can be added in the next step.",
+          "data": {
+            "sets": "Sets",
+            "reps": "Repetitions per set",
+            "weight": "Weight per set",
+            "duration": "Duration",
+            "distance": "Distance",
+            "calories": "Calories"
+          },
+          "data_description": {
+            "duration": "Per set for hold exercises, total duration for cardio and classes.",
+            "calories": "Optional – otherwise calculated by eGym."
+          }
+        },
+        "next": {
+          "title": "Workout",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "Add sets with different values",
+            "add_exercise": "Add another exercise",
+            "save": "Save workout"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "Exercise not found – please pick one from the list.",
+        "invalid_time": "Invalid time.",
+        "in_future": "The time must not be in the future.",
+        "reps_or_duration_required": "Enter repetitions or a duration.",
+        "duration_required": "Enter a duration."
+      },
+      "abort": {
+        "saved": "Workout saved:\n{summary}",
+        "send_failed": "The workout could not be saved: {error}",
+        "cannot_connect": "The exercise catalog could not be loaded.",
+        "not_loaded": "The Selection Fitness entry is not loaded."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "Maximal oxygen uptake in ml/kg/min."
         }
       }
+    },
+    "add_workout": {
+      "name": "Log workout",
+      "description": "Logs a manual workout with one exercise, like in the app. Calories and activity points are calculated by eGym. Entries can be deleted in the app.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Only required if several accounts are configured."
+        },
+        "completed_at": {
+          "name": "Completed at",
+          "description": "Time of the workout (default: now)."
+        },
+        "exercise": {
+          "name": "Exercise",
+          "description": "Exact name from the eGym catalog or the exercise code, e.g. \"Crosstrainer\" or \"1460\"."
+        },
+        "sets": {
+          "name": "Sets",
+          "description": "Number of identical sets (default: 1)."
+        },
+        "reps": {
+          "name": "Repetitions per set",
+          "description": "Repetitions per set."
+        },
+        "weight": {
+          "name": "Weight per set",
+          "description": "Weight per set in kg."
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "Per set for hold exercises, total duration for cardio and classes."
+        },
+        "distance": {
+          "name": "Distance",
+          "description": "Distance in km."
+        },
+        "calories": {
+          "name": "Calories",
+          "description": "Optional – otherwise calculated by eGym."
+        },
+        "set_list": {
+          "name": "Individual sets",
+          "description": "Sets with different values, e.g. [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]. Overrides sets, reps and weight."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "The backdated measurement from {measured_at} has been sent. The server has **overwritten the current weight in the profile**. Please enter your current weight again, e.g. with `selection_fitness.add_body_measurement` and the time of the newest measurement."
+    },
+    "unknown_exercise": {
+      "message": "Exercise \"{exercise}\" was not found in the eGym catalog. Use the exact name or the exercise code."
+    },
+    "reps_or_duration_required": {
+      "message": "This exercise needs repetitions or a duration per set."
+    },
+    "duration_required": {
+      "message": "This exercise needs a duration."
     }
   }
 }

@@ -21,6 +21,62 @@
       "already_configured": "यह खाता पहले से कॉन्फ़िगर है।"
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "वर्कआउट दर्ज करें"
+      },
+      "entry_type": "वर्कआउट",
+      "step": {
+        "user": {
+          "title": "वर्कआउट दर्ज करें",
+          "description": "एक एक्सरसाइज़ चुनें – हाल में की गई सबसे ऊपर हैं, खोजने के लिए टाइप करें।\n\nअब तक जोड़ा गया:\n{summary}",
+          "data": {
+            "exercise": "एक्सरसाइज़",
+            "completed_at": "समय"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "प्रति सेट मान। अलग मानों वाले सेट अगले चरण में जोड़े जा सकते हैं।",
+          "data": {
+            "sets": "सेट",
+            "reps": "प्रति सेट रेप्स",
+            "weight": "प्रति सेट वज़न",
+            "duration": "अवधि",
+            "distance": "दूरी",
+            "calories": "कैलोरी"
+          },
+          "data_description": {
+            "duration": "होल्ड एक्सरसाइज़ में प्रति सेट, कार्डियो और क्लास में कुल अवधि।",
+            "calories": "वैकल्पिक – अन्यथा eGym गणना करता है।"
+          }
+        },
+        "next": {
+          "title": "वर्कआउट",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "अलग मानों वाले सेट जोड़ें",
+            "add_exercise": "एक और एक्सरसाइज़ जोड़ें",
+            "save": "वर्कआउट सहेजें"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "एक्सरसाइज़ नहीं मिली – कृपया सूची से चुनें।",
+        "invalid_time": "अमान्य समय।",
+        "in_future": "समय भविष्य में नहीं हो सकता।",
+        "reps_or_duration_required": "रेप्स या अवधि दर्ज करें।",
+        "duration_required": "अवधि दर्ज करें।"
+      },
+      "abort": {
+        "saved": "वर्कआउट सहेजा गया:\n{summary}",
+        "send_failed": "वर्कआउट सहेजा नहीं जा सका: {error}",
+        "cannot_connect": "एक्सरसाइज़ कैटलॉग लोड नहीं हो सका।",
+        "not_loaded": "Selection Fitness प्रविष्टि लोड नहीं है।"
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "अधिकतम ऑक्सीजन ग्रहण ml/kg/min में।"
         }
       }
+    },
+    "add_workout": {
+      "name": "वर्कआउट दर्ज करें",
+      "description": "ऐप की तरह एक एक्सरसाइज़ वाला मैनुअल वर्कआउट दर्ज करता है। कैलोरी और एक्टिविटी पॉइंट eGym गणना करता है। प्रविष्टियाँ ऐप में हटाई जा सकती हैं।",
+      "fields": {
+        "config_entry_id": {
+          "name": "खाता",
+          "description": "केवल तभी ज़रूरी है जब कई खाते कॉन्फ़िगर हों।"
+        },
+        "completed_at": {
+          "name": "पूरा होने का समय",
+          "description": "वर्कआउट का समय (डिफ़ॉल्ट: अभी)।"
+        },
+        "exercise": {
+          "name": "एक्सरसाइज़",
+          "description": "eGym कैटलॉग का सटीक नाम या एक्सरसाइज़ कोड, जैसे \"Crosstrainer\" या \"1460\"।"
+        },
+        "sets": {
+          "name": "सेट",
+          "description": "एक जैसे सेटों की संख्या (डिफ़ॉल्ट: 1)।"
+        },
+        "reps": {
+          "name": "प्रति सेट रेप्स",
+          "description": "प्रति सेट रेप्स।"
+        },
+        "weight": {
+          "name": "प्रति सेट वज़न",
+          "description": "प्रति सेट वज़न kg में।"
+        },
+        "duration": {
+          "name": "अवधि",
+          "description": "होल्ड एक्सरसाइज़ में प्रति सेट, कार्डियो और क्लास में कुल अवधि।"
+        },
+        "distance": {
+          "name": "दूरी",
+          "description": "दूरी km में।"
+        },
+        "calories": {
+          "name": "कैलोरी",
+          "description": "वैकल्पिक – अन्यथा eGym गणना करता है।"
+        },
+        "set_list": {
+          "name": "अलग-अलग सेट",
+          "description": "अलग मानों वाले सेट, जैसे [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]। सेट, रेप्स और वज़न की जगह लेता है।"
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "{measured_at} का पिछली तारीख वाला माप भेज दिया गया है। सर्वर ने **प्रोफ़ाइल का वर्तमान वज़न बदल दिया है**। कृपया अपना वर्तमान वज़न फिर से दर्ज करें, जैसे `selection_fitness.add_body_measurement` और नवीनतम माप के समय के साथ।"
+    },
+    "unknown_exercise": {
+      "message": "एक्सरसाइज़ \"{exercise}\" eGym कैटलॉग में नहीं मिली। सटीक नाम या एक्सरसाइज़ कोड का उपयोग करें।"
+    },
+    "reps_or_duration_required": {
+      "message": "इस एक्सरसाइज़ के लिए प्रति सेट रेप्स या अवधि चाहिए।"
+    },
+    "duration_required": {
+      "message": "इस एक्सरसाइज़ के लिए अवधि चाहिए।"
     }
   }
 }

@@ -21,6 +21,62 @@
       "already_configured": "此账号已配置。"
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "记录训练"
+      },
+      "entry_type": "训练",
+      "step": {
+        "user": {
+          "title": "记录训练",
+          "description": "选择一个练习——最近练过的在最上方，输入即可搜索。\n\n已添加：\n{summary}",
+          "data": {
+            "exercise": "练习",
+            "completed_at": "时间"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "每组的数值。不同数值的组可在下一步添加。",
+          "data": {
+            "sets": "组数",
+            "reps": "每组次数",
+            "weight": "每组重量",
+            "duration": "时长",
+            "distance": "距离",
+            "calories": "卡路里"
+          },
+          "data_description": {
+            "duration": "静力练习为每组时长，有氧和课程为总时长。",
+            "calories": "可选——否则由 eGym 计算。"
+          }
+        },
+        "next": {
+          "title": "训练",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "添加不同数值的组",
+            "add_exercise": "再添加一个练习",
+            "save": "保存训练"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "未找到练习——请从列表中选择。",
+        "invalid_time": "时间无效。",
+        "in_future": "时间不能晚于现在。",
+        "reps_or_duration_required": "请输入次数或时长。",
+        "duration_required": "请输入时长。"
+      },
+      "abort": {
+        "saved": "训练已保存：\n{summary}",
+        "send_failed": "无法保存训练：{error}",
+        "cannot_connect": "无法加载练习目录。",
+        "not_loaded": "Selection Fitness 条目未加载。"
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "最大摄氧量，单位 ml/kg/min。"
         }
       }
+    },
+    "add_workout": {
+      "name": "记录训练",
+      "description": "像在应用中一样手动记录包含一个练习的训练。卡路里和活动积分由 eGym 计算。记录可在应用中删除。",
+      "fields": {
+        "config_entry_id": {
+          "name": "账号",
+          "description": "仅在配置了多个账号时需要。"
+        },
+        "completed_at": {
+          "name": "完成时间",
+          "description": "训练时间（默认：现在）。"
+        },
+        "exercise": {
+          "name": "练习",
+          "description": "eGym 目录中的准确名称或练习代码，例如 \"Crosstrainer\" 或 \"1460\"。"
+        },
+        "sets": {
+          "name": "组数",
+          "description": "相同组的数量（默认：1）。"
+        },
+        "reps": {
+          "name": "每组次数",
+          "description": "每组次数。"
+        },
+        "weight": {
+          "name": "每组重量",
+          "description": "每组重量（kg）。"
+        },
+        "duration": {
+          "name": "时长",
+          "description": "静力练习为每组时长，有氧和课程为总时长。"
+        },
+        "distance": {
+          "name": "距离",
+          "description": "距离（km）。"
+        },
+        "calories": {
+          "name": "卡路里",
+          "description": "可选——否则由 eGym 计算。"
+        },
+        "set_list": {
+          "name": "单独的组",
+          "description": "数值不同的组，例如 [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]。会替代组数、次数和重量。"
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "{measured_at} 的补录测量已发送。服务器已**覆盖资料中的当前体重**。请重新录入当前体重，例如使用 `selection_fitness.add_body_measurement` 并填写最新测量的时间。"
+    },
+    "unknown_exercise": {
+      "message": "在 eGym 目录中未找到练习“{exercise}”。请使用准确名称或练习代码。"
+    },
+    "reps_or_duration_required": {
+      "message": "此练习每组需要次数或时长。"
+    },
+    "duration_required": {
+      "message": "此练习需要时长。"
     }
   }
 }

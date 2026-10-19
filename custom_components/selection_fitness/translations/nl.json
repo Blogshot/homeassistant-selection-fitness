@@ -21,6 +21,62 @@
       "already_configured": "Dit account is al geconfigureerd."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "Training registreren"
+      },
+      "entry_type": "Training",
+      "step": {
+        "user": {
+          "title": "Training registreren",
+          "description": "Kies een oefening – recent getrainde staan bovenaan, typ om te zoeken.\n\nTot nu toe toegevoegd:\n{summary}",
+          "data": {
+            "exercise": "Oefening",
+            "completed_at": "Tijdstip"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "Waarden per set. Sets met andere waarden kun je in de volgende stap toevoegen.",
+          "data": {
+            "sets": "Sets",
+            "reps": "Herhalingen per set",
+            "weight": "Gewicht per set",
+            "duration": "Duur",
+            "distance": "Afstand",
+            "calories": "Calorieën"
+          },
+          "data_description": {
+            "duration": "Per set bij statische oefeningen, totale duur bij cardio en lessen.",
+            "calories": "Optioneel – anders berekent eGym ze."
+          }
+        },
+        "next": {
+          "title": "Training",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "Sets met andere waarden toevoegen",
+            "add_exercise": "Nog een oefening toevoegen",
+            "save": "Training opslaan"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "Oefening niet gevonden – kies er een uit de lijst.",
+        "invalid_time": "Ongeldig tijdstip.",
+        "in_future": "Het tijdstip mag niet in de toekomst liggen.",
+        "reps_or_duration_required": "Geef herhalingen of een duur op.",
+        "duration_required": "Geef een duur op."
+      },
+      "abort": {
+        "saved": "Training opgeslagen:\n{summary}",
+        "send_failed": "De training kon niet worden opgeslagen: {error}",
+        "cannot_connect": "De oefeningencatalogus kon niet worden geladen.",
+        "not_loaded": "De Selection Fitness-vermelding is niet geladen."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "Maximale zuurstofopname in ml/kg/min."
         }
       }
+    },
+    "add_workout": {
+      "name": "Training registreren",
+      "description": "Registreert een handmatige training met één oefening, zoals in de app. Calorieën en activiteitspunten worden door eGym berekend. Vermeldingen kunnen in de app worden verwijderd.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Alleen nodig als er meerdere accounts zijn geconfigureerd."
+        },
+        "completed_at": {
+          "name": "Uitgevoerd op",
+          "description": "Tijdstip van de training (standaard: nu)."
+        },
+        "exercise": {
+          "name": "Oefening",
+          "description": "Exacte naam uit de eGym-catalogus of de oefeningscode, bijv. \"Crosstrainer\" of \"1460\"."
+        },
+        "sets": {
+          "name": "Sets",
+          "description": "Aantal gelijke sets (standaard: 1)."
+        },
+        "reps": {
+          "name": "Herhalingen per set",
+          "description": "Herhalingen per set."
+        },
+        "weight": {
+          "name": "Gewicht per set",
+          "description": "Gewicht per set in kg."
+        },
+        "duration": {
+          "name": "Duur",
+          "description": "Per set bij statische oefeningen, totale duur bij cardio en lessen."
+        },
+        "distance": {
+          "name": "Afstand",
+          "description": "Afstand in km."
+        },
+        "calories": {
+          "name": "Calorieën",
+          "description": "Optioneel – anders berekent eGym ze."
+        },
+        "set_list": {
+          "name": "Afzonderlijke sets",
+          "description": "Sets met verschillende waarden, bijv. [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]. Vervangt sets, herhalingen en gewicht."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "De teruggedateerde meting van {measured_at} is verzonden. De server heeft **het huidige gewicht in het profiel overschreven**. Voer je huidige gewicht opnieuw in, bijv. met `selection_fitness.add_body_measurement` en het tijdstip van de nieuwste meting."
+    },
+    "unknown_exercise": {
+      "message": "Oefening \"{exercise}\" niet gevonden in de eGym-catalogus. Gebruik de exacte naam of de oefeningscode."
+    },
+    "reps_or_duration_required": {
+      "message": "Deze oefening heeft herhalingen of een duur per set nodig."
+    },
+    "duration_required": {
+      "message": "Deze oefening heeft een duur nodig."
     }
   }
 }

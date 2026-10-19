@@ -83,3 +83,67 @@ add_cardio_measurement:
           step: 0.1
           unit_of_measurement: ml/kg/min
           mode: box
+
+add_workout:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: selection_fitness
+    completed_at:
+      example: "2026-10-19 18:30:00"
+      selector:
+        datetime:
+    exercise:
+      required: true
+      example: "Crosstrainer"
+      selector:
+        text:
+    sets:
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: box
+    reps:
+      example: 10
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box
+    weight:
+      example: 40
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 0.5
+          unit_of_measurement: kg
+          mode: box
+    duration:
+      example: "00:30:00"
+      selector:
+        duration:
+    distance:
+      example: 5
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 0.01
+          unit_of_measurement: km
+          mode: box
+    calories:
+      example: 300
+      selector:
+        number:
+          min: 0
+          max: 10000
+          unit_of_measurement: kcal
+          mode: box
+    set_list:
+      example: '[{"reps": 10, "weight": 40}, {"reps": 8, "weight": 45}]'
+      selector:
+        object:

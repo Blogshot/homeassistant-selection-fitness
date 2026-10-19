@@ -21,6 +21,62 @@
       "already_configured": "此帳號已設定。"
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "記錄訓練"
+      },
+      "entry_type": "訓練",
+      "step": {
+        "user": {
+          "title": "記錄訓練",
+          "description": "選擇一個練習——最近練過的在最上方，輸入即可搜尋。\n\n已新增：\n{summary}",
+          "data": {
+            "exercise": "練習",
+            "completed_at": "時間"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "每組的數值。不同數值的組可在下一步新增。",
+          "data": {
+            "sets": "組數",
+            "reps": "每組次數",
+            "weight": "每組重量",
+            "duration": "時長",
+            "distance": "距離",
+            "calories": "卡路里"
+          },
+          "data_description": {
+            "duration": "靜態練習為每組時長，有氧與課程為總時長。",
+            "calories": "選填——否則由 eGym 計算。"
+          }
+        },
+        "next": {
+          "title": "訓練",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "新增不同數值的組",
+            "add_exercise": "再新增一個練習",
+            "save": "儲存訓練"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "找不到練習——請從清單中選擇。",
+        "invalid_time": "時間無效。",
+        "in_future": "時間不能晚於現在。",
+        "reps_or_duration_required": "請輸入次數或時長。",
+        "duration_required": "請輸入時長。"
+      },
+      "abort": {
+        "saved": "訓練已儲存：\n{summary}",
+        "send_failed": "無法儲存訓練：{error}",
+        "cannot_connect": "無法載入練習目錄。",
+        "not_loaded": "Selection Fitness 項目未載入。"
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "最大攝氧量，單位 ml/kg/min。"
         }
       }
+    },
+    "add_workout": {
+      "name": "記錄訓練",
+      "description": "像在 App 中一樣手動記錄包含一個練習的訓練。卡路里與活動點數由 eGym 計算。記錄可在 App 中刪除。",
+      "fields": {
+        "config_entry_id": {
+          "name": "帳號",
+          "description": "僅在設定了多個帳號時需要。"
+        },
+        "completed_at": {
+          "name": "完成時間",
+          "description": "訓練時間（預設：現在）。"
+        },
+        "exercise": {
+          "name": "練習",
+          "description": "eGym 目錄中的準確名稱或練習代碼，例如 \"Crosstrainer\" 或 \"1460\"。"
+        },
+        "sets": {
+          "name": "組數",
+          "description": "相同組的數量（預設：1）。"
+        },
+        "reps": {
+          "name": "每組次數",
+          "description": "每組次數。"
+        },
+        "weight": {
+          "name": "每組重量",
+          "description": "每組重量（kg）。"
+        },
+        "duration": {
+          "name": "時長",
+          "description": "靜態練習為每組時長，有氧與課程為總時長。"
+        },
+        "distance": {
+          "name": "距離",
+          "description": "距離（km）。"
+        },
+        "calories": {
+          "name": "卡路里",
+          "description": "選填——否則由 eGym 計算。"
+        },
+        "set_list": {
+          "name": "個別的組",
+          "description": "數值不同的組，例如 [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]。會取代組數、次數與重量。"
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "{measured_at} 的補登測量已傳送。伺服器已**覆寫個人資料中的目前體重**。請重新輸入目前體重，例如使用 `selection_fitness.add_body_measurement` 並填入最新測量的時間。"
+    },
+    "unknown_exercise": {
+      "message": "在 eGym 目錄中找不到練習「{exercise}」。請使用準確名稱或練習代碼。"
+    },
+    "reps_or_duration_required": {
+      "message": "此練習每組需要次數或時長。"
+    },
+    "duration_required": {
+      "message": "此練習需要時長。"
     }
   }
 }

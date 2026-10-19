@@ -21,6 +21,62 @@
       "already_configured": "このアカウントは既に設定されています。"
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "トレーニングを記録"
+      },
+      "entry_type": "トレーニング",
+      "step": {
+        "user": {
+          "title": "トレーニングを記録",
+          "description": "エクササイズを選択してください。最近行ったものが上に表示されます。入力すると検索できます。\n\nこれまでに追加:\n{summary}",
+          "data": {
+            "exercise": "エクササイズ",
+            "completed_at": "日時"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "1セットあたりの値です。異なる値のセットは次のステップで追加できます。",
+          "data": {
+            "sets": "セット数",
+            "reps": "1セットあたりの回数",
+            "weight": "1セットあたりの重量",
+            "duration": "時間",
+            "distance": "距離",
+            "calories": "カロリー"
+          },
+          "data_description": {
+            "duration": "静止系エクササイズは1セットあたり、有酸素運動やクラスは合計時間。",
+            "calories": "任意。未入力の場合は eGym が計算します。"
+          }
+        },
+        "next": {
+          "title": "トレーニング",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "異なる値のセットを追加",
+            "add_exercise": "別のエクササイズを追加",
+            "save": "トレーニングを保存"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "エクササイズが見つかりません。リストから選択してください。",
+        "invalid_time": "無効な日時です。",
+        "in_future": "未来の日時は指定できません。",
+        "reps_or_duration_required": "回数または時間を入力してください。",
+        "duration_required": "時間を入力してください。"
+      },
+      "abort": {
+        "saved": "トレーニングを保存しました:\n{summary}",
+        "send_failed": "トレーニングを保存できませんでした: {error}",
+        "cannot_connect": "エクササイズカタログを読み込めませんでした。",
+        "not_loaded": "Selection Fitness のエントリが読み込まれていません。"
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "最大酸素摂取量（ml/kg/min）。"
         }
       }
+    },
+    "add_workout": {
+      "name": "トレーニングを記録",
+      "description": "アプリと同様に、1つのエクササイズで手動トレーニングを記録します。カロリーとアクティビティポイントは eGym が計算します。記録はアプリで削除できます。",
+      "fields": {
+        "config_entry_id": {
+          "name": "アカウント",
+          "description": "複数のアカウントを設定している場合のみ必要です。"
+        },
+        "completed_at": {
+          "name": "実施日時",
+          "description": "トレーニングの日時（既定: 現在）。"
+        },
+        "exercise": {
+          "name": "エクササイズ",
+          "description": "eGym カタログの正確な名前またはエクササイズコード（例: \"Crosstrainer\" または \"1460\"）。"
+        },
+        "sets": {
+          "name": "セット数",
+          "description": "同じセットの数（既定: 1）。"
+        },
+        "reps": {
+          "name": "1セットあたりの回数",
+          "description": "1セットあたりの回数。"
+        },
+        "weight": {
+          "name": "1セットあたりの重量",
+          "description": "1セットあたりの重量（kg）。"
+        },
+        "duration": {
+          "name": "時間",
+          "description": "静止系エクササイズは1セットあたり、有酸素運動やクラスは合計時間。"
+        },
+        "distance": {
+          "name": "距離",
+          "description": "距離（km）。"
+        },
+        "calories": {
+          "name": "カロリー",
+          "description": "任意。未入力の場合は eGym が計算します。"
+        },
+        "set_list": {
+          "name": "個別のセット",
+          "description": "値の異なるセット（例: [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]）。セット数・回数・重量の代わりに使われます。"
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "{measured_at} の過去の測定値を送信しました。サーバーが**プロフィールの現在の体重を上書きしました**。`selection_fitness.add_body_measurement` と最新の測定日時などを使って、現在の体重を入力し直してください。"
+    },
+    "unknown_exercise": {
+      "message": "エクササイズ「{exercise}」が eGym カタログに見つかりません。正確な名前またはエクササイズコードを使用してください。"
+    },
+    "reps_or_duration_required": {
+      "message": "このエクササイズには1セットあたりの回数または時間が必要です。"
+    },
+    "duration_required": {
+      "message": "このエクササイズには時間が必要です。"
     }
   }
 }

@@ -21,6 +21,62 @@
       "already_configured": "Dieses Konto ist bereits eingerichtet."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "Training eintragen"
+      },
+      "entry_type": "Training",
+      "step": {
+        "user": {
+          "title": "Training eintragen",
+          "description": "Wähle eine Übung – zuletzt trainierte stehen oben, tippen zum Suchen.\n\nBisher hinzugefügt:\n{summary}",
+          "data": {
+            "exercise": "Übung",
+            "completed_at": "Zeitpunkt"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "Werte pro Satz. Sätze mit anderen Werten kannst du im nächsten Schritt ergänzen.",
+          "data": {
+            "sets": "Sätze",
+            "reps": "Wiederholungen pro Satz",
+            "weight": "Gewicht pro Satz",
+            "duration": "Dauer",
+            "distance": "Distanz",
+            "calories": "Kalorien"
+          },
+          "data_description": {
+            "duration": "Pro Satz bei Halteübungen, Gesamtdauer bei Cardio und Kursen.",
+            "calories": "Optional – sonst berechnet eGym sie."
+          }
+        },
+        "next": {
+          "title": "Training",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "Sätze mit anderen Werten hinzufügen",
+            "add_exercise": "Weitere Übung hinzufügen",
+            "save": "Training speichern"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "Übung nicht gefunden – bitte aus der Liste wählen.",
+        "invalid_time": "Ungültiger Zeitpunkt.",
+        "in_future": "Der Zeitpunkt darf nicht in der Zukunft liegen.",
+        "reps_or_duration_required": "Gib Wiederholungen oder eine Dauer an.",
+        "duration_required": "Gib eine Dauer an."
+      },
+      "abort": {
+        "saved": "Training gespeichert:\n{summary}",
+        "send_failed": "Das Training konnte nicht gespeichert werden: {error}",
+        "cannot_connect": "Der Übungskatalog konnte nicht geladen werden.",
+        "not_loaded": "Der Selection-Fitness-Eintrag ist nicht geladen."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "Maximale Sauerstoffaufnahme in ml/kg/min."
         }
       }
+    },
+    "add_workout": {
+      "name": "Training eintragen",
+      "description": "Trägt ein manuelles Training mit einer Übung ein, wie in der App. Kalorien und Aktivitätspunkte berechnet eGym. Einträge lassen sich in der App löschen.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Konto",
+          "description": "Nur nötig, wenn mehrere Konten eingerichtet sind."
+        },
+        "completed_at": {
+          "name": "Zeitpunkt",
+          "description": "Zeitpunkt des Trainings (Standard: jetzt)."
+        },
+        "exercise": {
+          "name": "Übung",
+          "description": "Exakter Name aus dem eGym-Katalog oder der Übungscode, z. B. \"Crosstrainer\" oder \"1460\"."
+        },
+        "sets": {
+          "name": "Sätze",
+          "description": "Anzahl gleicher Sätze (Standard: 1)."
+        },
+        "reps": {
+          "name": "Wiederholungen pro Satz",
+          "description": "Wiederholungen pro Satz."
+        },
+        "weight": {
+          "name": "Gewicht pro Satz",
+          "description": "Gewicht pro Satz in kg."
+        },
+        "duration": {
+          "name": "Dauer",
+          "description": "Pro Satz bei Halteübungen, Gesamtdauer bei Cardio und Kursen."
+        },
+        "distance": {
+          "name": "Distanz",
+          "description": "Distanz in km."
+        },
+        "calories": {
+          "name": "Kalorien",
+          "description": "Optional – sonst berechnet eGym sie."
+        },
+        "set_list": {
+          "name": "Einzelne Sätze",
+          "description": "Sätze mit unterschiedlichen Werten, z. B. [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]. Ersetzt Sätze, Wiederholungen und Gewicht."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "Der rückwirkende Messwert vom {measured_at} wurde gesendet. Dabei hat der Server das **aktuelle Gewicht im Profil überschrieben**. Bitte das aktuelle Gewicht neu eintragen, z. B. mit `selection_fitness.add_body_measurement` und dem Zeitpunkt der neuesten Messung."
+    },
+    "unknown_exercise": {
+      "message": "Übung \"{exercise}\" wurde im eGym-Katalog nicht gefunden. Nutze den exakten Namen oder den Übungscode."
+    },
+    "reps_or_duration_required": {
+      "message": "Diese Übung braucht Wiederholungen oder eine Dauer pro Satz."
+    },
+    "duration_required": {
+      "message": "Diese Übung braucht eine Dauer."
     }
   }
 }

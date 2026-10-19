@@ -11,7 +11,7 @@ Auth-Modell:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import aiohttp
@@ -162,6 +162,9 @@ def _iso8601(style: str = "offset") -> str:
 #: Frühestes Jahr, bis zu dem die Historie zurück abgefragt wird.
 HISTORY_MIN_YEAR = 2015
 
+#: Übungskatalog ändert sich selten und ist groß (~2000 Einträge)
+LIBRARY_CACHE_TTL = timedelta(hours=24)
+
 
 def _year_windows_desc(min_year: int = HISTORY_MIN_YEAR):
     """Liefert (Jahr, startDate, endDate) absteigend vom aktuellen Jahr bis
@@ -236,6 +239,7 @@ class SelectionFitnessClient:
         self._session_id: str | None = None  # "JSESSIONID=...."
         self.uuid: str | None = None
         self.profile_login: dict[str, Any] = {}
+        self._library_cache: tuple[datetime, list[dict[str, Any]]] | None = None
 
     # ------------------------------------------------------------------ #
     # Header
@@ -378,12 +382,17 @@ class SelectionFitnessClient:
     # Generische POST-Hilfe (JSON) mit Auto-Relogin bei 401
     # ------------------------------------------------------------------ #
     async def _post_json(self, url: str, payload: dict[str, Any], label: str = "") -> str:
+        return await self._send("POST", url, payload, label)
+
+    async def _send(
+        self, method: str, url: str, payload: dict[str, Any] | None, label: str = ""
+    ) -> str:
         if self._session_id is None:
             await self.login()
         for attempt in (1, 2):
             try:
-                async with self._session.post(
-                    url, json=payload, headers=self._headers()
+                async with self._session.request(
+                    method, url, json=payload, headers=self._headers()
                 ) as resp:
                     if resp.status == 401 and attempt == 1:
                         _LOGGER.debug("401 at %s -> re-login", url)
@@ -392,8 +401,8 @@ class SelectionFitnessClient:
                         continue
                     text = await resp.text()
                     _LOGGER.debug(
-                        "selfit POST %s -> HTTP %s: %s",
-                        label or url, resp.status, text[:180].replace("\n", " "),
+                        "selfit %s %s -> HTTP %s: %s",
+                        method, label or url, resp.status, text[:180].replace("\n", " "),
                     )
                     if resp.status >= 400:
                         raise SelectionFitnessApiError(
@@ -487,6 +496,65 @@ class SelectionFitnessClient:
             },
             measured_at, tz_name, source,
         )
+
+    # ------------------------------------------------------------------ #
+    # Manuelle Workouts (eGym Advanced Workouts, "Training eintragen")
+    # ------------------------------------------------------------------ #
+    async def get_exercise_library(self) -> list[dict[str, Any]]:
+        """Übungskatalog aller Bibliotheken (gecacht, ~2000 Übungen).
+
+        GET {base}/workouts/api/exercise-libraries/v2.1/exercisers/{uuid}/
+            exercise-libraries?languageCode=de
+        Rückgabe: Übungen mit zusätzlichem Feld "libraryCode".
+        """
+        now = datetime.now(timezone.utc)
+        if self._library_cache and now - self._library_cache[0] < LIBRARY_CACHE_TTL:
+            return self._library_cache[1]
+        if self.uuid is None:
+            await self.login()
+        url = (
+            f"{self._base}/workouts/api/exercise-libraries/v2.1/"
+            f"exercisers/{self.uuid}/exercise-libraries"
+        )
+        data = await self._get(
+            url, params={"languageCode": self._language}, label="exercise-libraries"
+        )
+        exercises: list[dict[str, Any]] = []
+        for lib in (data or {}).get("libraries") or []:
+            for ex in lib.get("exercises") or []:
+                if ex.get("code") and ex.get("label"):
+                    exercises.append({**ex, "libraryCode": lib.get("code")})
+        self._library_cache = (now, exercises)
+        return exercises
+
+    async def submit_workout(self, payload: dict[str, Any]) -> str | None:
+        """Workout mit einer oder mehreren Übungen eintragen.
+
+        POST {base}/workouts/api/workouts/v2.0/exercisers/{uuid}/workouts
+        Antwort: {"code": <workoutCode>}. Kalorien und Aktivitätspunkte
+        berechnet der Server selbst; Einträge erscheinen als Quelle "manual"
+        und lassen sich wieder löschen.
+        """
+        url = f"{self._base}/workouts/api/workouts/v2.0/exercisers/{self.uuid}/workouts"
+        text = await self._post_json(url, payload, label="submit-workout")
+        try:
+            import json
+
+            return (json.loads(text) or {}).get("code")
+        except ValueError:
+            return None
+
+    async def delete_workout_exercise(self, workout_code: str, exercise_code: str) -> None:
+        """Eine Übung aus der Historie löschen (nur manuelle, deletable=true).
+
+        DELETE {base}/workouts/api/workouts/v2.0/exercisers/{uuid}/workouts/
+            {workoutCode}/exercises/{exerciseCode}
+        """
+        url = (
+            f"{self._base}/workouts/api/workouts/v2.0/exercisers/{self.uuid}/"
+            f"workouts/{workout_code}/exercises/{exercise_code}"
+        )
+        await self._send("DELETE", url, None, label="delete-exercise")
 
     # ------------------------------------------------------------------ #
     # Datenendpunkte

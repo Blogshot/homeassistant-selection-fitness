@@ -21,6 +21,62 @@
       "already_configured": "Bu hesap zaten yapılandırılmış."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "Antrenman kaydet"
+      },
+      "entry_type": "Antrenman",
+      "step": {
+        "user": {
+          "title": "Antrenman kaydet",
+          "description": "Bir egzersiz seçin – son yapılanlar en üstte, aramak için yazın.\n\nŞimdiye kadar eklenen:\n{summary}",
+          "data": {
+            "exercise": "Egzersiz",
+            "completed_at": "Zaman"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "Set başına değerler. Farklı değerli setleri bir sonraki adımda ekleyebilirsiniz.",
+          "data": {
+            "sets": "Setler",
+            "reps": "Set başına tekrar",
+            "weight": "Set başına ağırlık",
+            "duration": "Süre",
+            "distance": "Mesafe",
+            "calories": "Kalori"
+          },
+          "data_description": {
+            "duration": "Statik egzersizlerde set başına, kardiyo ve derslerde toplam süre.",
+            "calories": "İsteğe bağlı – aksi halde eGym hesaplar."
+          }
+        },
+        "next": {
+          "title": "Antrenman",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "Farklı değerli setler ekle",
+            "add_exercise": "Başka bir egzersiz ekle",
+            "save": "Antrenmanı kaydet"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "Egzersiz bulunamadı – lütfen listeden seçin.",
+        "invalid_time": "Geçersiz zaman.",
+        "in_future": "Zaman gelecekte olamaz.",
+        "reps_or_duration_required": "Tekrar veya süre girin.",
+        "duration_required": "Bir süre girin."
+      },
+      "abort": {
+        "saved": "Antrenman kaydedildi:\n{summary}",
+        "send_failed": "Antrenman kaydedilemedi: {error}",
+        "cannot_connect": "Egzersiz kataloğu yüklenemedi.",
+        "not_loaded": "Selection Fitness girdisi yüklenmedi."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "ml/kg/dk cinsinden maksimum oksijen tüketimi."
         }
       }
+    },
+    "add_workout": {
+      "name": "Antrenman kaydet",
+      "description": "Uygulamadaki gibi tek egzersizli manuel bir antrenman kaydeder. Kalori ve aktivite puanlarını eGym hesaplar. Kayıtlar uygulamada silinebilir.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Hesap",
+          "description": "Yalnızca birden fazla hesap yapılandırılmışsa gereklidir."
+        },
+        "completed_at": {
+          "name": "Tamamlanma zamanı",
+          "description": "Antrenmanın zamanı (varsayılan: şimdi)."
+        },
+        "exercise": {
+          "name": "Egzersiz",
+          "description": "eGym kataloğundaki tam ad veya egzersiz kodu, ör. \"Crosstrainer\" veya \"1460\"."
+        },
+        "sets": {
+          "name": "Setler",
+          "description": "Aynı set sayısı (varsayılan: 1)."
+        },
+        "reps": {
+          "name": "Set başına tekrar",
+          "description": "Set başına tekrar."
+        },
+        "weight": {
+          "name": "Set başına ağırlık",
+          "description": "Set başına ağırlık (kg)."
+        },
+        "duration": {
+          "name": "Süre",
+          "description": "Statik egzersizlerde set başına, kardiyo ve derslerde toplam süre."
+        },
+        "distance": {
+          "name": "Mesafe",
+          "description": "Mesafe (km)."
+        },
+        "calories": {
+          "name": "Kalori",
+          "description": "İsteğe bağlı – aksi halde eGym hesaplar."
+        },
+        "set_list": {
+          "name": "Tekil setler",
+          "description": "Farklı değerli setler, ör. [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]. Set, tekrar ve ağırlığın yerine geçer."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "{measured_at} tarihli geçmiş ölçüm gönderildi. Sunucu **profildeki güncel kiloyu üzerine yazdı**. Lütfen güncel kilonuzu yeniden girin, örneğin `selection_fitness.add_body_measurement` ile en yeni ölçümün zamanını kullanarak."
+    },
+    "unknown_exercise": {
+      "message": "\"{exercise}\" egzersizi eGym kataloğunda bulunamadı. Tam adı veya egzersiz kodunu kullanın."
+    },
+    "reps_or_duration_required": {
+      "message": "Bu egzersiz set başına tekrar veya süre gerektirir."
+    },
+    "duration_required": {
+      "message": "Bu egzersiz bir süre gerektirir."
     }
   }
 }

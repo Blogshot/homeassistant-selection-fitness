@@ -1,8 +1,8 @@
-"""Services zum Schreiben von Messwerten ins Selection-/eGym-Konto.
+"""Services zum Schreiben von Messwerten und Workouts ins Selection-/eGym-Konto.
 
-Nutzt denselben Endpunkt wie der Health-Connect-Sync der App, damit der
-Messzeitpunkt (auch rückwirkend) erhalten bleibt. Geschriebene Einträge
-lassen sich über die API nicht wieder löschen.
+Messwerte nutzen denselben Endpunkt wie der Health-Connect-Sync der App, damit
+der Messzeitpunkt (auch rückwirkend) erhalten bleibt. Geschriebene Messwerte
+lassen sich über die API nicht wieder löschen, manuelle Workouts schon (App).
 """
 from __future__ import annotations
 
@@ -12,7 +12,13 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.components import persistent_notification
-from homeassistant.core import HomeAssistant, ServiceCall, callback
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+    callback,
+)
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.translation import async_get_translations
@@ -20,11 +26,13 @@ from homeassistant.util import dt as dt_util
 
 from .api import SelectionFitnessApiError
 from .const import DOMAIN
+from .workout import WorkoutError, build_payload, exercise_attributes, find_exercise
 
 _LOGGER = logging.getLogger(__name__)
 
 SERVICE_ADD_BODY = "add_body_measurement"
 SERVICE_ADD_CARDIO = "add_cardio_measurement"
+SERVICE_ADD_WORKOUT = "add_workout"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ATTR_MEASURED_AT = "measured_at"
@@ -36,6 +44,14 @@ ATTR_RESTING_HEART_RATE = "resting_heart_rate"
 ATTR_SYSTOLIC = "systolic"
 ATTR_DIASTOLIC = "diastolic"
 ATTR_VO2MAX = "vo2max"
+ATTR_COMPLETED_AT = "completed_at"
+ATTR_EXERCISE = "exercise"
+ATTR_SETS = "sets"
+ATTR_SET_LIST = "set_list"
+ATTR_REPS = "reps"
+ATTR_DURATION = "duration"
+ATTR_DISTANCE = "distance"
+ATTR_CALORIES = "calories"
 
 # Wertebereiche wie in der App (AnalysisNewValue)
 _BASE_SCHEMA = {
@@ -63,6 +79,35 @@ CARDIO_SCHEMA = vol.Schema(
     }
 )
 
+_REPS = vol.All(vol.Coerce(int), vol.Range(min=1, max=1000))
+_SET_WEIGHT = vol.All(vol.Coerce(float), vol.Range(min=0, max=1000))
+
+WORKOUT_SCHEMA = vol.Schema(
+    {
+        vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string,
+        vol.Optional(ATTR_COMPLETED_AT): cv.datetime,
+        vol.Required(ATTR_EXERCISE): cv.string,
+        vol.Optional(ATTR_SETS, default=1): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+        vol.Optional(ATTR_REPS): _REPS,
+        vol.Optional(ATTR_WEIGHT): _SET_WEIGHT,
+        vol.Optional(ATTR_DURATION): cv.positive_time_period,
+        vol.Optional(ATTR_DISTANCE): vol.All(vol.Coerce(float), vol.Range(min=0, max=1000)),
+        vol.Optional(ATTR_CALORIES): vol.All(vol.Coerce(int), vol.Range(min=0, max=10000)),
+        vol.Optional(ATTR_SET_LIST): vol.All(
+            cv.ensure_list,
+            [
+                vol.Schema(
+                    {
+                        vol.Optional(ATTR_REPS): _REPS,
+                        vol.Optional(ATTR_WEIGHT): _SET_WEIGHT,
+                        vol.Optional(ATTR_DURATION): cv.positive_time_period,
+                    }
+                )
+            ],
+        ),
+    }
+)
+
 
 def _get_coordinator(hass: HomeAssistant, call: ServiceCall):
     coordinators: dict[str, Any] = hass.data.get(DOMAIN, {})
@@ -87,8 +132,8 @@ def _get_coordinator(hass: HomeAssistant, call: ServiceCall):
     )
 
 
-def _measured_at(call: ServiceCall):
-    measured_at = call.data.get(ATTR_MEASURED_AT) or dt_util.now()
+def _measured_at(call: ServiceCall, attr: str = ATTR_MEASURED_AT):
+    measured_at = call.data.get(attr) or dt_util.now()
     if measured_at.tzinfo is None:
         measured_at = measured_at.replace(tzinfo=dt_util.get_default_time_zone())
     if measured_at > dt_util.now():
@@ -227,5 +272,73 @@ def async_setup_services(hass: HomeAssistant) -> None:
             ) from err
         await coordinator.async_request_refresh()
 
+    async def _add_workout(call: ServiceCall) -> ServiceResponse:
+        coordinator = _get_coordinator(hass, call)
+        completed_at = _measured_at(call, ATTR_COMPLETED_AT)
+        try:
+            library = await coordinator.client.get_exercise_library()
+        except SelectionFitnessApiError as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="send_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
+
+        def _set(data: dict[str, Any]) -> dict[str, Any]:
+            duration = data.get(ATTR_DURATION)
+            return {
+                "reps": data.get(ATTR_REPS),
+                "weight": data.get(ATTR_WEIGHT),
+                "duration": int(duration.total_seconds()) if duration else 0,
+            }
+
+        if ATTR_SET_LIST in call.data:
+            sets = [_set(s) for s in call.data[ATTR_SET_LIST]]
+        elif ATTR_REPS in call.data or ATTR_DURATION in call.data:
+            sets = [_set(call.data)] * call.data[ATTR_SETS]
+        else:
+            sets = []
+        duration = call.data.get(ATTR_DURATION)
+        values = {
+            "duration": int(duration.total_seconds()) if duration else 0,
+            "distance": call.data.get(ATTR_DISTANCE),
+            "calories": call.data.get(ATTR_CALORIES),
+        }
+        try:
+            exercise = find_exercise(library, call.data[ATTR_EXERCISE])
+            attributes = exercise_attributes(exercise, sets, values)
+        except WorkoutError as err:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key=err.args[0],
+                translation_placeholders={"exercise": call.data[ATTR_EXERCISE]},
+            ) from err
+        payload = build_payload(
+            [{"ex": exercise, "attributes": attributes}],
+            completed_at,
+            hass.config.time_zone,
+        )
+        try:
+            workout_code = await coordinator.client.submit_workout(payload)
+        except SelectionFitnessApiError as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="send_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
+        await coordinator.async_request_refresh()
+        return {
+            "workout_code": workout_code,
+            "exercise": exercise.get("label"),
+            "exercise_code": exercise.get("code"),
+        }
+
     hass.services.async_register(DOMAIN, SERVICE_ADD_BODY, _add_body, schema=BODY_SCHEMA)
     hass.services.async_register(DOMAIN, SERVICE_ADD_CARDIO, _add_cardio, schema=CARDIO_SCHEMA)
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_ADD_WORKOUT,
+        _add_workout,
+        schema=WORKOUT_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )

@@ -42,6 +42,9 @@ mechanisms are bypassed.
 - **Write measurements back**: send weight, body fat, resting heart rate, blood
   pressure and VO2max to the account via services – with the real measurement
   time, e.g. from a scale in Home Assistant
+- **Log workouts** like in the app: strength exercises with sets, reps and
+  weight, cardio and classes with duration and distance – via a dialog on the
+  integration page or the `add_workout` service
 - **Translated UI** in 18 languages (see below)
 
 Only sensors for which your account actually provides data are created.
@@ -198,6 +201,50 @@ actions:
 
 ---
 
+## Logging workouts
+
+Like in the app, you can log workouts you did without an eGym machine – free
+weights, bodyweight exercises, cardio, classes. They show up in the app with the
+source "Manually Added"; **calories and activity points are calculated by
+eGym**. Unlike measurements, these entries **can be deleted** in the app.
+
+### In the UI
+
+**Settings → Devices & services → Selection Fitness → Log workout**
+(the button next to the account entry):
+
+1. Pick the exercise from the eGym catalog (about 2000 exercises; recently
+   trained ones are at the top, type to search) and the time.
+2. Enter the values. The form matches the exercise: sets × repetitions ×
+   weight for strength exercises (or a duration per set for hold exercises),
+   duration, distance and calories for cardio and classes.
+3. Add sets with different values or further exercises, then save.
+
+### Service
+
+`selection_fitness.add_workout` logs one exercise:
+
+| Field | Meaning |
+|---|---|
+| `exercise` | Exact name from the eGym catalog or the exercise code, e.g. `Crosstrainer` or `1460` |
+| `completed_at` | Time of the workout (default: now) |
+| `sets`, `reps`, `weight` | Identical sets (`weight` in kg) |
+| `set_list` | Sets with different values, e.g. `[{"reps": 10, "weight": 40}, {"reps": 8, "weight": 45}]` |
+| `duration` | Per set for hold exercises, total duration for cardio and classes |
+| `distance`, `calories` | Cardio and classes (km, kcal; calories optional) |
+
+The service returns the `workout_code` as response data.
+
+```yaml
+action: selection_fitness.add_workout
+data:
+  exercise: Crosstrainer
+  duration: "00:30:00"
+  distance: 5.2
+```
+
+---
+
 ## Languages
 
 The UI (setup, options, entity and device names, units, services and error
@@ -281,8 +328,8 @@ App date format: `yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ` (numeric offset).
 
 ## Notes
 
-- Read-only except for the services above – data is only written when you call
-  a service.
+- Read-only except for the services and the workout dialog above – data is
+  only written when you call a service or save a workout.
 - Session cookies expire on the server; the integration signs in again
   automatically on `401`.
 - Intended for your own account only.

@@ -21,6 +21,62 @@
       "already_configured": "Ce compte est déjà configuré."
     }
   },
+  "config_subentries": {
+    "workout": {
+      "initiate_flow": {
+        "user": "Enregistrer un entraînement"
+      },
+      "entry_type": "Entraînement",
+      "step": {
+        "user": {
+          "title": "Enregistrer un entraînement",
+          "description": "Choisissez un exercice – les plus récents sont en haut, tapez pour rechercher.\n\nDéjà ajouté :\n{summary}",
+          "data": {
+            "exercise": "Exercice",
+            "completed_at": "Heure"
+          }
+        },
+        "details": {
+          "title": "{exercise}",
+          "description": "Valeurs par série. Les séries avec d'autres valeurs peuvent être ajoutées à l'étape suivante.",
+          "data": {
+            "sets": "Séries",
+            "reps": "Répétitions par série",
+            "weight": "Poids par série",
+            "duration": "Durée",
+            "distance": "Distance",
+            "calories": "Calories"
+          },
+          "data_description": {
+            "duration": "Par série pour les exercices de maintien, durée totale pour le cardio et les cours.",
+            "calories": "Facultatif – sinon calculé par eGym."
+          }
+        },
+        "next": {
+          "title": "Entraînement",
+          "description": "{summary}",
+          "menu_options": {
+            "add_sets": "Ajouter des séries avec d'autres valeurs",
+            "add_exercise": "Ajouter un autre exercice",
+            "save": "Enregistrer l'entraînement"
+          }
+        }
+      },
+      "error": {
+        "unknown_exercise": "Exercice introuvable – veuillez en choisir un dans la liste.",
+        "invalid_time": "Heure non valide.",
+        "in_future": "L'heure ne peut pas être dans le futur.",
+        "reps_or_duration_required": "Indiquez des répétitions ou une durée.",
+        "duration_required": "Indiquez une durée."
+      },
+      "abort": {
+        "saved": "Entraînement enregistré :\n{summary}",
+        "send_failed": "Impossible d'enregistrer l'entraînement : {error}",
+        "cannot_connect": "Impossible de charger le catalogue d'exercices.",
+        "not_loaded": "L'entrée Selection Fitness n'est pas chargée."
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "weight": {
@@ -326,6 +382,52 @@
           "description": "Consommation maximale d'oxygène en ml/kg/min."
         }
       }
+    },
+    "add_workout": {
+      "name": "Enregistrer un entraînement",
+      "description": "Enregistre un entraînement manuel avec un exercice, comme dans l'application. eGym calcule les calories et les points d'activité. Les entrées peuvent être supprimées dans l'application.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Compte",
+          "description": "Uniquement nécessaire si plusieurs comptes sont configurés."
+        },
+        "completed_at": {
+          "name": "Effectué le",
+          "description": "Heure de l'entraînement (par défaut : maintenant)."
+        },
+        "exercise": {
+          "name": "Exercice",
+          "description": "Nom exact du catalogue eGym ou code de l'exercice, p. ex. \"Crosstrainer\" ou \"1460\"."
+        },
+        "sets": {
+          "name": "Séries",
+          "description": "Nombre de séries identiques (par défaut : 1)."
+        },
+        "reps": {
+          "name": "Répétitions par série",
+          "description": "Répétitions par série."
+        },
+        "weight": {
+          "name": "Poids par série",
+          "description": "Poids par série en kg."
+        },
+        "duration": {
+          "name": "Durée",
+          "description": "Par série pour les exercices de maintien, durée totale pour le cardio et les cours."
+        },
+        "distance": {
+          "name": "Distance",
+          "description": "Distance en km."
+        },
+        "calories": {
+          "name": "Calories",
+          "description": "Facultatif – sinon calculé par eGym."
+        },
+        "set_list": {
+          "name": "Séries individuelles",
+          "description": "Séries avec des valeurs différentes, p. ex. [{\"reps\": 10, \"weight\": 40}, {\"reps\": 8, \"weight\": 45}]. Remplace séries, répétitions et poids."
+        }
+      }
     }
   },
   "selector": {
@@ -380,6 +482,15 @@
     },
     "backdated_sent": {
       "message": "La mesure antidatée du {measured_at} a été envoyée. Le serveur a **écrasé le poids actuel du profil**. Veuillez saisir à nouveau votre poids actuel, p. ex. avec `selection_fitness.add_body_measurement` et l'heure de la mesure la plus récente."
+    },
+    "unknown_exercise": {
+      "message": "L'exercice « {exercise} » est introuvable dans le catalogue eGym. Utilisez le nom exact ou le code de l'exercice."
+    },
+    "reps_or_duration_required": {
+      "message": "Cet exercice nécessite des répétitions ou une durée par série."
+    },
+    "duration_required": {
+      "message": "Cet exercice nécessite une durée."
     }
   }
 }
