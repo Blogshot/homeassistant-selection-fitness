@@ -142,6 +142,14 @@ multiple accounts.
   In addition, **machine values are backfilled** as long-term statistics – the
   weight lifted from the workout history **and** the **strength test history**
   per machine (separate eGym endpoint). History graphs are filled right away.
+- **Machine, strength test and workout count statistics** are *external*
+  statistics with one data point per workout or test, e.g.
+  `selection_fitness:<account>_machine_581_weight`. The sensors themselves
+  have no `state_class`, so Home Assistant does not keep writing the last
+  value every hour. Each of these sensors shows its statistic in the
+  `statistic_id` attribute – use that ID in a **Statistics graph** card
+  (search for the machine name in the card's entity picker). The workout count
+  includes gym and manually logged workouts, not connected apps like FitBit.
 - **Fitness age backfill:** body, muscle, cardio, metabolic and flexibility age
   are imported via the `bioage/history` endpoint back to the first measurement
   (often several years).

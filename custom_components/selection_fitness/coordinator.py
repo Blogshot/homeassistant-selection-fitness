@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -175,6 +176,8 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.client = client
         # Codes, für die die Kraftmess-Historie schon importiert wurde
         self._strength_hist_done: set[str] = set()
+        # Alte, an Entities gebundene Statistiken einmal je Start entfernen
+        self._entity_stats_cleared = False
         # (Anzahl, neuester Zeitpunkt) des zuletzt importierten Workout-Verlaufs
         self._workout_stats_sig: tuple[int, datetime] | None = None
         self._bioage_hist_done = False
@@ -236,6 +239,10 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "trend": {},
                     "strength": s,
                 }
+            try:
+                self._clear_entity_statistics()
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Clearing old entity statistics skipped: %s", err)
             # Historische Werte als Langzeitstatistik importieren (idempotent)
             try:
                 self._import_machine_statistics(machines)
@@ -331,6 +338,45 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if found_any:
             self._body_hist_done = True
 
+    def statistic_id(self, suffix: str) -> str:
+        """ID einer externen Langzeitstatistik dieses Kontos, z. B.
+        "selection_fitness:<uuid>_machine_581_weight".
+
+        Externe Statistiken hängen an keiner Entity: der Recorder schreibt
+        nichts selbst fort (ein Punkt pro Training) und HA meldet kein
+        "state_class entfernt". Die uuid trennt mehrere Konten.
+        """
+        slug = re.sub(r"[^a-z0-9]+", "_", f"{self.client.uuid}_{suffix}".lower())
+        return f"{DOMAIN}:{slug.strip('_')}"
+
+    def _statistic_name(self, unique_id: str, fallback: str) -> str:
+        """Anzeigename der Statistik = aktueller Name der zugehörigen Entity."""
+        entity_id = er.async_get(self.hass).async_get_entity_id("sensor", DOMAIN, unique_id)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        return state.name if state else fallback
+
+    def _clear_entity_statistics(self) -> None:
+        """Entfernt die bis 1.8.1 an Entities gebundenen Statistiken der
+        Geräte-, Kraftmess- und Workout-Sensoren. Diese Sensoren haben kein
+        state_class, HA meldete dafür je eine Warnung; die Daten werden als
+        externe Statistik neu importiert."""
+        if self._entity_stats_cleared:
+            return
+        from homeassistant.components.recorder import get_instance
+
+        uuid = self.client.uuid
+        entity_ids = [
+            e.entity_id
+            for e in er.async_entries_for_config_entry(
+                er.async_get(self.hass), self.entry.entry_id
+            )
+            if e.unique_id.startswith((f"{uuid}_machine_", f"{uuid}_strength_"))
+            or e.unique_id == f"{uuid}_workout_count"
+        ]
+        if entity_ids:
+            get_instance(self.hass).async_clear_statistics(entity_ids)
+        self._entity_stats_cleared = True
+
     def _import_machine_statistics(self, machines: dict[str, Any]) -> None:
         """Importiert die historische Haupt-Metrik je Gerät als Langzeit-
         statistik. Idempotent: pro (statistic_id, Stunde) ein Bucket, erneuter
@@ -338,7 +384,7 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """
         # Verzögerter Import, damit die Integration ohne Recorder nicht bricht
         from homeassistant.components.recorder.statistics import (
-            async_import_statistics,
+            async_add_external_statistics,
         )
 
         metric = self.entry.options.get(CONF_PRIMARY_METRIC, DEFAULT_PRIMARY_METRIC)
@@ -346,15 +392,8 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             metric = DEFAULT_PRIMARY_METRIC
         field, unit, _dc, _icon = MACHINE_METRICS[metric]
 
-        ent_reg = er.async_get(self.hass)
         for code, m in (machines or {}).items():
-            # An die Entity gebundene Statistik; da der Sensor KEIN state_class
-            # mehr hat, erzeugt der Recorder keine stündliche Dauer-Statistik.
-            # Importiert werden nur die echten Trainings (ein Punkt pro Training).
-            unique_id = f"{self.client.uuid}_machine_{code}"
-            entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
-            if not entity_id:
-                continue  # Entity existiert noch nicht -> nächster Zyklus
+            # Externe Statistik je Gerät und Metrik: nur echte Trainings
             # Werte je Stundenbucket (max, falls mehrere pro Stunde)
             buckets: dict[datetime, float] = {}
             for s in m.get("sessions") or []:
@@ -374,8 +413,16 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = _stat_metadata(entity_id, unit, mean=True)
-            async_import_statistics(self.hass, metadata, stats)
+            metadata = _stat_metadata(
+                self.statistic_id(f"machine_{code}_{field}"),
+                unit,
+                mean=True,
+                source=DOMAIN,
+                name=self._statistic_name(
+                    f"{self.client.uuid}_machine_{code}", m.get("name") or code
+                ),
+            )
+            async_add_external_statistics(self.hass, metadata, stats)
 
     def _import_workout_statistics(self, workouts: list[dict[str, Any]]) -> None:
         """Legt die Workout-Gesamtzahl als kumulativen Verlauf an (1, 2, … N zu
@@ -391,14 +438,10 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """
         from homeassistant.components.recorder import get_instance
         from homeassistant.components.recorder.statistics import (
-            async_import_statistics,
+            async_add_external_statistics,
         )
 
-        ent_reg = er.async_get(self.hass)
-        unique_id = f"{self.client.uuid}_workout_count"
-        entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
-        if not entity_id:
-            return  # Entity noch nicht da -> nächster Zyklus
+        statistic_id = self.statistic_id("workout_count")
         dated: list[datetime] = []
         for w in counted_workouts(workouts):
             ca = w.get("completedAt") or w.get("createdAt")
@@ -423,10 +466,16 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             {"start": b, "state": float(v), "sum": float(v)}
             for b, v in sorted(buckets.items())
         ]
-        metadata = _stat_metadata(entity_id, None, mean=False)
+        metadata = _stat_metadata(
+            statistic_id,
+            None,
+            mean=False,
+            source=DOMAIN,
+            name=self._statistic_name(f"{self.client.uuid}_workout_count", "Workouts"),
+        )
         # Beide Aufgaben laufen in dieser Reihenfolge in der Recorder-Queue
-        get_instance(self.hass).async_clear_statistics([entity_id])
-        async_import_statistics(self.hass, metadata, stats)
+        get_instance(self.hass).async_clear_statistics([statistic_id])
+        async_add_external_statistics(self.hass, metadata, stats)
         self._workout_stats_sig = signature
 
     async def _import_bioage_statistics(self) -> None:
@@ -481,21 +530,14 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         Einmal je Gerät (sobald dessen Strength-Entity existiert); idempotent.
         """
         from homeassistant.components.recorder.statistics import (
-            async_import_statistics,
+            async_add_external_statistics,
         )
 
-        ent_reg = er.async_get(self.hass)
         for code, m in (machines or {}).items():
             strength = m.get("strength") or {}
             ex_id = strength.get("strength_code")
             if not ex_id or code in self._strength_hist_done:
                 continue
-            # An die Entity gebundene Statistik ohne state_class -> nur echte
-            # Kraftmessungen, keine stündliche Dauer-Erfassung.
-            unique_id = f"{self.client.uuid}_strength_{code}"
-            entity_id = ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id)
-            if not entity_id:
-                continue  # Entity noch nicht da -> nächster Zyklus
             points = await self.client.get_strength_history(str(ex_id))
             if not points:
                 self._strength_hist_done.add(code)
@@ -508,6 +550,14 @@ class SelectionFitnessCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"start": b, "mean": v, "min": v, "max": v}
                 for b, v in sorted(buckets.items())
             ]
-            metadata = _stat_metadata(entity_id, "pts", mean=True)
-            async_import_statistics(self.hass, metadata, stats)
+            metadata = _stat_metadata(
+                self.statistic_id(f"strength_{code}"),
+                "pts",
+                mean=True,
+                source=DOMAIN,
+                name=self._statistic_name(
+                    f"{self.client.uuid}_strength_{code}", m.get("name") or code
+                ),
+            )
+            async_add_external_statistics(self.hass, metadata, stats)
             self._strength_hist_done.add(code)

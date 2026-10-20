@@ -3,6 +3,24 @@
 All notable changes to this integration. Versions match the `version` field in
 `custom_components/selection_fitness/manifest.json`.
 
+## [1.8.2] – 2026-10-20
+
+### Fixed
+- Home Assistant reported for every machine, strength test and the workout
+  count sensor that statistics exist although the entity "no longer has a
+  state class". Their long-term statistics are now external statistics
+  (`selection_fitness:<account>_…`, one point per workout or test) instead of
+  statistics bound to the entity. The old entity statistics are removed on
+  start and the history is imported again from eGym.
+
+### Added
+- `statistic_id` attribute on machine, strength test and workout count
+  sensors, to use in statistics graph cards.
+
+### Upgrade note
+- Statistics graph cards that show these sensors need the new statistic IDs
+  (see the `statistic_id` attribute). Cards with other sensors are unchanged.
+
 ## [1.8.1] – 2026-10-19
 
 ### Fixed

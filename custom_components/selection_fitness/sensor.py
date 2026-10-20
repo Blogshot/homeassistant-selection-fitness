@@ -538,6 +538,8 @@ class SelectionFitnessStrengthSensor(
             "measured_at": s.get("created_at"),
             "body_region": s.get("body_region"),
             "exercise_code": s.get("strength_code"),
+            # Langzeitstatistik (Historie) für Statistik-Karten
+            "statistic_id": self.coordinator.statistic_id(f"strength_{self._code}"),
         }
 
 
@@ -618,6 +620,10 @@ class SelectionFitnessMachineSensor(
             "source": m.get("source"),
             "exercise_code": self._code,
             "entity_picture": m.get("image"),
+            # Langzeitstatistik (Historie) für Statistik-Karten
+            "statistic_id": self.coordinator.statistic_id(
+                f"machine_{self._code}_{self._field}"
+            ),
         }
 
 
@@ -652,6 +658,9 @@ class SelectionFitnessSensor(
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Zeige Quelle und Messzeitpunkt bei Körpermesswerten."""
         key = self.entity_description.key
+        if key == "workout_count":
+            # Langzeitstatistik (ein Punkt pro Training) für Statistik-Karten
+            return {"statistic_id": self.coordinator.statistic_id("workout_count")}
         measurements = (self.coordinator.data or {}).get("measurements", {})
         body_metric = self.entity_description.body_metric
         if body_metric:
